@@ -10,7 +10,8 @@
     "promoSubLabel": "限購1件!",
     "isNew": true,
     "imgs": [
-      "https://raw.githubusercontent.com/d5714b5730/E-Shop-Cart-System-data/main/images/1775804573902_photo_2026-04-06_17-19-52.jpg"
+      "/api/images/images/1775804573902_photo_2026-04-06_17-19-52.jpg",
+      "/api/images/images/1775812563573_1.png"
     ],
     "specs": [
       "S",
