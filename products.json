@@ -1,0 +1,73 @@
+[
+  {
+    "id": 1,
+    "name": "簡約純棉T恤",
+    "sn": "SP001",
+    "price": 89,
+    "category": "服裝",
+    "description": "採用 100% 精梳棉，親膚透氣，經典版型百搭舒適。",
+    "promoLabel": "限時直降15元",
+    "promoSubLabel": "限購1件!",
+    "isNew": true,
+    "imgs": [
+      "https://picsum.photos/seed/t1/600/1067",
+      "https://picsum.photos/seed/t2/600/1067",
+      "https://picsum.photos/seed/t3/600/1067"
+    ],
+    "specs": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th>\n            <th class=\"py-2\">胸圍</th>\n            <th class=\"py-2\">衣長</th>\n          </tr>\n        </thead>\n        <tbody>\n          <tr class=\"border-b border-white/5\">\n            <td class=\"py-2\">S</td>\n            <td class=\"py-2\">100cm</td>\n            <td class=\"py-2\">68cm</td>\n          </tr>\n          <tr class=\"border-b border-white/5\">\n            <td class=\"py-2\">M</td>\n            <td class=\"py-2\">104cm</td>\n            <td class=\"py-2\">70cm</td>\n          </tr>\n          <tr>\n            <td class=\"py-2\">L</td>\n            <td class=\"py-2\">108cm</td>\n            <td class=\"py-2\">72cm</td>\n          </tr>\n        </tbody>\n      </table>\n    "
+  },
+  {
+    "id": 2,
+    "name": "無線藍牙耳機",
+    "sn": "SP002",
+    "price": 199,
+    "category": "數碼",
+    "description": "主動降噪技術，長達 30 小時續航，享受純淨音質。",
+    "isHot": true,
+    "promoLabel": "限時直降50元",
+    "promoSubLabel": "限購1件!",
+    "imgs": [
+      "https://picsum.photos/seed/d1/600/1067",
+      "https://picsum.photos/seed/d2/600/1067"
+    ],
+    "specs": [
+      "黑色",
+      "白色",
+      "午夜藍"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "北歐風簡約檯燈",
+    "sn": "SP003",
+    "price": 129,
+    "category": "家居",
+    "description": "三段調光設計，柔和護眼光線，簡約設計裝點空間。",
+    "promoLabel": "限時特惠",
+    "promoSubLabel": "限量50台",
+    "imgs": [
+      "https://picsum.photos/seed/h1/600/1067",
+      "https://picsum.photos/seed/h2/600/1067"
+    ]
+  },
+  {
+    "id": 4,
+    "name": "保濕修護面霜",
+    "sn": "SP004",
+    "price": 259,
+    "category": "美妝",
+    "description": "深層滋潤配方，修復肌膚屏障，鎖水保濕長效呵護。",
+    "isHot": true,
+    "promoLabel": "限時直降30元",
+    "promoSubLabel": "限購2件",
+    "imgs": [
+      "https://picsum.photos/seed/b1/600/1067"
+    ]
+  }
+]
