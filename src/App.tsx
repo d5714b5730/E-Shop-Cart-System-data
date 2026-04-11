@@ -173,7 +173,7 @@ function ProductCard({ product, addToCart }: any): React.JSX.Element {
       animate={{ opacity: 1, y: 0 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group relative aspect-[9/16] bg-white rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-700 overflow-hidden border border-gray-100"
+      className="group relative h-full sm:h-auto sm:aspect-[9/16] bg-white rounded-none sm:rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-700 overflow-hidden border-0 sm:border border-gray-100"
     >
       {/* Image Gallery Section - Background */}
       <div className="absolute inset-0 z-0">
@@ -357,6 +357,7 @@ export default function App() {
   const [specModalProduct, setSpecModalProduct] = useState<Product | null>(null);
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
   const [igAccount, setIgAccount] = useState('');
+  const [editingCartKey, setEditingCartKey] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
   
@@ -564,7 +565,6 @@ export default function App() {
       showToast('正在生成圖片...', 'info');
       const canvas = await html2canvas(orderCardRef.current, {
         useCORS: true,
-        allowTaint: true,
         backgroundColor: '#ffffff',
         scale: 2,
         logging: false,
@@ -590,9 +590,9 @@ export default function App() {
   const cartCount = cart.reduce((sum, item) => sum + item.num, 0);
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-gray-900 font-sans">
+    <div className="h-[100dvh] sm:min-h-screen sm:h-auto overflow-hidden sm:overflow-visible bg-[#FDFDFD] text-gray-900 font-sans flex flex-col">
       {/* Navbar */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-gray-100/50">
+      <header className="shrink-0 sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-gray-100/50">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
             {siteSettings.logoUrl ? (
@@ -653,9 +653,9 @@ export default function App() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="flex-1 container mx-auto px-0 sm:px-4 py-0 sm:py-6 overflow-y-auto sm:overflow-visible snap-y snap-mandatory sm:snap-none">
         {/* Categories */}
-        <div className="flex gap-3 mb-6 overflow-x-auto scrollbar-hide pb-2 items-center">
+        <div className="snap-start sm:snap-none flex gap-3 mb-0 sm:mb-6 overflow-x-auto scrollbar-hide pb-4 sm:pb-2 items-center px-4 sm:px-0 pt-4 sm:pt-0 shrink-0">
           <button
             onClick={() => setActiveCategory('全部')}
             className={cn(
@@ -703,9 +703,11 @@ export default function App() {
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8">
+        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-0 sm:gap-8">
           {filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} addToCart={addToCart} />
+            <div key={product.id} className="snap-start sm:snap-none snap-always h-[calc(100dvh-72px)] sm:h-auto flex-shrink-0">
+              <ProductCard product={product} addToCart={addToCart} />
+            </div>
           ))}
         </div>
       </main>
@@ -716,111 +718,134 @@ export default function App() {
         {isCartOpen && (
           <Modal onClose={() => setIsCartOpen(false)}>
             <div className="flex flex-col flex-1 min-h-0 bg-white">
-              <div className="p-8 border-b border-gray-50 flex justify-between items-center shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center">
-                    <ShoppingCart className="text-white" size={20} />
+              <div className="p-4 border-b border-gray-50 flex justify-between items-center shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <ShoppingCart className="text-white" size={16} />
                   </div>
-                  <h2 className="text-2xl font-black tracking-tighter">購物車</h2>
+                  <h2 className="text-xl font-black tracking-tighter">購物車</h2>
                 </div>
                 <button 
                   onClick={() => setIsCartOpen(false)}
-                  className="p-2.5 hover:bg-gray-50 rounded-xl transition-all text-gray-400 hover:text-gray-900"
+                  className="p-2 hover:bg-gray-50 rounded-lg transition-all text-gray-400 hover:text-gray-900"
                 >
-                  <X size={24} />
+                  <X size={20} />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-hide">
+              <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-hide">
                 {cart.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-gray-300 space-y-6">
-                    <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center">
-                      <ShoppingCart size={40} strokeWidth={1.5} />
+                  <div className="h-full flex flex-col items-center justify-center text-gray-300 space-y-4 py-12">
+                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
+                      <ShoppingCart size={32} strokeWidth={1.5} />
                     </div>
-                    <p className="font-bold tracking-wide">您的購物車空空如也</p>
+                    <p className="font-bold tracking-wide text-sm">您的購物車空空如也</p>
                     <button 
                       onClick={() => setIsCartOpen(false)}
-                      className="px-8 py-3 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-red-500 transition-all shadow-xl shadow-gray-100"
+                      className="px-6 py-2.5 bg-gray-900 text-white rounded-xl font-bold text-xs hover:bg-red-500 transition-all shadow-lg shadow-gray-100"
                     >
                       開始購物
                     </button>
                   </div>
                 ) : (
-                  cart.map((item, idx) => (
-                    <div key={`${item.id}-${item.selectedSpec || idx}`} className="flex gap-6 p-5 bg-white border border-gray-100 rounded-3xl group hover:shadow-xl hover:shadow-gray-100 transition-all duration-500">
-                      <div className="relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden">
-                        <img 
-                          src={item.imgs[0]} 
-                          alt="" 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                        <div>
-                          <h4 className="font-black text-gray-900 truncate tracking-tight">{item.name}</h4>
-                          {item.selectedSpec && (
-                            <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded mt-1 inline-block">
-                              規格: {item.selectedSpec}
-                            </span>
-                          )}
+                  cart.map((item, idx) => {
+                    const itemKey = `${item.id}-${item.selectedSpec || idx}`;
+                    const isEditing = editingCartKey === itemKey;
+                    
+                    return (
+                      <div key={itemKey} className="flex gap-3 p-3 bg-white border border-gray-100 rounded-2xl group hover:shadow-md transition-all duration-300">
+                        <div className="relative w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden">
+                          <img 
+                            src={item.imgs[0]} 
+                            alt="" 
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            referrerPolicy="no-referrer"
+                          />
                         </div>
-                        <div className="flex items-center justify-between mt-4">
-                          <span className="font-black text-lg text-red-500">¥{Math.floor(item.price)}</span>
-                          <div className="flex items-center gap-4 bg-gray-50 p-1.5 rounded-xl border border-gray-100">
-                            <button 
-                              onClick={() => updateCartNum(item.id, -1)}
-                              className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white rounded-lg transition-all font-bold"
-                            >
-                              -
-                            </button>
-                            <motion.span 
-                              key={item.num}
-                              initial={{ scale: 0.8, opacity: 0.5 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                              className="font-black text-sm w-4 text-center text-gray-900"
-                            >
-                              {item.num}
-                            </motion.span>
-                            <button 
-                              onClick={() => updateCartNum(item.id, 1)}
-                              className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white rounded-lg transition-all font-bold"
-                            >
-                              +
-                            </button>
+                        <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-sm leading-tight">{item.name}</h4>
+                            {item.selectedSpec && (
+                              <span className="text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded mt-1 inline-block">
+                                規格: {item.selectedSpec}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between mt-2">
+                            <div className="flex items-baseline gap-0.5">
+                              <span className="text-[10px] font-black text-red-500">¥</span>
+                              <span className="font-black text-base text-red-500">{Math.floor(item.price)}</span>
+                            </div>
+                            
+                            {isEditing ? (
+                              <div className="flex items-center gap-3 bg-gray-50 p-1 rounded-lg border border-gray-100">
+                                <button 
+                                  onClick={() => updateCartNum(item.id, -1)}
+                                  className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white rounded transition-all font-bold text-sm"
+                                >
+                                  -
+                                </button>
+                                <motion.span 
+                                  key={item.num}
+                                  initial={{ scale: 0.8, opacity: 0.5 }}
+                                  animate={{ scale: 1, opacity: 1 }}
+                                  className="font-black text-xs w-3 text-center text-gray-900"
+                                >
+                                  {item.num}
+                                </motion.span>
+                                <button 
+                                  onClick={() => updateCartNum(item.id, 1)}
+                                  className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white rounded transition-all font-bold text-sm"
+                                >
+                                  +
+                                </button>
+                                <button 
+                                  onClick={() => setEditingCartKey(null)}
+                                  className="ml-1 text-[10px] font-bold text-blue-500 hover:text-blue-600"
+                                >
+                                  完成
+                                </button>
+                              </div>
+                            ) : (
+                              <button 
+                                onClick={() => setEditingCartKey(itemKey)}
+                                className="text-xs font-black text-gray-400 hover:text-gray-900 transition-colors bg-gray-50 px-2 py-1 rounded-lg"
+                              >
+                                x{item.num}
+                              </button>
+                            )}
                           </div>
                         </div>
+                        <button 
+                          onClick={() => removeFromCart(item.id)}
+                          className="p-1 text-gray-200 hover:text-red-500 transition-colors self-start"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
-                      <button 
-                        onClick={() => removeFromCart(item.id)}
-                        className="p-2 text-gray-200 hover:text-red-500 transition-colors self-start"
-                      >
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
-              <div className="p-8 border-t border-gray-50 bg-white shrink-0">
-                <div className="space-y-4 mb-8">
-                  <div className="flex justify-between items-center text-sm">
+              <div className="p-4 border-t border-gray-50 bg-white shrink-0">
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between items-center text-xs">
                     <span className="text-gray-500 font-bold">商品小計</span>
                     <span className="font-black text-gray-900">¥{Math.floor(cartTotal)}</span>
                   </div>
                   
-                  <div className="flex justify-between items-center text-sm">
+                  <div className="flex justify-between items-center text-xs">
                     <span className="text-gray-500 font-bold">運費</span>
                     {siteSettings.freeShippingThreshold && cartTotal >= siteSettings.freeShippingThreshold ? (
-                      <span className="font-black text-red-500">0元</span>
+                      <span className="font-black text-red-500 text-xs">0元</span>
                     ) : (
-                      <span className="font-black text-gray-900">¥{siteSettings.shippingFee || 0}</span>
+                      <span className="font-black text-gray-900 text-xs">¥{siteSettings.shippingFee || 0}</span>
                     )}
                   </div>
 
                   {siteSettings.freeShippingThreshold && cartTotal < siteSettings.freeShippingThreshold && (
-                    <div className="bg-blue-50 p-3 rounded-xl flex items-center gap-2">
-                      <Zap size={14} className="text-blue-500" />
-                      <p className="text-[11px] font-bold text-blue-600">
+                    <div className="bg-blue-50 p-2 rounded-lg flex items-center gap-2">
+                      <Zap size={12} className="text-blue-500" />
+                      <p className="text-[10px] font-bold text-blue-600">
                         再買 ¥{Math.floor(siteSettings.freeShippingThreshold - cartTotal)} 元即可享免運優惠！
                       </p>
                     </div>
@@ -828,18 +853,21 @@ export default function App() {
 
                   <div className="flex justify-between items-end pt-2 border-t border-gray-50">
                     <div className="flex flex-col">
-                      <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">總計 (含運費)</span>
+                      <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest">總計 (含運費)</span>
                     </div>
-                    <span className="text-4xl font-black text-red-500 tracking-tighter">
-                      ¥{Math.floor(cartTotal + (siteSettings.freeShippingThreshold && cartTotal >= siteSettings.freeShippingThreshold ? 0 : (siteSettings.shippingFee || 0)))}
-                    </span>
+                    <div className="flex items-baseline gap-0.5">
+                      <span className="text-sm font-black text-red-500">¥</span>
+                      <span className="text-3xl font-black text-red-500 tracking-tighter">
+                        {Math.floor(cartTotal + (siteSettings.freeShippingThreshold && cartTotal >= siteSettings.freeShippingThreshold ? 0 : (siteSettings.shippingFee || 0)))}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 
                 <button 
                   disabled={cart.length === 0}
                   onClick={createOrder}
-                  className="w-full py-5 bg-gray-900 text-white rounded-3xl font-black text-lg shadow-2xl shadow-gray-200 hover:bg-red-500 disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none transition-all duration-500 transform active:scale-[0.98]"
+                  className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-base shadow-xl shadow-gray-200 hover:bg-red-500 disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none transition-all duration-500 transform active:scale-[0.98]"
                 >
                   生成訂單
                 </button>
@@ -868,7 +896,7 @@ export default function App() {
                     {lastOrder.items.map(item => (
                       <div key={item.id} className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                          <img src={item.imgs[0]} alt="" className="w-10 h-10 object-cover rounded" referrerPolicy="no-referrer" />
+                          <img src={item.imgs[0]} alt="" className="w-10 h-10 object-cover rounded" referrerPolicy="no-referrer" crossOrigin="anonymous" />
                           <div>
                             <p className="text-sm font-medium">{item.name}</p>
                             {item.selectedSpec && <p className="text-[10px] text-gray-400">規格: {item.selectedSpec}</p>}
