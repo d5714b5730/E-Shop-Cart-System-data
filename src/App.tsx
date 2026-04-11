@@ -598,40 +598,40 @@ export default function App() {
     <div className="h-[100dvh] sm:min-h-screen sm:h-auto overflow-hidden sm:overflow-visible bg-[#FDFDFD] text-gray-900 font-sans flex flex-col">
       {/* Navbar */}
       <header className="shrink-0 sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-gray-100/50">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
+        <div className="container mx-auto px-4 py-2 flex justify-between items-center">
+          <div className="flex items-center gap-3">
             {siteSettings.logoUrl ? (
-              <img src={siteSettings.logoUrl} alt="Logo" className="w-10 h-10 object-contain rounded-xl shadow-lg shadow-gray-200" referrerPolicy="no-referrer" />
+              <img src={siteSettings.logoUrl} alt="Logo" className="w-8 h-8 object-contain rounded-lg shadow-sm shadow-gray-200" referrerPolicy="no-referrer" />
             ) : (
-              <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-gray-200">
-                <Package className="text-white" size={20} />
+              <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center shrink-0 shadow-sm shadow-gray-200">
+                <Package className="text-white" size={16} />
               </div>
             )}
-            <h1 className="text-xl font-black tracking-tighter text-gray-900">
+            <h1 className="text-lg font-black tracking-tighter text-gray-900">
               {siteSettings.title}
             </h1>
           </div>
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-2 items-center">
             <button 
               onClick={() => setIsAdminLoginOpen(true)}
-              className="p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
+              className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
               title="Admin Management"
             >
-              <Settings size={20} />
+              <Settings size={18} />
             </button>
             <button 
               onClick={() => setIsCartOpen(true)}
-              className="relative flex items-center gap-3 px-6 py-2.5 bg-gray-900 text-white rounded-2xl hover:bg-red-500 transition-all shadow-xl shadow-gray-200 hover:shadow-red-100 group"
+              className="relative flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-red-500 transition-all shadow-md shadow-gray-200 hover:shadow-red-100 group"
             >
-              <ShoppingCart size={18} className="group-hover:scale-110 transition-transform" />
-              <span className="font-bold text-sm">購物車</span>
+              <ShoppingCart size={16} className="group-hover:scale-110 transition-transform" />
+              <span className="font-bold text-xs">購物車</span>
               {cartCount > 0 && (
                 <motion.span 
                   key={cartCount}
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-lg"
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm"
                 >
                   {cartCount}
                 </motion.span>
@@ -642,11 +642,11 @@ export default function App() {
 
         {/* Announcement Banner */}
         <div className="bg-red-50/50 border-t border-red-100/50">
-          <div className="container mx-auto px-6 py-2.5 flex items-center gap-3">
-            <div className="shrink-0 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-              <Zap size={12} className="text-white fill-white" />
+          <div className="container mx-auto px-4 py-1.5 flex items-center gap-2">
+            <div className="shrink-0 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+              <Zap size={10} className="text-white fill-white" />
             </div>
-            <div className="flex flex-col sm:flex-row sm:gap-4 text-[10px] sm:text-xs text-red-600 font-bold leading-tight">
+            <div className="flex flex-col sm:flex-row sm:gap-4 text-[9px] sm:text-[10px] text-red-600 font-bold leading-tight">
               {siteSettings.subtitle.map((line, idx) => (
                 <p key={idx} className="flex items-center gap-1">
                   <span className="w-1 h-1 bg-red-400 rounded-full" />
@@ -658,15 +658,15 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-0 sm:px-4 py-0 sm:py-6 overflow-y-auto sm:overflow-visible snap-y snap-mandatory sm:snap-none">
+      <main className="flex-1 container mx-auto px-0 sm:px-4 py-0 sm:py-6 overflow-y-auto sm:overflow-visible snap-y snap-mandatory sm:snap-none flex flex-col">
         {/* Categories */}
-        <div className="snap-start sm:snap-none flex gap-3 mb-0 sm:mb-6 overflow-x-auto scrollbar-hide pb-4 sm:pb-2 items-center px-4 sm:px-0 pt-4 sm:pt-0 shrink-0">
+        <div className="snap-start sm:snap-none flex gap-3 mb-0 sm:mb-6 overflow-x-auto scrollbar-hide pb-3 sm:pb-2 items-center px-4 sm:px-0 pt-3 sm:pt-0 shrink-0 bg-white sm:bg-transparent border-b border-gray-100 sm:border-none sticky top-0 z-40 sm:static">
           <button
             onClick={() => setActiveCategory('全部')}
             className={cn(
-              "px-6 py-2.5 rounded-xl whitespace-nowrap transition-all text-sm font-bold tracking-wide border-2",
+              "px-5 py-2 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2",
               activeCategory === '全部' 
-                ? "bg-gray-900 text-white border-gray-900 shadow-lg shadow-gray-200 scale-105" 
+                ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
                 : "bg-white text-gray-400 border-gray-100 hover:border-gray-200 hover:text-gray-600"
             )}
           >
@@ -675,9 +675,9 @@ export default function App() {
           <button
             onClick={() => setActiveCategory('新品')}
             className={cn(
-              "px-6 py-2.5 rounded-xl whitespace-nowrap transition-all text-sm font-bold tracking-wide border-2",
+              "px-5 py-2 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2",
               activeCategory === '新品' 
-                ? "bg-gray-900 text-white border-gray-900 shadow-lg shadow-gray-200 scale-105" 
+                ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
                 : "bg-white text-gray-400 border-gray-100 hover:border-gray-200 hover:text-gray-600"
             )}
           >
@@ -689,9 +689,9 @@ export default function App() {
               value={activeCategory !== '全部' && activeCategory !== '新品' ? activeCategory : ''}
               onChange={(e) => setActiveCategory(e.target.value)}
               className={cn(
-                "appearance-none px-6 py-2.5 pr-10 rounded-xl whitespace-nowrap transition-all text-sm font-bold tracking-wide border-2 outline-none cursor-pointer",
+                "appearance-none px-5 py-2 pr-8 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2 outline-none cursor-pointer",
                 activeCategory !== '全部' && activeCategory !== '新品'
-                  ? "bg-gray-900 text-white border-gray-900 shadow-lg shadow-gray-200 scale-105" 
+                  ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
                   : "bg-white text-gray-400 border-gray-100 hover:border-gray-200 hover:text-gray-600"
               )}
             >
@@ -700,17 +700,17 @@ export default function App() {
                 <option key={cat} value={cat} className="text-gray-900 bg-white">{cat}</option>
               ))}
             </select>
-            <ChevronDown size={16} className={cn(
-              "absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none",
+            <ChevronDown size={14} className={cn(
+              "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none",
               activeCategory !== '全部' && activeCategory !== '新品' ? "text-white" : "text-gray-400"
             )} />
           </div>
         </div>
 
         {/* Product Grid */}
-        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-0 sm:gap-8">
+        <div className="flex-1 flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-0 sm:gap-8">
           {filteredProducts.map(product => (
-            <div key={product.id} className="snap-start sm:snap-none snap-always h-[calc(100dvh-72px)] sm:h-auto flex-shrink-0">
+            <div key={product.id} className="snap-start sm:snap-none snap-always h-full sm:h-auto flex-shrink-0">
               <ProductCard product={product} addToCart={addToCart} />
             </div>
           ))}
