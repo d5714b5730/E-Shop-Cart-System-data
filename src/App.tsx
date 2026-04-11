@@ -25,7 +25,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import html2canvas from 'html2canvas';
+import * as htmlToImage from 'html-to-image';
 import { cn } from './lib/utils';
 import { Product, CartItem, Order, SiteSettings } from './types';
 
@@ -173,7 +173,7 @@ function ProductCard({ product, addToCart }: any): React.JSX.Element {
       animate={{ opacity: 1, y: 0 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group relative h-full sm:h-auto sm:aspect-[9/16] bg-white rounded-none sm:rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-700 overflow-hidden border-0 sm:border border-gray-100"
+      className="group relative h-full sm:h-auto sm:aspect-[9/16] bg-black rounded-none sm:rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-700 overflow-hidden border-0 sm:border border-gray-100"
     >
       {/* Image Gallery Section - Background */}
       <div className="absolute inset-0 z-0">
@@ -192,7 +192,7 @@ function ProductCard({ product, addToCart }: any): React.JSX.Element {
               <img 
                 src={img} 
                 alt="" 
-                className="w-full h-full object-cover pointer-events-none transition-transform duration-1000 group-hover:scale-110"
+                className="w-full h-full object-contain pointer-events-none"
                 referrerPolicy="no-referrer"
                 draggable="false"
               />
@@ -217,14 +217,14 @@ function ProductCard({ product, addToCart }: any): React.JSX.Element {
       </div>
 
       {/* Bottom Info Section - Overlaid */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 flex flex-col">
-        {/* Gradient Overlay for Readability - Adjusted to be more subtle and cover the text area */}
-        <div className="absolute bottom-0 left-0 right-0 h-[60%] bg-gradient-to-t from-black/90 via-black/40 to-transparent -z-10 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 z-20 flex flex-col pb-4 sm:pb-6">
+        {/* Gradient Overlay for Readability */}
+        <div className="absolute bottom-0 left-0 right-0 h-[200%] bg-gradient-to-t from-black/90 via-black/50 to-transparent -z-10 pointer-events-none" />
 
-        <div className="p-5 pb-0 flex flex-col gap-2">
+        <div className="px-4 sm:px-6 flex flex-col gap-3">
           {/* Carousel Progress Bar */}
           {product.imgs.length > 1 && (
-            <div className="flex gap-1 mb-2 w-1/2 mx-auto">
+            <div className="flex gap-1 mb-1 w-2/3">
               {product.imgs.map((_, idx) => (
                 <div key={idx} className="h-[2px] flex-1 bg-white/20 rounded-full overflow-hidden">
                   {idx === currentImgIdx ? (
@@ -234,69 +234,75 @@ function ProductCard({ product, addToCart }: any): React.JSX.Element {
                         initial={{ width: "0%" }}
                         animate={{ width: "100%" }}
                         transition={{ duration: 3, ease: "linear" }}
-                        className="h-full bg-white/60"
+                        className="h-full bg-white/80"
                       />
                     )
                   ) : idx < currentImgIdx ? (
-                    <div className="h-full w-full bg-white/60" />
+                    <div className="h-full w-full bg-white/80" />
                   ) : null}
                 </div>
               ))}
             </div>
           )}
 
-          <div className="flex flex-col gap-1">
-            <h3 className="font-black text-xl text-white line-clamp-1 leading-tight tracking-tight">
-              {product.name}
-            </h3>
-            
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-baseline gap-1">
-                <span className="text-sm font-black text-red-500">¥</span>
-                <span className="text-3xl font-black text-white tracking-tighter leading-none">
-                  {Math.floor(product.price)}
-                </span>
-              </div>
-              {product.promoLabel && (
-                <div className="origin-right">
-                  <PromoBadge label={product.promoLabel} subLabel={product.promoSubLabel} />
-                </div>
+          <div className="flex items-end justify-between gap-4">
+            {/* Left side: Info */}
+            <div className="flex flex-col gap-2 flex-1 min-w-0">
+              <h3 className="font-black text-xl sm:text-2xl text-white line-clamp-2 leading-tight tracking-tight drop-shadow-md">
+                {product.name}
+              </h3>
+              
+              {product.description && (
+                <p className="text-xs sm:text-sm text-white/80 line-clamp-2 font-medium leading-snug drop-shadow-md">
+                  {product.description}
+                </p>
               )}
+
+              <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-baseline gap-1 drop-shadow-md">
+                  <span className="text-sm font-black text-red-500">¥</span>
+                  <span className="text-3xl font-black text-white tracking-tighter leading-none">
+                    {Math.floor(product.price)}
+                  </span>
+                </div>
+                {product.promoLabel && (
+                  <PromoBadge label={product.promoLabel} subLabel={product.promoSubLabel} />
+                )}
+              </div>
             </div>
 
-            <p className="text-[10px] text-white/60 line-clamp-1 font-medium leading-tight">
-              {product.description}
-            </p>
-
-            {product.sizeChart && (
-              <div className="mt-1 pt-1 border-t border-white/10 overflow-x-auto">
-                <div 
-                  className="text-[9px] text-white/40 leading-tight [&_table]:w-full [&_table]:border-collapse [&_th]:text-left [&_th]:p-0.5 [&_td]:p-0.5 [&_th]:border-b [&_th]:border-white/5 [&_td]:border-b [&_td]:border-white/5"
-                  dangerouslySetInnerHTML={{ __html: product.sizeChart }}
-                />
-              </div>
-            )}
+            {/* Right side: Add to Cart Button */}
+            <div className="shrink-0 flex flex-col items-center gap-1.5 pb-1">
+              <button 
+                onClick={() => addToCart(product)}
+                className={cn(
+                  "w-12 h-12 sm:w-14 sm:h-14 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-red-500/40 hover:bg-red-600 hover:scale-105 active:scale-95 transition-all duration-300",
+                  product.isHot && "relative overflow-hidden"
+                )}
+              >
+                {product.isHot && (
+                  <motion.div 
+                    animate={{ y: ["-100%", "200%"] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-0 bg-gradient-to-b from-transparent via-white/30 to-transparent"
+                  />
+                )}
+                <ShoppingCart size={22} className="sm:w-6 sm:h-6" />
+              </button>
+              <span className="text-[10px] font-bold text-white drop-shadow-md tracking-wider">加入購物車</span>
+            </div>
           </div>
-        </div>
 
-        {/* Add to Cart Button - Full Width at Bottom */}
-        <button 
-          onClick={() => addToCart(product)}
-          className={cn(
-            "mt-4 w-full py-4 bg-white text-gray-900 font-black text-sm tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-red-500 hover:text-white transition-all duration-300 active:scale-[0.98]",
-            product.isHot && "relative overflow-hidden"
+          {/* Size Chart */}
+          {product.sizeChart && (
+            <div className="mt-2 pt-2 border-t border-white/20 overflow-x-auto">
+              <div 
+                className="text-[10px] text-white/60 leading-tight [&_table]:w-full [&_table]:border-collapse [&_th]:text-left [&_th]:p-1 [&_td]:p-1 [&_th]:border-b [&_th]:border-white/10 [&_td]:border-b [&_td]:border-white/10"
+                dangerouslySetInnerHTML={{ __html: product.sizeChart }}
+              />
+            </div>
           )}
-        >
-          {product.isHot && (
-            <motion.div 
-              animate={{ x: ["-100%", "200%"] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
-            />
-          )}
-          <ShoppingCart size={18} />
-          加入購物車
-        </button>
+        </div>
       </div>
 
       {/* Size Chart Modal Removed */}
@@ -563,15 +569,14 @@ export default function App() {
     if (!orderCardRef.current) return;
     try {
       showToast('正在生成圖片...', 'info');
-      const canvas = await html2canvas(orderCardRef.current, {
-        useCORS: true,
+      const dataUrl = await htmlToImage.toPng(orderCardRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
         backgroundColor: '#ffffff',
-        scale: 2,
-        logging: false,
       });
       const link = document.createElement('a');
       link.download = `Order_${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
       link.click();
       showToast('圖片下載成功', 'success');
     } catch (error) {
@@ -753,11 +758,11 @@ export default function App() {
                     
                     return (
                       <div key={itemKey} className="flex gap-3 p-3 bg-white border border-gray-100 rounded-2xl group hover:shadow-md transition-all duration-300">
-                        <div className="relative w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden">
+                        <div className="relative w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden bg-black">
                           <img 
                             src={item.imgs[0]} 
                             alt="" 
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            className="w-full h-full object-contain"
                             referrerPolicy="no-referrer"
                           />
                         </div>
@@ -896,7 +901,7 @@ export default function App() {
                     {lastOrder.items.map(item => (
                       <div key={item.id} className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                          <img src={item.imgs[0]} alt="" className="w-10 h-10 object-cover rounded" referrerPolicy="no-referrer" crossOrigin="anonymous" />
+                          <img src={item.imgs[0]} alt="" className="w-10 h-10 object-cover rounded" referrerPolicy="no-referrer" />
                           <div>
                             <p className="text-sm font-medium">{item.name}</p>
                             {item.selectedSpec && <p className="text-[10px] text-gray-400">規格: {item.selectedSpec}</p>}
