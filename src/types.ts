@@ -22,6 +22,7 @@ export interface CartItem extends Product {
 export interface Order {
   items: CartItem[];
   total: number;
+  shippingFee?: number;
   date: string;
 }
 
@@ -29,4 +30,8 @@ export interface SiteSettings {
   title: string;
   subtitle: string[];
   logoUrl: string;
+  orderFooterText?: string;
+  orderFooterSubText?: string;
+  shippingFee?: number;
+  freeShippingThreshold?: number;
 }

@@ -88,7 +88,11 @@ app.get("/api/products", async (req, res) => {
               "此專區僅供「預購商品」加購 & 訂單生成，特賣會款式無列入。",
               "特賣會期間亦可加購（此專區不列入特賣會免運，但可合併出貨省運費）。"
             ],
-            logoUrl: ""
+            logoUrl: "",
+            orderFooterText: "📍前往IG將圖片發給九零統計結帳📍",
+            orderFooterSubText: "- 此專區僅用於預購商品的訂單生成 -",
+            shippingFee: 60,
+            freeShippingThreshold: 1000
           },
           sha: null
         });

@@ -346,7 +346,11 @@ export default function App() {
       "此專區僅供「預購商品」加購 & 訂單生成，特賣會款式無列入。",
       "特賣會期間亦可加購（此專區不列入特賣會免運，但可合併出貨省運費）。"
     ],
-    logoUrl: ""
+    logoUrl: "",
+    orderFooterText: "📍前往IG將圖片發給九零統計結帳📍",
+    orderFooterSubText: "- 此專區僅用於預購商品的訂單生成 -",
+    shippingFee: 60,
+    freeShippingThreshold: 1000
   });
   const [settingsSHA, setSettingsSHA] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -538,10 +542,15 @@ export default function App() {
 
   const createOrder = () => {
     if (cart.length === 0) return;
-    const total = cart.reduce((sum, item) => sum + item.price * item.num, 0);
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.num, 0);
+    const shippingFee = (siteSettings.freeShippingThreshold && subtotal >= siteSettings.freeShippingThreshold) 
+      ? 0 
+      : (siteSettings.shippingFee || 0);
+    
     const order: Order = {
       items: [...cart],
-      total,
+      total: subtotal + shippingFee,
+      shippingFee,
       date: new Date().toLocaleString()
     };
     setLastOrder(order);
@@ -551,16 +560,24 @@ export default function App() {
 
   const downloadOrder = async () => {
     if (!orderCardRef.current) return;
-    const canvas = await html2canvas(orderCardRef.current, {
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
-      scale: 2
-    });
-    const link = document.createElement('a');
-    link.download = `Order_${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    try {
+      showToast('正在生成圖片...', 'info');
+      const canvas = await html2canvas(orderCardRef.current, {
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        scale: 2,
+        logging: false,
+      });
+      const link = document.createElement('a');
+      link.download = `Order_${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('圖片下載成功', 'success');
+    } catch (error) {
+      console.error('Error generating image:', error);
+      showToast('圖片生成失敗，請稍後再試', 'error');
+    }
   };
 
   const filteredProducts = activeCategory === '全部' 
@@ -785,12 +802,40 @@ export default function App() {
                 )}
               </div>
               <div className="p-8 border-t border-gray-50 bg-white shrink-0">
-                <div className="flex justify-between items-end mb-8">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">總計</span>
+                <div className="space-y-4 mb-8">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-500 font-bold">商品小計</span>
+                    <span className="font-black text-gray-900">¥{Math.floor(cartTotal)}</span>
                   </div>
-                  <span className="text-4xl font-black text-red-500 tracking-tighter">¥{Math.floor(cartTotal)}</span>
+                  
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-500 font-bold">運費</span>
+                    {siteSettings.freeShippingThreshold && cartTotal >= siteSettings.freeShippingThreshold ? (
+                      <span className="font-black text-red-500">0元</span>
+                    ) : (
+                      <span className="font-black text-gray-900">¥{siteSettings.shippingFee || 0}</span>
+                    )}
+                  </div>
+
+                  {siteSettings.freeShippingThreshold && cartTotal < siteSettings.freeShippingThreshold && (
+                    <div className="bg-blue-50 p-3 rounded-xl flex items-center gap-2">
+                      <Zap size={14} className="text-blue-500" />
+                      <p className="text-[11px] font-bold text-blue-600">
+                        再買 ¥{Math.floor(siteSettings.freeShippingThreshold - cartTotal)} 元即可享免運優惠！
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-end pt-2 border-t border-gray-50">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">總計 (含運費)</span>
+                    </div>
+                    <span className="text-4xl font-black text-red-500 tracking-tighter">
+                      ¥{Math.floor(cartTotal + (siteSettings.freeShippingThreshold && cartTotal >= siteSettings.freeShippingThreshold ? 0 : (siteSettings.shippingFee || 0)))}
+                    </span>
+                  </div>
                 </div>
+                
                 <button 
                   disabled={cart.length === 0}
                   onClick={createOrder}
@@ -813,7 +858,7 @@ export default function App() {
                   className="bg-white p-8 border-2 border-dashed border-gray-200 rounded-3xl relative overflow-hidden"
                 >
                   <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <CheckCircle2 size={120} className="text-green-500" />
+                    <CheckCircle2 size={120} className="text-blue-500" />
                   </div>
                   <div className="text-center mb-8">
                     <h3 className="text-2xl font-bold text-gray-800">已生成訂單</h3>
@@ -834,19 +879,33 @@ export default function App() {
                       </div>
                     ))}
                   </div>
-                  <div className="border-t pt-4 flex justify-between items-center mb-6">
-                    <span className="font-bold text-gray-600">實付總額</span>
-                    <span className="text-2xl font-bold text-red-500">¥{Math.floor(lastOrder.total)}</span>
+                  <div className="space-y-4 mb-6">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-bold text-gray-500">商品小計</span>
+                      <span className="font-bold text-gray-900">¥{Math.floor(lastOrder.total - (lastOrder.shippingFee || 0))}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-bold text-gray-500">運費</span>
+                      {lastOrder.shippingFee === 0 ? (
+                        <span className="font-bold text-red-500">0元</span>
+                      ) : (
+                        <span className="font-bold text-gray-900">¥{lastOrder.shippingFee}</span>
+                      )}
+                    </div>
+                    <div className="border-t pt-4 flex justify-between items-center">
+                      <span className="font-bold text-gray-600">實付總額</span>
+                      <span className="text-2xl font-bold text-red-500">¥{Math.floor(lastOrder.total)}</span>
+                    </div>
                   </div>
 
                   <div className="pt-4 border-t border-dashed border-gray-100">
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">Instagram 帳號 (必填)</label>
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2 text-center">Instagram 帳號 (必填)</label>
                     <input 
                       type="text" 
                       value={igAccount}
                       onChange={e => setIgAccount(e.target.value)}
                       placeholder="請輸入您的 IG 帳號"
-                      className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-red-500 outline-none transition-all"
+                      className="w-full bg-gray-50 border-2 border-red-500 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-red-500 outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -869,8 +928,8 @@ export default function App() {
                   </button>
                 </div>
                 <div className="text-red-500 text-sm font-bold text-center mt-3 space-y-1">
-                  <p>📍前往IG將圖片發給九零統計結帳📍</p>
-                  <p className="text-xs opacity-80">- 此專區僅用於預購商品的訂單生成 -</p>
+                  <p>{siteSettings.orderFooterText || '📍前往IG將圖片發給九零統計結帳📍'}</p>
+                  <p className="text-xs opacity-80">{siteSettings.orderFooterSubText || '- 此專區僅用於預購商品的訂單生成 -'}</p>
                 </div>
               </div>
             </div>
@@ -2394,6 +2453,55 @@ function AdminModal({
                         </button>
                       </div>
                     ))}
+                  </div>
+                </div>
+
+                {/* Order Footer Section */}
+                <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">訂單生成頁底部文字</label>
+                    <input 
+                      type="text" 
+                      value={settingsFormData.orderFooterText || ''}
+                      onChange={e => setSettingsFormData(prev => ({ ...prev, orderFooterText: e.target.value }))}
+                      placeholder="例：📍前往IG將圖片發給九零統計結帳📍"
+                      className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">訂單生成頁底部副文字</label>
+                    <input 
+                      type="text" 
+                      value={settingsFormData.orderFooterSubText || ''}
+                      onChange={e => setSettingsFormData(prev => ({ ...prev, orderFooterSubText: e.target.value }))}
+                      placeholder="例：- 此專區僅用於預購商品的訂單生成 -"
+                      className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Shipping Section */}
+                <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-6">
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">運費設定</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">單件運費 (元)</label>
+                      <input 
+                        type="number" 
+                        value={settingsFormData.shippingFee || 0}
+                        onChange={e => setSettingsFormData(prev => ({ ...prev, shippingFee: Number(e.target.value) }))}
+                        className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">滿額免運門檻 (元)</label>
+                      <input 
+                        type="number" 
+                        value={settingsFormData.freeShippingThreshold || 0}
+                        onChange={e => setSettingsFormData(prev => ({ ...prev, freeShippingThreshold: Number(e.target.value) }))}
+                        className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
+                      />
+                    </div>
                   </div>
                 </div>
 
