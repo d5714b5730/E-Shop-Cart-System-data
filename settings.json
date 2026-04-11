@@ -8,5 +8,6 @@
   "orderFooterText": "📍前往IG將圖片發給九零📍",
   "orderFooterSubText": "- 此專區僅用於預購商品的訂單生成 -",
   "shippingFee": 80,
-  "freeShippingThreshold": 2500
+  "freeShippingThreshold": 2500,
+  "isCartEnabled": false
 }
