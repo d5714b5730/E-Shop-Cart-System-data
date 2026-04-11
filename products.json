@@ -6,8 +6,8 @@
     "price": 9999,
     "category": "服裝",
     "description": "採用 100% 精梳棉，親膚透氣，經典版型百搭舒適。",
-    "promoLabel": "限時直降15元",
-    "promoSubLabel": "限購1件!",
+    "promoLabel": "限時",
+    "promoSubLabel": "4/15收單",
     "isNew": true,
     "imgs": [
       "/api/images/images/1775804573902_photo_2026-04-06_17-19-52.jpg",
