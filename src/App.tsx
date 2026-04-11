@@ -80,7 +80,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     name: '無線藍牙耳機',
     sn: 'SP002',
     price: 199,
-    category: '數碼',
+    category: '3C',
     description: '主動降噪技術，長達 30 小時續航，享受純淨音質。',
     isHot: true,
     promoLabel: '限時直降50元',
@@ -258,8 +258,8 @@ function ProductCard({ product, addToCart }: any): React.JSX.Element {
                 </p>
               )}
 
-              <div className="flex items-center gap-3 mt-1">
-                <div className="flex items-baseline gap-1 drop-shadow-md">
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <div className="flex items-baseline gap-1 drop-shadow-md mr-1">
                   <span className="text-sm font-black text-red-500">¥</span>
                   <span className="text-3xl font-black text-white tracking-tighter leading-none">
                     {Math.floor(product.price)}
@@ -268,40 +268,23 @@ function ProductCard({ product, addToCart }: any): React.JSX.Element {
                 {product.promoLabel && (
                   <PromoBadge label={product.promoLabel} subLabel={product.promoSubLabel} />
                 )}
+                <button 
+                  onClick={() => addToCart(product)}
+                  className="flex items-center h-7 mt-2 bg-red-600 text-white px-2.5 rounded-md gap-1.5 hover:bg-red-700 active:scale-95 transition-all shadow-md shadow-red-600/40 relative overflow-hidden"
+                >
+                  {product.isHot && (
+                    <motion.div 
+                      animate={{ x: ["-100%", "200%"] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
+                    />
+                  )}
+                  <ShoppingCart size={14} />
+                  <span className="text-[11px] font-black tracking-wider whitespace-nowrap">加入購物車</span>
+                </button>
               </div>
             </div>
-
-            {/* Right side: Add to Cart Button */}
-            <div className="shrink-0 flex flex-col items-center gap-1.5 pb-1">
-              <button 
-                onClick={() => addToCart(product)}
-                className={cn(
-                  "w-12 h-12 sm:w-14 sm:h-14 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-red-500/40 hover:bg-red-600 hover:scale-105 active:scale-95 transition-all duration-300",
-                  product.isHot && "relative overflow-hidden"
-                )}
-              >
-                {product.isHot && (
-                  <motion.div 
-                    animate={{ y: ["-100%", "200%"] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-0 bg-gradient-to-b from-transparent via-white/30 to-transparent"
-                  />
-                )}
-                <ShoppingCart size={22} className="sm:w-6 sm:h-6" />
-              </button>
-              <span className="text-[10px] font-bold text-white drop-shadow-md tracking-wider">加入購物車</span>
-            </div>
           </div>
-
-          {/* Size Chart */}
-          {product.sizeChart && (
-            <div className="mt-2 pt-2 border-t border-white/20 overflow-x-auto">
-              <div 
-                className="text-[10px] text-white/60 leading-tight [&_table]:w-full [&_table]:border-collapse [&_th]:text-left [&_th]:p-1 [&_td]:p-1 [&_th]:border-b [&_th]:border-white/10 [&_td]:border-b [&_td]:border-white/10"
-                dangerouslySetInnerHTML={{ __html: product.sizeChart }}
-              />
-            </div>
-          )}
         </div>
       </div>
 
@@ -349,7 +332,7 @@ export default function App() {
   const [siteSettings, setSiteSettings] = useState<SiteSettings>({
     title: "90s加購專區",
     subtitle: [
-      "此專區僅供「預購商品」加購 & 訂單生成，特賣會款式無列入。",
+      "此專區僅供「預購商品」加購 & 訂單產生，特賣會款式無列入。",
       "特賣會期間亦可加購（此專區不列入特賣會免運，但可合併出貨省運費）。"
     ],
     logoUrl: "",
@@ -366,6 +349,7 @@ export default function App() {
   const [editingCartKey, setEditingCartKey] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
+  const [showCartSuccess, setShowCartSuccess] = useState(false);
   
   const orderCardRef = useRef<HTMLDivElement>(null);
 
@@ -455,7 +439,7 @@ export default function App() {
       if (response.ok) {
         const data = await response.json();
         setSettingsSHA(data.sha);
-        showToast('設定已成功保存到 GitHub！', 'success');
+        showToast('設定已成功儲存到 GitHub！', 'success');
       } else {
         const error = await response.json();
         showToast('保存設定失敗：' + (error.message || '未知錯誤'), 'error');
@@ -531,6 +515,9 @@ export default function App() {
       return [...prev, { ...product, num: 1, selectedSpec }];
     });
     setSpecModalProduct(null);
+    
+    setShowCartSuccess(true);
+    setTimeout(() => setShowCartSuccess(false), 700);
   };
 
   const removeFromCart = (id: number) => {
@@ -658,16 +645,16 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-0 sm:px-4 py-0 sm:py-6 overflow-y-auto sm:overflow-visible snap-y snap-mandatory sm:snap-none flex flex-col">
-        {/* Categories */}
-        <div className="snap-start sm:snap-none flex gap-3 mb-0 sm:mb-6 overflow-x-auto scrollbar-hide pb-3 sm:pb-2 items-center px-4 sm:px-0 pt-3 sm:pt-0 shrink-0 bg-white sm:bg-transparent border-b border-gray-100 sm:border-none sticky top-0 z-40 sm:static">
+      <div className="flex-1 relative flex flex-col overflow-hidden">
+        {/* Categories - Floating over products on mobile */}
+        <div className="absolute sm:static top-0 left-0 right-0 z-40 flex gap-3 mb-0 sm:mb-6 overflow-x-auto scrollbar-hide pb-3 sm:pb-2 items-center px-4 sm:px-0 pt-3 sm:pt-0 shrink-0 bg-transparent border-none pointer-events-none [&>*]:pointer-events-auto container mx-auto">
           <button
             onClick={() => setActiveCategory('全部')}
             className={cn(
               "px-5 py-2 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2",
               activeCategory === '全部' 
                 ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
-                : "bg-white text-gray-400 border-gray-100 hover:border-gray-200 hover:text-gray-600"
+                : "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300 hover:text-gray-900 shadow-sm"
             )}
           >
             全部商品
@@ -678,13 +665,13 @@ export default function App() {
               "px-5 py-2 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2",
               activeCategory === '新品' 
                 ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
-                : "bg-white text-gray-400 border-gray-100 hover:border-gray-200 hover:text-gray-600"
+                : "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300 hover:text-gray-900 shadow-sm"
             )}
           >
             新品
           </button>
           
-          <div className="relative">
+          <div className="relative pointer-events-auto">
             <select
               value={activeCategory !== '全部' && activeCategory !== '新品' ? activeCategory : ''}
               onChange={(e) => setActiveCategory(e.target.value)}
@@ -692,7 +679,7 @@ export default function App() {
                 "appearance-none px-5 py-2 pr-8 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2 outline-none cursor-pointer",
                 activeCategory !== '全部' && activeCategory !== '新品'
                   ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
-                  : "bg-white text-gray-400 border-gray-100 hover:border-gray-200 hover:text-gray-600"
+                  : "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300 hover:text-gray-900 shadow-sm"
               )}
             >
               <option value="" disabled className="hidden">分類</option>
@@ -702,20 +689,20 @@ export default function App() {
             </select>
             <ChevronDown size={14} className={cn(
               "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none",
-              activeCategory !== '全部' && activeCategory !== '新品' ? "text-white" : "text-gray-400"
+              activeCategory !== '全部' && activeCategory !== '新品' ? "text-white" : "text-gray-500"
             )} />
           </div>
         </div>
 
-        {/* Product Grid */}
-        <div className="flex-1 flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-0 sm:gap-8">
+        {/* Scrollable Main Area */}
+        <main className="flex-1 overflow-y-auto snap-y snap-mandatory sm:snap-none flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-0 sm:gap-8 container mx-auto px-0 sm:px-4 py-0 sm:py-6">
           {filteredProducts.map(product => (
             <div key={product.id} className="snap-start sm:snap-none snap-always h-full sm:h-auto flex-shrink-0">
               <ProductCard product={product} addToCart={addToCart} />
             </div>
           ))}
-        </div>
-      </main>
+        </main>
+      </div>
 
       {/* Modals */}
       <AnimatePresence>
@@ -938,7 +925,7 @@ export default function App() {
                       value={igAccount}
                       onChange={e => setIgAccount(e.target.value)}
                       placeholder="請輸入您的 IG 帳號"
-                      className="w-full bg-gray-50 border-2 border-red-500 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-red-500 outline-none transition-all"
+                      className="w-full bg-gray-50 border-2 border-blue-500 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -1001,6 +988,18 @@ export default function App() {
                 </div>
               </div>
               
+              {specModalProduct.sizeChart && (
+                <div className="mb-8">
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">尺碼表</label>
+                  <div className="overflow-x-auto border border-gray-100 rounded-xl p-4 bg-gray-50">
+                    <div 
+                      className="text-xs text-gray-600 leading-tight [&_table]:w-full [&_table]:border-collapse [&_th]:text-left [&_th]:p-2 [&_td]:p-2 [&_th]:border-b [&_th]:border-gray-200 [&_td]:border-b [&_td]:border-gray-200"
+                      dangerouslySetInnerHTML={{ __html: specModalProduct.sizeChart }}
+                    />
+                  </div>
+                </div>
+              )}
+              
               <button 
                 onClick={() => setSpecModalProduct(null)}
                 className="w-full py-4 bg-gray-100 text-gray-400 rounded-2xl font-bold hover:bg-gray-200 transition-all"
@@ -1045,6 +1044,22 @@ export default function App() {
 
         {/* Custom Notifications */}
         <AnimatePresence>
+          {showCartSuccess && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: -20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
+            >
+              <div className="bg-black/80 backdrop-blur-sm text-white px-8 py-6 rounded-3xl flex flex-col items-center gap-3 shadow-2xl">
+                <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <CheckCircle2 size={40} className="text-white" />
+                </div>
+                <span className="font-bold text-lg tracking-wider">成功加入購物車</span>
+              </div>
+            </motion.div>
+          )}
           {toast && (
             <Toast 
               key="toast"
@@ -1519,7 +1534,7 @@ function AdminModal({
     setProducts(prev => [...newProducts, ...prev]);
     resetForm();
     setActiveTab('list');
-    showToast('批量上傳成功', 'success');
+    showToast('批次上傳成功', 'success');
   };
 
   const handleUpdateProduct = async () => {
@@ -2108,7 +2123,7 @@ function AdminModal({
                         <Upload className="text-gray-300 group-hover:text-blue-500" size={32} />
                       )}
                       <p className="text-sm text-gray-500">
-                        {isUploading ? '正在上傳至 GitHub...' : '點擊或拖拽圖片至此'}
+                        {isUploading ? '正在上傳至 GitHub...' : '點擊或拖曳圖片至此'}
                       </p>
                     </div>
                   </div>
