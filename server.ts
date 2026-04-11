@@ -1,23 +1,23 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
+import fs from "fs";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+const PORT = 3000;
 
-  app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '50mb' }));
 
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-  const GITHUB_REPO = process.env.GITHUB_REPO || "d5714b5730/E-Shop-Cart-System-data";
-  const GITHUB_FILE_PATH = process.env.GITHUB_FILE_PATH || "products.json";
-  const SETTINGS_FILE_PATH = "settings.json";
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_REPO = process.env.GITHUB_REPO || "d5714b5730/E-Shop-Cart-System-data";
+const GITHUB_FILE_PATH = process.env.GITHUB_FILE_PATH || "products.json";
+const SETTINGS_FILE_PATH = "settings.json";
 
-  // API to get products from GitHub
-  app.get("/api/products", async (req, res) => {
+// API to get products from GitHub
+app.get("/api/products", async (req, res) => {
     try {
       if (!GITHUB_TOKEN) {
         return res.status(500).json({ error: "GITHUB_TOKEN is not configured" });
@@ -253,24 +253,32 @@ async function startServer() {
     }
   });
 
+async function setupApp() {
   // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
+  } else if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+    if (fs.existsSync(distPath)) {
+      app.use(express.static(distPath));
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    }
   }
+}
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+// Start server if not running on Vercel
+if (!process.env.VERCEL) {
+  setupApp().then(() => {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
   });
 }
 
-startServer();
+export default app;
