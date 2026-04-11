@@ -16,6 +16,18 @@ const GITHUB_REPO = process.env.GITHUB_REPO || "d5714b5730/E-Shop-Cart-System-da
 const GITHUB_FILE_PATH = process.env.GITHUB_FILE_PATH || "products.json";
 const SETTINGS_FILE_PATH = "settings.json";
 
+// Debug API to check environment variables (without exposing token)
+app.get("/api/debug", (req, res) => {
+  res.json({
+    hasToken: !!process.env.GITHUB_TOKEN,
+    repo: process.env.GITHUB_REPO || "d5714b5730/E-Shop-Cart-System-data",
+    filePath: process.env.GITHUB_FILE_PATH || "products.json",
+    branch: process.env.GITHUB_BRANCH || "main",
+    nodeEnv: process.env.NODE_ENV,
+    isVercel: !!process.env.VERCEL
+  });
+});
+
 // API to get products from GitHub
 app.get("/api/products", async (req, res) => {
     try {
