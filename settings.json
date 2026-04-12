@@ -1,16 +1,16 @@
 {
   "title": "90s 預購商品專區",
   "subtitle": [
-    "專區用於「預購商品」加購 & 生成訂單（不直接付款）",
+    "專區用於「預購商品」加購 & 生成訂單（不付款）",
     "特賣會期間也可加購（可與特賣商品一起寄）"
   ],
   "logoUrl": "",
   "orderFooterText": "<a href=\"https://www.instagram.com/90s.flash.club/\">📍前往IG發送訂單給九零（點我）📍</a>",
-  "orderFooterSubText": "- 此專區僅用於預購商品的訂單生成 -",
+  "orderFooterSubText": "",
   "shippingFee": 80,
   "freeShippingThreshold": 2500,
   "isCartEnabled": true,
-  "enablePromotion": true,
+  "enablePromotion": false,
   "promotionAmount": 1000,
   "promotionName": "折千千"
 }
