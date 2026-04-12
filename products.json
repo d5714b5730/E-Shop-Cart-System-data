@@ -27,21 +27,24 @@
     "id": 2,
     "name": "無線藍牙耳機",
     "sn": "SP002",
-    "price": 199,
-    "category": "數碼",
+    "price": 1999,
+    "category": "服裝",
     "description": "主動降噪技術，長達 30 小時續航，享受純淨音質。",
     "isHot": true,
     "promoLabel": "限時直降50元",
     "promoSubLabel": "限購1件!",
     "imgs": [
-      "https://picsum.photos/seed/d1/600/1067",
-      "https://picsum.photos/seed/d2/600/1067"
+      "/api/images/images/1775996524809_1000089592.jpg",
+      "https://picsum.photos/seed/d2/600/1067",
+      "https://picsum.photos/seed/d1/600/1067"
     ],
     "specs": [
       "黑色",
       "白色",
       "午夜藍"
-    ]
+    ],
+    "sizeChart": "",
+    "isNew": true
   },
   {
     "id": 3,
