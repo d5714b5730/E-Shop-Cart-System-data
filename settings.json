@@ -10,7 +10,7 @@
   "shippingFee": 80,
   "freeShippingThreshold": 2500,
   "isCartEnabled": true,
-  "enablePromotion": false,
-  "promotionAmount": 1000,
-  "promotionName": "折千千"
+  "enablePromotion": true,
+  "promotionAmount": 50,
+  "promotionName": "自助加購獎勵"
 }
