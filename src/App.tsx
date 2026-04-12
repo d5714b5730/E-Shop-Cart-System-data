@@ -12,6 +12,7 @@ import {
   Trash2, 
   Download, 
   Upload,
+  Copy,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -139,7 +140,7 @@ function PromoBadge({ label, subLabel }: { label: string; subLabel?: string }) {
   );
 }
 
-function ProductCard({ product, addToCart }: any): React.JSX.Element {
+function ProductCard({ product, addToCart, siteSettings }: any): React.JSX.Element {
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -222,29 +223,6 @@ function ProductCard({ product, addToCart }: any): React.JSX.Element {
         <div className="absolute bottom-0 left-0 right-0 h-[200%] bg-gradient-to-t from-black/90 via-black/50 to-transparent -z-10 pointer-events-none" />
 
         <div className="px-4 sm:px-6 flex flex-col gap-3">
-          {/* Carousel Progress Bar */}
-          {product.imgs.length > 1 && (
-            <div className="flex gap-1 mb-1 w-2/3">
-              {product.imgs.map((_, idx) => (
-                <div key={idx} className="h-[2px] flex-1 bg-white/20 rounded-full overflow-hidden">
-                  {idx === currentImgIdx ? (
-                    !isHovered && (
-                      <motion.div 
-                        key={currentImgIdx}
-                        initial={{ width: "0%" }}
-                        animate={{ width: "100%" }}
-                        transition={{ duration: 3, ease: "linear" }}
-                        className="h-full bg-white/80"
-                      />
-                    )
-                  ) : idx < currentImgIdx ? (
-                    <div className="h-full w-full bg-white/80" />
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          )}
-
           <div className="flex items-end justify-between gap-4">
             {/* Left side: Info */}
             <div className="flex flex-col gap-2 flex-1 min-w-0">
@@ -258,21 +236,48 @@ function ProductCard({ product, addToCart }: any): React.JSX.Element {
                 </p>
               )}
 
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
+              {/* Carousel Progress Bar */}
+              {product.imgs.length > 1 && (
+                <div className="flex gap-1 w-1/3 h-[1px] my-1">
+                  {product.imgs.map((_, idx) => (
+                    <div key={idx} className="h-full flex-1 bg-white/10 rounded-full overflow-hidden">
+                      {idx === currentImgIdx ? (
+                        !isHovered && (
+                          <motion.div 
+                            key={currentImgIdx}
+                            initial={{ width: "0%" }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: 3, ease: "linear" }}
+                            className="h-full bg-white/40"
+                          />
+                        )
+                      ) : idx < currentImgIdx ? (
+                        <div className="h-full w-full bg-white/40" />
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 flex-wrap">
                 <div className="flex items-baseline gap-1 drop-shadow-md mr-1">
                   <span className="text-sm font-black text-red-500">¥</span>
                   <span className="text-3xl font-black text-white tracking-tighter leading-none">
                     {Math.floor(product.price)}
                   </span>
                 </div>
-                {product.promoLabel && (
+                {product.promoLabel && siteSettings.isCartEnabled !== false && (
                   <PromoBadge label={product.promoLabel} subLabel={product.promoSubLabel} />
                 )}
                 <button 
                   onClick={() => addToCart(product)}
-                  className="flex items-center h-7 mt-2 bg-red-600 text-white px-2.5 rounded-md gap-1.5 hover:bg-red-700 active:scale-95 transition-all shadow-md shadow-red-600/40 relative overflow-hidden"
+                  disabled={siteSettings.isCartEnabled === false}
+                  className={cn(
+                    "flex items-center h-7 mt-2 text-white px-2.5 rounded-md gap-1.5 active:scale-95 transition-all shadow-md relative overflow-hidden",
+                    siteSettings.isCartEnabled === false ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700 shadow-red-600/40"
+                  )}
                 >
-                  {product.isHot && (
+                  {product.isHot && siteSettings.isCartEnabled !== false && (
                     <motion.div 
                       animate={{ x: ["-100%", "200%"] }}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -280,7 +285,9 @@ function ProductCard({ product, addToCart }: any): React.JSX.Element {
                     />
                   )}
                   <ShoppingCart size={14} />
-                  <span className="text-[11px] font-black tracking-wider whitespace-nowrap">加入購物車</span>
+                  <span className="text-[11px] font-black tracking-wider whitespace-nowrap">
+                    {siteSettings.isCartEnabled === false ? "近期已結單，等下次開放" : "加入購物車"}
+                  </span>
                 </button>
               </div>
             </div>
@@ -339,7 +346,8 @@ export default function App() {
     orderFooterText: "📍前往IG將圖片發給九零統計結帳📍",
     orderFooterSubText: "- 此專區僅用於預購商品的訂單生成 -",
     shippingFee: 60,
-    freeShippingThreshold: 1000
+    freeShippingThreshold: 1000,
+    isCartEnabled: true
   });
   const [settingsSHA, setSettingsSHA] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -347,13 +355,13 @@ export default function App() {
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
   const [igAccount, setIgAccount] = useState('');
   const [editingCartKey, setEditingCartKey] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'dark-success' } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [showCartSuccess, setShowCartSuccess] = useState(false);
   
   const orderCardRef = useRef<HTMLDivElement>(null);
 
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const showToast = (message: string, type: 'success' | 'error' | 'info' | 'dark-success' = 'info') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
@@ -565,11 +573,38 @@ export default function App() {
       link.download = `Order_${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
-      showToast('圖片下載成功', 'success');
+      showToast('圖片已儲存', 'dark-success');
     } catch (error) {
       console.error('Error generating image:', error);
       showToast('圖片生成失敗，請稍後再試', 'error');
     }
+  };
+
+  const copyOrderText = () => {
+    if (!lastOrder) return;
+    
+    const itemsText = lastOrder.items.map(item => 
+      `◆ ${item.name}${item.selectedSpec ? ` (${item.selectedSpec})` : ''} x${item.num}\n¥${Math.floor(item.price * item.num)}`
+    ).join('\n');
+
+    const orderText = `⊹ ࣪ ˖ ┈┈┈┈┈┈┈┈ ˖ ࣪ ⊹
+${igAccount || '未填寫'}
+預 購 商 品 訂 單
+${lastOrder.date}
+⊹ ࣪ ˖ ┈┈┈┈┈┈┈┈ ˖ ࣪ ⊹
+${itemsText}
+
+＋ 運費 ¥${lastOrder.shippingFee}
+————————————
+＝ 實付總額 ¥${Math.floor(lastOrder.total)}
+⊹ ࣪ ˖ ┈┈┈┈┈┈┈┈ ˖ ࣪ ⊹`;
+
+    navigator.clipboard.writeText(orderText).then(() => {
+      showToast('訂單內容已複製', 'dark-success');
+    }).catch(err => {
+      console.error('Copy failed:', err);
+      showToast('複製失敗，請手動截圖', 'error');
+    });
   };
 
   const filteredProducts = activeCategory === '全部' 
@@ -601,7 +636,7 @@ export default function App() {
           <div className="flex gap-2 items-center">
             <button 
               onClick={() => setIsAdminLoginOpen(true)}
-              className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
+              className="p-2 text-gray-300 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
               title="Admin Management"
             >
               <Settings size={18} />
@@ -698,7 +733,7 @@ export default function App() {
         <main className="flex-1 overflow-y-auto snap-y snap-mandatory sm:snap-none flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-0 sm:gap-8 container mx-auto px-0 sm:px-4 py-0 sm:py-6">
           {filteredProducts.map(product => (
             <div key={product.id} className="snap-start sm:snap-none snap-always h-full sm:h-auto flex-shrink-0">
-              <ProductCard product={product} addToCart={addToCart} />
+              <ProductCard product={product} addToCart={addToCart} siteSettings={siteSettings} />
             </div>
           ))}
         </main>
@@ -931,20 +966,30 @@ export default function App() {
                 </div>
               </div>
               <div className="p-6 border-t flex flex-col gap-4 shrink-0">
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => { setLastOrder(null); setIgAccount(''); }}
-                    className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-all"
-                  >
-                    關閉
-                  </button>
+                <div className="flex flex-col gap-3">
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => { setLastOrder(null); setIgAccount(''); }}
+                      className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-all"
+                    >
+                      重新加購
+                    </button>
+                    <button 
+                      disabled={!igAccount.trim()}
+                      onClick={downloadOrder}
+                      className="flex-1 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:bg-gray-100 disabled:text-gray-300"
+                    >
+                      <Download size={18} />
+                      儲存訂單圖片
+                    </button>
+                  </div>
                   <button 
                     disabled={!igAccount.trim()}
-                    onClick={downloadOrder}
-                    className="flex-1 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:bg-gray-100 disabled:text-gray-300"
+                    onClick={copyOrderText}
+                    className="w-full py-3 bg-white border-2 border-gray-200 text-gray-600 rounded-xl font-medium hover:border-gray-300 hover:bg-gray-50 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Download size={18} />
-                    下載訂單圖片
+                    <Copy size={18} />
+                    複製訂單內容 (文字)
                   </button>
                 </div>
                 <div className="text-red-500 text-sm font-bold text-center mt-3 space-y-1">
@@ -1186,19 +1231,20 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
   );
 }
 
-function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error' | 'info'; onClose: () => void; key?: string }) {
+function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error' | 'info' | 'dark-success'; onClose: () => void; key?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 50, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.9 }}
       className={cn(
-        "fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-sm",
+        "fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-sm whitespace-nowrap",
         type === 'success' ? "bg-green-500 text-white" : 
+        type === 'dark-success' ? "bg-black/80 backdrop-blur-sm text-white" :
         type === 'error' ? "bg-red-500 text-white" : "bg-gray-900 text-white"
       )}
     >
-      {type === 'success' && <CheckCircle2 size={18} />}
+      {(type === 'success' || type === 'dark-success') && <CheckCircle2 size={18} />}
       {type === 'error' && <X size={18} />}
       {message}
     </motion.div>
@@ -1460,6 +1506,7 @@ function AdminModal({
     specs: '',
     sizeChart: '',
     isNew: false,
+    isHot: false,
     imgs: [] as string[]
   });
 
@@ -1470,12 +1517,14 @@ function AdminModal({
     promoSubLabel: '',
     sizeChart: '',
     isNew: false,
+    isHot: false,
     updatePrice: false,
     updateCategory: false,
     updatePromoLabel: false,
     updatePromoSubLabel: false,
     updateSizeChart: false,
     updateIsNew: false,
+    updateIsHot: false,
   });
 
   const [settingsFormData, setSettingsFormData] = useState<SiteSettings>({ ...siteSettings });
@@ -1485,7 +1534,7 @@ function AdminModal({
   }, [siteSettings]);
 
   const resetForm = () => {
-    setFormData({ name: '', sn: '', price: '', category: '服裝', description: '', promoLabel: '', promoSubLabel: '', specs: '', sizeChart: '', isNew: false, imgs: [] });
+    setFormData({ name: '', sn: '', price: '', category: '服裝', description: '', promoLabel: '', promoSubLabel: '', specs: '', sizeChart: '', isNew: false, isHot: false, imgs: [] });
     setEditingProduct(null);
   };
 
@@ -1527,6 +1576,7 @@ function AdminModal({
         specs: specsList.length > 0 ? specsList : undefined,
         sizeChart: sizeCharts[i] || sizeCharts[0] || '',
         isNew: formData.isNew,
+        isHot: formData.isHot,
         imgs: productImgs
       });
     }
@@ -1554,6 +1604,7 @@ function AdminModal({
       specs: formData.specs ? formData.specs.split(',').map(s => s.trim()).filter(Boolean) : undefined,
       sizeChart: formData.sizeChart || '',
       isNew: formData.isNew || false,
+      isHot: formData.isHot || false,
       imgs: updatedImgs.length > 0 ? updatedImgs : [`https://picsum.photos/seed/${Math.random()}/600/800`]
     };
 
@@ -1578,6 +1629,7 @@ function AdminModal({
       specs: product.specs ? product.specs.join(', ') : '',
       sizeChart: product.sizeChart || '',
       isNew: product.isNew || false,
+      isHot: product.isHot || false,
       imgs: product.imgs
     });
     setActiveTab('edit');
@@ -1609,6 +1661,7 @@ function AdminModal({
           promoSubLabel: bulkFormData.updatePromoSubLabel ? bulkFormData.promoSubLabel : p.promoSubLabel,
           sizeChart: bulkFormData.updateSizeChart ? bulkFormData.sizeChart : p.sizeChart,
           isNew: bulkFormData.updateIsNew ? bulkFormData.isNew : p.isNew,
+          isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : p.isHot,
         };
       }
       return p;
@@ -1624,6 +1677,7 @@ function AdminModal({
           promoSubLabel: bulkFormData.updatePromoSubLabel ? bulkFormData.promoSubLabel : item.promoSubLabel,
           sizeChart: bulkFormData.updateSizeChart ? bulkFormData.sizeChart : item.sizeChart,
           isNew: bulkFormData.updateIsNew ? bulkFormData.isNew : item.isNew,
+          isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : item.isHot,
         };
       }
       return item;
@@ -1996,29 +2050,29 @@ function AdminModal({
                   )}
                 </div>
 
-                {/* Is New */}
+                {/* Is Hot */}
                 <div className="p-6 bg-gray-50 rounded-3xl space-y-4">
                   <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2 font-bold text-gray-700">
                       <input 
                         type="checkbox" 
-                        checked={bulkFormData.updateIsNew}
-                        onChange={e => setBulkFormData(prev => ({ ...prev, updateIsNew: e.target.checked }))}
+                        checked={bulkFormData.updateIsHot}
+                        onChange={e => setBulkFormData(prev => ({ ...prev, updateIsHot: e.target.checked }))}
                         className="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
                       />
-                      更新「新品」狀態
+                      更新「HOT」狀態
                     </label>
                   </div>
-                  {bulkFormData.updateIsNew && (
+                  {bulkFormData.updateIsHot && (
                     <div className="flex items-center gap-4">
                       <button 
-                        onClick={() => setBulkFormData(prev => ({ ...prev, isNew: !prev.isNew }))}
+                        onClick={() => setBulkFormData(prev => ({ ...prev, isHot: !prev.isHot }))}
                         className={cn(
                           "flex-1 py-3 rounded-2xl font-bold transition-all border-2",
-                          bulkFormData.isNew ? "bg-blue-500 border-blue-500 text-white" : "bg-white border-gray-200 text-gray-400"
+                          bulkFormData.isHot ? "bg-red-500 border-red-500 text-white" : "bg-white border-gray-200 text-gray-400"
                         )}
                       >
-                        {bulkFormData.isNew ? '設為新品' : '取消新品'}
+                        {bulkFormData.isHot ? '設為HOT' : '取消HOT'}
                       </button>
                     </div>
                   )}
@@ -2136,13 +2190,43 @@ function AdminModal({
                       {formData.imgs.map((img, idx) => (
                         <div key={idx} className="relative group flex-shrink-0">
                           <img src={img} alt="" className="w-20 h-20 object-cover rounded-xl" />
-                          <button 
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, imgs: prev.imgs.filter((_, i) => i !== idx) }))}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X size={12} />
-                          </button>
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 rounded-xl transition-opacity">
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                if (idx > 0) {
+                                  const newImgs = [...formData.imgs];
+                                  [newImgs[idx - 1], newImgs[idx]] = [newImgs[idx], newImgs[idx - 1]];
+                                  setFormData(prev => ({ ...prev, imgs: newImgs }));
+                                }
+                              }}
+                              className="text-white hover:text-blue-300 p-1"
+                              disabled={idx === 0}
+                            >
+                              <ChevronLeft size={16} />
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                if (idx < formData.imgs.length - 1) {
+                                  const newImgs = [...formData.imgs];
+                                  [newImgs[idx], newImgs[idx + 1]] = [newImgs[idx + 1], newImgs[idx]];
+                                  setFormData(prev => ({ ...prev, imgs: newImgs }));
+                                }
+                              }}
+                              className="text-white hover:text-blue-300 p-1"
+                              disabled={idx === formData.imgs.length - 1}
+                            >
+                              <ChevronRight size={16} />
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => setFormData(prev => ({ ...prev, imgs: prev.imgs.filter((_, i) => i !== idx) }))}
+                              className="text-white hover:text-red-300 p-1"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -2166,15 +2250,26 @@ function AdminModal({
                     ))}
                   </div>
                   
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={formData.isNew}
-                      onChange={e => setFormData(prev => ({ ...prev, isNew: e.target.checked }))}
-                      className="w-5 h-5 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
-                    />
-                    <span className="text-sm font-bold text-gray-700">標記為新品</span>
-                  </label>
+                  <div className="flex items-center gap-6">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.isNew}
+                        onChange={e => setFormData(prev => ({ ...prev, isNew: e.target.checked }))}
+                        className="w-5 h-5 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                      />
+                      <span className="text-sm font-bold text-gray-700">標記為新品</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.isHot}
+                        onChange={e => setFormData(prev => ({ ...prev, isHot: e.target.checked }))}
+                        className="w-5 h-5 rounded border-gray-300 text-red-500 focus:ring-red-500"
+                      />
+                      <span className="text-sm font-bold text-gray-700">標記為HOT</span>
+                    </label>
+                  </div>
                 </div>
 
                 <div className="sm:col-span-2">
@@ -2452,6 +2547,21 @@ function AdminModal({
 
                 {/* Title Section */}
                 <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-6">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">開啟購物車功能</label>
+                    <button
+                      onClick={() => setSettingsFormData(prev => ({ ...prev, isCartEnabled: !prev.isCartEnabled }))}
+                      className={cn(
+                        "w-12 h-6 rounded-full transition-all relative",
+                        settingsFormData.isCartEnabled ? "bg-blue-500" : "bg-gray-300"
+                      )}
+                    >
+                      <div className={cn(
+                        "absolute top-1 w-4 h-4 bg-white rounded-full transition-all",
+                        settingsFormData.isCartEnabled ? "left-7" : "left-1"
+                      )} />
+                    </button>
+                  </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">網站標題</label>
                     <input 

@@ -34,4 +34,5 @@ export interface SiteSettings {
   orderFooterSubText?: string;
   shippingFee?: number;
   freeShippingThreshold?: number;
+  isCartEnabled?: boolean;
 }
