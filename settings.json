@@ -5,7 +5,7 @@
     "特賣會期間也可加購（可與特賣商品一起寄）"
   ],
   "logoUrl": "",
-  "orderFooterText": "📍前往IG將圖片發給九零📍",
+  "orderFooterText": "<a href=\"https://www.instagram.com/90s.flash.club/\">📍前往IG發送訂單給九零（點我）📍</a>",
   "orderFooterSubText": "- 此專區僅用於預購商品的訂單生成 -",
   "shippingFee": 80,
   "freeShippingThreshold": 2500,
