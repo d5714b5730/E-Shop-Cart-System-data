@@ -958,7 +958,11 @@ ${itemsText}
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-dashed border-gray-100">
+                </div>
+              </div>
+              <div className="p-6 border-t flex flex-col gap-4 shrink-0">
+                <div className="flex flex-col gap-3">
+                  <div>
                     <label className="block text-xs font-bold text-gray-400 uppercase mb-2 text-center">Instagram 帳號 (必填)</label>
                     <input 
                       type="text" 
@@ -968,10 +972,6 @@ ${itemsText}
                       className="w-full bg-gray-50 border-2 border-blue-500 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
                     />
                   </div>
-                </div>
-              </div>
-              <div className="p-6 border-t flex flex-col gap-4 shrink-0">
-                <div className="flex flex-col gap-3">
                   <div className="flex gap-3">
                     <button 
                       onClick={() => { setLastOrder(null); setIgAccount(''); }}
