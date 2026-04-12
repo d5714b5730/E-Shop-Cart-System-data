@@ -23,6 +23,8 @@ export interface Order {
   items: CartItem[];
   total: number;
   shippingFee?: number;
+  promotionName?: string;
+  promotionAmount?: number;
   date: string;
 }
 
@@ -35,4 +37,7 @@ export interface SiteSettings {
   shippingFee?: number;
   freeShippingThreshold?: number;
   isCartEnabled?: boolean;
+  enablePromotion?: boolean;
+  promotionName?: string;
+  promotionAmount?: number;
 }

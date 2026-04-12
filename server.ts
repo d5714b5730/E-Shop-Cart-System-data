@@ -34,7 +34,7 @@ app.get("/api/products", async (req, res) => {
         return res.status(500).json({ error: "GITHUB_TOKEN is not configured" });
       }
 
-      const response = await fetch(
+      const response = await globalThis.fetch(
         `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`,
         {
           headers: {
@@ -69,7 +69,7 @@ app.get("/api/products", async (req, res) => {
         return res.status(500).json({ error: "GITHUB_TOKEN is not configured" });
       }
 
-      const response = await fetch(
+      const response = await globalThis.fetch(
         `https://api.github.com/repos/${GITHUB_REPO}/contents/${SETTINGS_FILE_PATH}`,
         {
           headers: {
@@ -120,7 +120,7 @@ app.get("/api/products", async (req, res) => {
 
       const { settings, sha } = req.body;
 
-      const response = await fetch(
+      const response = await globalThis.fetch(
         `https://api.github.com/repos/${GITHUB_REPO}/contents/${SETTINGS_FILE_PATH}`,
         {
           method: "PUT",
@@ -158,7 +158,7 @@ app.get("/api/products", async (req, res) => {
 
       const { products, sha } = req.body;
 
-      const response = await fetch(
+      const response = await globalThis.fetch(
         `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`,
         {
           method: "PUT",
@@ -197,7 +197,7 @@ app.get("/api/products", async (req, res) => {
       const { content, fileName } = req.body;
       const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
 
-      const response = await fetch(
+      const response = await globalThis.fetch(
         `https://api.github.com/repos/${GITHUB_REPO}/contents/images/${fileName}`,
         {
           method: "PUT",
@@ -241,7 +241,7 @@ app.get("/api/products", async (req, res) => {
       // Encode each part of the path to handle spaces and special characters
       const encodedPath = filePath.split('/').map(part => encodeURIComponent(part)).join('/');
       
-      const response = await fetch(
+      const response = await globalThis.fetch(
         `https://api.github.com/repos/${GITHUB_REPO}/contents/${encodedPath}?ref=${GITHUB_BRANCH}`,
         {
           headers: {

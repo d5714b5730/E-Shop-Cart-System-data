@@ -26,7 +26,6 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import * as htmlToImage from 'html-to-image';
 import { cn } from './lib/utils';
 import { Product, CartItem, Order, SiteSettings } from './types';
 
@@ -387,7 +386,7 @@ export default function App() {
   const loadProductsFromGitHub = async () => {
     setIsSyncing(true);
     try {
-      const response = await fetch('/api/products');
+      const response = await globalThis.fetch('/api/products');
       if (response.ok) {
         const data = await response.json();
         
@@ -414,7 +413,7 @@ export default function App() {
 
   const loadSettingsFromGitHub = async () => {
     try {
-      const response = await fetch('/api/settings');
+      const response = await globalThis.fetch('/api/settings');
       if (response.ok) {
         const data = await response.json();
         const settings = data.settings;
@@ -433,7 +432,7 @@ export default function App() {
   const saveSettingsToGitHub = async (updatedSettings: SiteSettings) => {
     setIsSyncing(true);
     try {
-      const response = await fetch('/api/settings', {
+      const response = await globalThis.fetch('/api/settings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -463,7 +462,7 @@ export default function App() {
   const saveProductsToGitHub = async (updatedProducts: Product[]) => {
     setIsSyncing(true);
     try {
-      const response = await fetch('/api/products', {
+      const response = await globalThis.fetch('/api/products', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -549,10 +548,14 @@ export default function App() {
       ? 0 
       : (siteSettings.shippingFee || 0);
     
+    const promotionAmount = siteSettings.enablePromotion ? (siteSettings.promotionAmount || 0) : 0;
+    
     const order: Order = {
       items: [...cart],
-      total: subtotal + shippingFee,
+      total: Math.max(0, subtotal + shippingFee - promotionAmount),
       shippingFee,
+      promotionName: siteSettings.enablePromotion ? siteSettings.promotionName : undefined,
+      promotionAmount: siteSettings.enablePromotion ? promotionAmount : undefined,
       date: new Date().toLocaleString()
     };
     setLastOrder(order);
@@ -560,44 +563,29 @@ export default function App() {
     setIsCartOpen(false);
   };
 
-  const downloadOrder = async () => {
-    if (!orderCardRef.current) return;
-    try {
-      showToast('正在生成圖片...', 'info');
-      const dataUrl = await htmlToImage.toPng(orderCardRef.current, {
-        cacheBust: true,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
-      });
-      const link = document.createElement('a');
-      link.download = `Order_${Date.now()}.png`;
-      link.href = dataUrl;
-      link.click();
-      showToast('圖片已儲存', 'dark-success');
-    } catch (error) {
-      console.error('Error generating image:', error);
-      showToast('圖片生成失敗，請稍後再試', 'error');
-    }
-  };
-
   const copyOrderText = () => {
     if (!lastOrder) return;
     
     const itemsText = lastOrder.items.map(item => 
-      `◆ ${item.name}${item.selectedSpec ? ` (${item.selectedSpec})` : ''} x${item.num}\n¥${Math.floor(item.price * item.num)}`
+      `${item.name}${item.selectedSpec ? ` (${item.selectedSpec})` : ''} x${item.num} ¥${Math.floor(item.price * item.num)}`
     ).join('\n');
 
-    const orderText = `⊹ ࣪ ˖ ┈┈┈┈┈┈┈┈ ˖ ࣪ ⊹
-${igAccount || '未填寫'}
-預 購 商 品 訂 單
+    const orderText = `-【${igAccount || '您的帳號'}｜預購訂單】-
 ${lastOrder.date}
-⊹ ࣪ ˖ ┈┈┈┈┈┈┈┈ ˖ ࣪ ⊹
+
+◆ 九零預購訂單內容：
 ${itemsText}
 
-＋ 運費 ¥${lastOrder.shippingFee}
-————————————
-＝ 實付總額 ¥${Math.floor(lastOrder.total)}
-⊹ ࣪ ˖ ┈┈┈┈┈┈┈┈ ˖ ࣪ ⊹`;
++運費 ¥${lastOrder.shippingFee}
+——————————————
+= ¥${Math.floor(lastOrder.total)} (預購訂單金額)
+
+◆ 將訂單內容複製貼上發給九零
+1、只購買預購商品：
+→ 等九零回覆匯款資訊
+
+2、也有購買特賣會商品：
+→ 等九零更新綜合訂單`;
 
     navigator.clipboard.writeText(orderText).then(() => {
       showToast('訂單內容已複製', 'dark-success');
@@ -859,6 +847,13 @@ ${itemsText}
                     <span className="text-gray-500 font-bold">商品小計</span>
                     <span className="font-black text-gray-900">¥{Math.floor(cartTotal)}</span>
                   </div>
+
+                  {siteSettings.enablePromotion && (
+                    <div className="flex justify-between items-center text-xs text-red-500">
+                      <span className="font-bold">{siteSettings.promotionName || '優惠折抵'}</span>
+                      <span className="font-black">-¥{siteSettings.promotionAmount || 0}</span>
+                    </div>
+                  )}
                   
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-gray-500 font-bold">運費</span>
@@ -885,7 +880,11 @@ ${itemsText}
                     <div className="flex items-baseline gap-0.5">
                       <span className="text-sm font-black text-red-500">¥</span>
                       <span className="text-3xl font-black text-red-500 tracking-tighter">
-                        {Math.floor(cartTotal + (siteSettings.freeShippingThreshold && cartTotal >= siteSettings.freeShippingThreshold ? 0 : (siteSettings.shippingFee || 0)))}
+                        {Math.floor(Math.max(0, 
+                          cartTotal + 
+                          (siteSettings.freeShippingThreshold && cartTotal >= siteSettings.freeShippingThreshold ? 0 : (siteSettings.shippingFee || 0)) - 
+                          (siteSettings.enablePromotion ? (siteSettings.promotionAmount || 0) : 0)
+                        ))}
                       </span>
                     </div>
                   </div>
@@ -937,8 +936,14 @@ ${itemsText}
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between items-center text-sm">
                       <span className="font-bold text-gray-500">商品小計</span>
-                      <span className="font-bold text-gray-900">¥{Math.floor(lastOrder.total - (lastOrder.shippingFee || 0))}</span>
+                      <span className="font-bold text-gray-900">¥{Math.floor(lastOrder.items.reduce((sum, item) => sum + item.price * item.num, 0))}</span>
                     </div>
+                    {lastOrder.promotionAmount && (
+                      <div className="flex justify-between items-center text-sm text-red-500">
+                        <span className="font-bold">{lastOrder.promotionName || '優惠折抵'}</span>
+                        <span className="font-bold">-¥{lastOrder.promotionAmount}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-center text-sm">
                       <span className="font-bold text-gray-500">運費</span>
                       {lastOrder.shippingFee === 0 ? (
@@ -976,25 +981,17 @@ ${itemsText}
                     </button>
                     <button 
                       disabled={!igAccount.trim()}
-                      onClick={downloadOrder}
-                      className="flex-1 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:bg-gray-100 disabled:text-gray-300"
+                      onClick={copyOrderText}
+                      className="flex-[2] py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:bg-gray-100 disabled:text-gray-300"
                     >
-                      <Download size={18} />
-                      儲存訂單圖片
+                      <Copy size={18} />
+                      複製訂單內容 (文字)
                     </button>
                   </div>
-                  <button 
-                    disabled={!igAccount.trim()}
-                    onClick={copyOrderText}
-                    className="w-full py-3 bg-white border-2 border-gray-200 text-gray-600 rounded-xl font-medium hover:border-gray-300 hover:bg-gray-50 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Copy size={18} />
-                    複製訂單內容 (文字)
-                  </button>
                 </div>
                 <div className="text-red-500 text-sm font-bold text-center mt-3 space-y-1">
-                  <p>{siteSettings.orderFooterText || '📍前往IG將圖片發給九零統計結帳📍'}</p>
-                  <p className="text-xs opacity-80">{siteSettings.orderFooterSubText || '- 此專區僅用於預購商品的訂單生成 -'}</p>
+                  <div dangerouslySetInnerHTML={{ __html: siteSettings.orderFooterText || '📍前往IG將圖片發給九零統計結帳📍' }} />
+                  <div className="text-xs opacity-80" dangerouslySetInnerHTML={{ __html: siteSettings.orderFooterSubText || '- 此專區僅用於預購商品的訂單生成 -' }} />
                 </div>
               </div>
             </div>
@@ -2111,6 +2108,7 @@ function AdminModal({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* 1. Images Section */}
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
                     {activeTab === 'add' ? '商品圖片 (可多選)' : '新增圖片'}
@@ -2140,7 +2138,7 @@ function AdminModal({
                             const pureBase64 = base64.split(',')[1];
                             const fileName = `${Date.now()}_${file.name}`;
                             
-                            const res = await fetch('/api/upload-image', {
+                            const res = await globalThis.fetch('/api/upload-image', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ content: pureBase64, fileName })
@@ -2233,7 +2231,8 @@ function AdminModal({
                   </div>
                 )}
 
-                <div className="sm:col-span-2">
+                {/* 2. Category & Status Section */}
+                <div className="sm:col-span-2 pt-4 border-t border-gray-100">
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">商品分類</label>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {categories.filter(c => c !== '全部').map(c => (
@@ -2272,90 +2271,105 @@ function AdminModal({
                   </div>
                 </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
-                    {activeTab === 'add' ? '商品描述 (逗號分隔)' : '商品描述'}
-                  </label>
-                  <textarea 
-                    value={formData.description}
-                    onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder={activeTab === 'add' ? "例：描述1, 描述2" : "輸入商品描述"}
-                    rows={3}
-                    className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all resize-none"
-                  />
+                {/* 3. Basic Info Section */}
+                <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
+                      {activeTab === 'add' ? '商品名稱 (逗號分隔)' : '商品名稱'}
+                    </label>
+                    <input 
+                      type="text" 
+                      value={formData.name}
+                      onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder={activeTab === 'add' ? "例：商品1, 商品2" : "輸入商品名稱"}
+                      className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
+                      {activeTab === 'add' ? '商品描述 (逗號分隔)' : '商品描述'}
+                    </label>
+                    <textarea 
+                      value={formData.description}
+                      onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder={activeTab === 'add' ? "例：描述1, 描述2" : "輸入商品描述"}
+                      rows={3}
+                      className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all resize-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2">商品價格 (逗號分隔)</label>
+                    <input 
+                      type="text" 
+                      value={formData.price}
+                      onChange={e => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                      placeholder={activeTab === 'add' ? "例：99, 199" : "輸入價格"}
+                      className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
+                      {activeTab === 'add' ? '促銷標籤 (紅底, 逗號分隔)' : '促銷標籤 (紅底)'}
+                    </label>
+                    <input 
+                      type="text" 
+                      value={formData.promoLabel}
+                      onChange={e => setFormData(prev => ({ ...prev, promoLabel: e.target.value }))}
+                      placeholder={activeTab === 'add' ? "例：限時直降15元, 限時特惠" : "例：限時直降15元"}
+                      className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
+                    />
+                    {formData.promoLabel && (
+                      <div className="mt-2 origin-left opacity-80">
+                        <PromoBadge label={formData.promoLabel || '限時直降15元'} subLabel={formData.promoSubLabel || '限購1件!'} />
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
+                      {activeTab === 'add' ? '促銷副標籤 (白底, 逗號分隔)' : '促銷副標籤 (白底)'}
+                    </label>
+                    <input 
+                      type="text" 
+                      value={formData.promoSubLabel}
+                      onChange={e => setFormData(prev => ({ ...prev, promoSubLabel: e.target.value }))}
+                      placeholder={activeTab === 'add' ? "例：限購1件!, 限量50台" : "例：限購1件!"}
+                      className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
+                      {activeTab === 'add' ? '商品編號 (逗號分隔)' : '商品編號'}
+                    </label>
+                    <input 
+                      type="text" 
+                      value={formData.sn}
+                      onChange={e => setFormData(prev => ({ ...prev, sn: e.target.value }))}
+                      placeholder={activeTab === 'add' ? "例：SN001, SN002" : "輸入商品編號"}
+                      className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
+                      {activeTab === 'add' ? '商品規格 (逗號分隔)' : '商品規格'}
+                    </label>
+                    <input 
+                      type="text" 
+                      value={formData.specs}
+                      onChange={e => setFormData(prev => ({ ...prev, specs: e.target.value }))}
+                      placeholder={activeTab === 'add' ? "例：S, M, L" : "輸入規格，以逗號分隔"}
+                      className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
-                    {activeTab === 'add' ? '促銷標籤 (紅底, 逗號分隔)' : '促銷標籤 (紅底)'}
-                  </label>
-                  <input 
-                    type="text" 
-                    value={formData.promoLabel}
-                    onChange={e => setFormData(prev => ({ ...prev, promoLabel: e.target.value }))}
-                    placeholder={activeTab === 'add' ? "例：限時直降15元, 限時特惠" : "例：限時直降15元"}
-                    className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
-                  />
-                  {formData.promoLabel && (
-                    <div className="mt-2 origin-left opacity-80">
-                      <PromoBadge label={formData.promoLabel || '限時直降15元'} subLabel={formData.promoSubLabel || '限購1件!'} />
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
-                    {activeTab === 'add' ? '促銷副標籤 (白底, 逗號分隔)' : '促銷副標籤 (白底)'}
-                  </label>
-                  <input 
-                    type="text" 
-                    value={formData.promoSubLabel}
-                    onChange={e => setFormData(prev => ({ ...prev, promoSubLabel: e.target.value }))}
-                    placeholder={activeTab === 'add' ? "例：限購1件!, 限量50台" : "例：限購1件!"}
-                    className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
-                    {activeTab === 'add' ? '商品名稱 (逗號分隔)' : '商品名稱'}
-                  </label>
-                  <input 
-                    type="text" 
-                    value={formData.name}
-                    onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder={activeTab === 'add' ? "例：商品1, 商品2" : "輸入商品名稱"}
-                    className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
-                    {activeTab === 'add' ? '商品編號 (逗號分隔)' : '商品編號'}
-                  </label>
-                  <input 
-                    type="text" 
-                    value={formData.sn}
-                    onChange={e => setFormData(prev => ({ ...prev, sn: e.target.value }))}
-                    placeholder={activeTab === 'add' ? "例：SN001, SN002" : "輸入商品編號"}
-                    className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
-                    {activeTab === 'add' ? '商品規格 (逗號分隔)' : '商品規格'}
-                  </label>
-                  <input 
-                    type="text" 
-                    value={formData.specs}
-                    onChange={e => setFormData(prev => ({ ...prev, specs: e.target.value }))}
-                    placeholder={activeTab === 'add' ? "例：S, M, L" : "輸入規格，以逗號分隔"}
-                    className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
+                {/* 4. Size Chart Section */}
+                <div className="sm:col-span-2 pt-4 border-t border-gray-100">
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
                     {activeTab === 'add' ? '尺寸對照表 (HTML, 逗號分隔)' : '尺寸對照表'}
                   </label>
@@ -2373,17 +2387,6 @@ function AdminModal({
                       onChange={val => setFormData(prev => ({ ...prev, sizeChart: val }))} 
                     />
                   )}
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-gray-400 uppercase mb-2">商品價格 (逗號分隔)</label>
-                  <input 
-                    type="text" 
-                    value={formData.price}
-                    onChange={e => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                    placeholder={activeTab === 'add' ? "例：99, 199" : "輸入價格"}
-                    className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
-                  />
                 </div>
               </div>
 
@@ -2476,169 +2479,69 @@ function AdminModal({
               </div>
 
               <div className="space-y-8">
-                {/* Logo Section */}
-                <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-6">
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">網站 Logo</label>
-                  <div className="flex items-center gap-8">
-                    <div className="w-24 h-24 bg-white rounded-3xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden shadow-inner">
-                      {settingsFormData.logoUrl ? (
-                        <img src={settingsFormData.logoUrl} alt="Logo" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
-                      ) : (
-                        <Package size={32} className="text-gray-300" />
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-3">
-                      <div className="flex gap-3">
-                        <label className="flex-1">
-                          <div className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-2xl font-bold text-sm cursor-pointer hover:bg-gray-50 transition-all shadow-sm">
-                            <Upload size={18} />
-                            上傳 Logo
-                          </div>
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            className="hidden" 
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              setIsUploading(true);
-                              try {
-                                const base64 = await new Promise<string>(resolve => {
-                                  const reader = new FileReader();
-                                  reader.onload = ev => resolve(ev.target?.result as string);
-                                  reader.readAsDataURL(file);
-                                });
-                                const pureBase64 = base64.split(',')[1];
-                                const fileName = `logo_${Date.now()}_${file.name}`;
-                                const res = await fetch('/api/upload-image', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ content: pureBase64, fileName })
-                                });
-                                if (res.ok) {
-                                  const data = await res.json();
-                                  setSettingsFormData(prev => ({ ...prev, logoUrl: data.url }));
-                                  showToast('Logo 上傳成功', 'success');
-                                } else {
-                                  showToast('Logo 上傳失敗', 'error');
-                                }
-                              } catch (err) {
-                                console.error(err);
-                                showToast('上傳出錯', 'error');
-                              } finally {
-                                setIsUploading(false);
-                              }
-                            }}
-                          />
-                        </label>
-                        {settingsFormData.logoUrl && (
-                          <button 
-                            onClick={() => setSettingsFormData(prev => ({ ...prev, logoUrl: '' }))}
-                            className="px-6 py-3 bg-red-50 text-red-500 rounded-2xl font-bold text-sm hover:bg-red-100 transition-all"
-                          >
-                            移除
-                          </button>
+                {/* 1. Cart & Promotion Section */}
+                <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-8">
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">開啟購物車功能</label>
+                      <button
+                        onClick={() => setSettingsFormData(prev => ({ ...prev, isCartEnabled: !prev.isCartEnabled }))}
+                        className={cn(
+                          "w-12 h-6 rounded-full transition-all relative",
+                          settingsFormData.isCartEnabled ? "bg-blue-500" : "bg-gray-300"
                         )}
-                      </div>
-                      <p className="text-[10px] text-gray-400 font-medium">建議尺寸: 200x200px, 支援 PNG, JPG, SVG</p>
+                      >
+                        <div className={cn(
+                          "absolute top-1 w-4 h-4 bg-white rounded-full transition-all",
+                          settingsFormData.isCartEnabled ? "left-7" : "left-1"
+                        )} />
+                      </button>
                     </div>
-                  </div>
-                </div>
 
-                {/* Title Section */}
-                <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-6">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">開啟購物車功能</label>
-                    <button
-                      onClick={() => setSettingsFormData(prev => ({ ...prev, isCartEnabled: !prev.isCartEnabled }))}
-                      className={cn(
-                        "w-12 h-6 rounded-full transition-all relative",
-                        settingsFormData.isCartEnabled ? "bg-blue-500" : "bg-gray-300"
-                      )}
-                    >
-                      <div className={cn(
-                        "absolute top-1 w-4 h-4 bg-white rounded-full transition-all",
-                        settingsFormData.isCartEnabled ? "left-7" : "left-1"
-                      )} />
-                    </button>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">網站標題</label>
-                    <input 
-                      type="text" 
-                      value={settingsFormData.title}
-                      onChange={e => setSettingsFormData(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="輸入網站標題"
-                      className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-lg font-black tracking-tight focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Subtitle Section */}
-                <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">公告欄文字 (副標題)</label>
-                    <button 
-                      onClick={() => setSettingsFormData(prev => ({ ...prev, subtitle: [...prev.subtitle, ''] }))}
-                      className="flex items-center gap-1 text-blue-500 font-bold text-xs hover:underline"
-                    >
-                      <Plus size={14} />
-                      新增一行
-                    </button>
-                  </div>
-                  <div className="space-y-3">
-                    {settingsFormData.subtitle.map((line, idx) => (
-                      <div key={idx} className="flex gap-2">
-                        <input 
-                          type="text" 
-                          value={line}
-                          onChange={e => {
-                            const newSubtitle = [...settingsFormData.subtitle];
-                            newSubtitle[idx] = e.target.value;
-                            setSettingsFormData(prev => ({ ...prev, subtitle: newSubtitle }));
-                          }}
-                          placeholder={`公告第 ${idx + 1} 行`}
-                          className="flex-1 bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
-                        />
-                        <button 
-                          onClick={() => {
-                            const newSubtitle = settingsFormData.subtitle.filter((_, i) => i !== idx);
-                            setSettingsFormData(prev => ({ ...prev, subtitle: newSubtitle }));
-                          }}
-                          className="p-4 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                    <div className="pt-4 border-t border-gray-200/50">
+                      <div className="flex items-center justify-between mb-6">
+                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">開啟優惠折抵</label>
+                        <button
+                          onClick={() => setSettingsFormData(prev => ({ ...prev, enablePromotion: !prev.enablePromotion }))}
+                          className={cn(
+                            "w-12 h-6 rounded-full transition-all relative",
+                            settingsFormData.enablePromotion ? "bg-red-500" : "bg-gray-300"
+                          )}
                         >
-                          <Trash2 size={18} />
+                          <div className={cn(
+                            "absolute top-1 w-4 h-4 bg-white rounded-full transition-all",
+                            settingsFormData.enablePromotion ? "left-7" : "left-1"
+                          )} />
                         </button>
                       </div>
-                    ))}
+                      {settingsFormData.enablePromotion && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">優惠活動名稱</label>
+                            <input 
+                              type="text" 
+                              value={settingsFormData.promotionName || ''}
+                              onChange={e => setSettingsFormData(prev => ({ ...prev, promotionName: e.target.value }))}
+                              placeholder="例：全館滿額折抵"
+                              className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">折抵金額 (元)</label>
+                            <input 
+                              type="number" 
+                              value={settingsFormData.promotionAmount || 0}
+                              onChange={e => setSettingsFormData(prev => ({ ...prev, promotionAmount: Number(e.target.value) }))}
+                              className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Order Footer Section */}
-                <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-6">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">訂單生成頁底部文字</label>
-                    <input 
-                      type="text" 
-                      value={settingsFormData.orderFooterText || ''}
-                      onChange={e => setSettingsFormData(prev => ({ ...prev, orderFooterText: e.target.value }))}
-                      placeholder="例：📍前往IG將圖片發給九零統計結帳📍"
-                      className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">訂單生成頁底部副文字</label>
-                    <input 
-                      type="text" 
-                      value={settingsFormData.orderFooterSubText || ''}
-                      onChange={e => setSettingsFormData(prev => ({ ...prev, orderFooterSubText: e.target.value }))}
-                      placeholder="例：- 此專區僅用於預購商品的訂單生成 -"
-                      className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Shipping Section */}
+                {/* 2. Shipping Section */}
                 <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-6">
                   <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">運費設定</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -2659,6 +2562,154 @@ function AdminModal({
                         onChange={e => setSettingsFormData(prev => ({ ...prev, freeShippingThreshold: Number(e.target.value) }))}
                         className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
                       />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Order Footer Section */}
+                <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">訂單生成頁底部文字 (支援 HTML)</label>
+                    <textarea 
+                      value={settingsFormData.orderFooterText || ''}
+                      onChange={e => setSettingsFormData(prev => ({ ...prev, orderFooterText: e.target.value }))}
+                      placeholder="例：📍前往IG將圖片發給九零統計結帳📍"
+                      rows={3}
+                      className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">訂單生成頁底部副文字 (支援 HTML)</label>
+                    <textarea 
+                      value={settingsFormData.orderFooterSubText || ''}
+                      onChange={e => setSettingsFormData(prev => ({ ...prev, orderFooterSubText: e.target.value }))}
+                      placeholder="例：- 此專區僅用於預購商品的訂單生成 -"
+                      rows={2}
+                      className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* 4. Logo, Title & Announcement Section */}
+                <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-8">
+                  {/* Logo */}
+                  <div className="space-y-6">
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">網站 Logo</label>
+                    <div className="flex items-center gap-8">
+                      <div className="w-24 h-24 bg-white rounded-3xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden shadow-inner">
+                        {settingsFormData.logoUrl ? (
+                          <img src={settingsFormData.logoUrl} alt="Logo" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                        ) : (
+                          <Package size={32} className="text-gray-300" />
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-3">
+                        <div className="flex gap-3">
+                          <label className="flex-1">
+                            <div className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-2xl font-bold text-sm cursor-pointer hover:bg-gray-50 transition-all shadow-sm">
+                              <Upload size={18} />
+                              上傳 Logo
+                            </div>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="hidden" 
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                setIsUploading(true);
+                                try {
+                                  const base64 = await new Promise<string>(resolve => {
+                                    const reader = new FileReader();
+                                    reader.onload = ev => resolve(ev.target?.result as string);
+                                    reader.readAsDataURL(file);
+                                  });
+                                  const pureBase64 = base64.split(',')[1];
+                                  const fileName = `logo_${Date.now()}_${file.name}`;
+                                  const res = await globalThis.fetch('/api/upload-image', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ content: pureBase64, fileName })
+                                  });
+                                  if (res.ok) {
+                                    const data = await res.json();
+                                    setSettingsFormData(prev => ({ ...prev, logoUrl: data.url }));
+                                    showToast('Logo 上傳成功', 'success');
+                                  } else {
+                                    showToast('Logo 上傳失敗', 'error');
+                                  }
+                                } catch (err) {
+                                  console.error(err);
+                                  showToast('上傳出錯', 'error');
+                                } finally {
+                                  setIsUploading(false);
+                                }
+                              }}
+                            />
+                          </label>
+                          {settingsFormData.logoUrl && (
+                            <button 
+                              onClick={() => setSettingsFormData(prev => ({ ...prev, logoUrl: '' }))}
+                              className="px-6 py-3 bg-red-50 text-red-500 rounded-2xl font-bold text-sm hover:bg-red-100 transition-all"
+                            >
+                              移除
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-gray-400 font-medium">建議尺寸: 200x200px, 支援 PNG, JPG, SVG</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <div className="pt-8 border-t border-gray-200/50">
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">網站標題</label>
+                    <input 
+                      type="text" 
+                      value={settingsFormData.title}
+                      onChange={e => setSettingsFormData(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="輸入網站標題"
+                      className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-lg font-black tracking-tight focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
+                    />
+                  </div>
+
+                  {/* Announcement (Subtitle) */}
+                  <div className="pt-8 border-t border-gray-200/50">
+                    <div className="flex items-center justify-between mb-4">
+                      <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">公告欄文字 (副標題)</label>
+                      <button 
+                        onClick={() => setSettingsFormData(prev => ({ ...prev, subtitle: [...prev.subtitle, ''] }))}
+                        className="flex items-center gap-1 text-blue-500 font-bold text-xs hover:underline"
+                      >
+                        <Plus size={14} />
+                        新增一行
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      {settingsFormData.subtitle.map((line, idx) => (
+                        <div key={idx} className="flex gap-2">
+                          <input 
+                            type="text" 
+                            value={line}
+                            onChange={e => {
+                              const newSubtitle = [...settingsFormData.subtitle];
+                              newSubtitle[idx] = e.target.value;
+                              setSettingsFormData(prev => ({ ...prev, subtitle: newSubtitle }));
+                            }}
+                            placeholder={`公告第 ${idx + 1} 行`}
+                            className="flex-1 bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
+                          />
+                          <button 
+                            onClick={() => {
+                              const newSubtitle = settingsFormData.subtitle.filter((_, i) => i !== idx);
+                              setSettingsFormData(prev => ({ ...prev, subtitle: newSubtitle }));
+                            }}
+                            className="p-4 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
