@@ -123,15 +123,15 @@ const DEFAULT_PRODUCTS: Product[] = [
 
 function PromoBadge({ label, subLabel }: { label: string; subLabel?: string }) {
   return (
-    <div className="flex items-center h-7 mt-2">
-      <div className="flex items-center bg-red-600 text-white px-2.5 h-full rounded-l-md gap-2 relative z-10">
-        <div className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center shrink-0">
-          <Clock size={12} className="text-red-600" />
+    <div className="flex items-center h-6 mt-2">
+      <div className="flex items-center bg-red-600 text-white px-2 h-full rounded-l-md gap-1.5 relative z-10">
+        <div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shrink-0">
+          <Clock size={10} className="text-red-600" />
         </div>
         <span className="text-[11px] font-black whitespace-nowrap tracking-wider">{label}</span>
       </div>
       {subLabel && (
-        <div className="flex items-center border border-red-600 text-red-600 px-2.5 h-full rounded-r-md font-bold text-[11px] bg-white -ml-1 pl-3.5 tracking-wider">
+        <div className="flex items-center border border-red-600 text-red-600 px-2 h-full rounded-r-md font-bold text-[11px] bg-white -ml-1 pl-2.5 tracking-wider">
           {subLabel}
         </div>
       )}
@@ -1863,6 +1863,35 @@ function AdminModal({
               )}
 
               {/* List */}
+              <div className="flex items-center gap-3 px-2 py-2 mb-2">
+                <div 
+                  onClick={() => {
+                    if (selectedIds.length === filteredAdminProducts.length && filteredAdminProducts.length > 0) {
+                      setSelectedIds([]);
+                    } else {
+                      setSelectedIds(filteredAdminProducts.map(p => p.id));
+                    }
+                  }}
+                  className={cn(
+                    "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer",
+                    selectedIds.length === filteredAdminProducts.length && filteredAdminProducts.length > 0 ? "bg-blue-500 border-blue-500" : "border-gray-200"
+                  )}
+                >
+                  {selectedIds.length === filteredAdminProducts.length && filteredAdminProducts.length > 0 && <CheckCircle2 size={14} className="text-white" />}
+                </div>
+                <span 
+                  className="text-sm font-bold text-gray-600 cursor-pointer select-none" 
+                  onClick={() => {
+                    if (selectedIds.length === filteredAdminProducts.length && filteredAdminProducts.length > 0) {
+                      setSelectedIds([]);
+                    } else {
+                      setSelectedIds(filteredAdminProducts.map(p => p.id));
+                    }
+                  }}
+                >
+                  全選
+                </span>
+              </div>
               <div className="grid grid-cols-1 gap-3">
                 {filteredAdminProducts.map(p => (
                   <div 
