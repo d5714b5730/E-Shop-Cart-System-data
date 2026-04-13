@@ -123,7 +123,7 @@ const DEFAULT_PRODUCTS: Product[] = [
 
 function PromoBadge({ label, subLabel }: { label: string; subLabel?: string }) {
   return (
-    <div className="flex items-center h-7 mt-2">
+    <div className="flex items-center h-7">
       <div className="flex items-center bg-red-600 text-white px-1.5 h-full rounded-l-md gap-1 relative z-10">
         <div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shrink-0">
           <Clock size={10} className="text-red-600" />
@@ -272,7 +272,7 @@ function ProductCard({ product, addToCart, siteSettings }: any): React.JSX.Eleme
                   onClick={() => addToCart(product)}
                   disabled={siteSettings.isCartEnabled === false}
                   className={cn(
-                    "flex items-center h-7 mt-2 text-white px-2.5 rounded-md gap-1.5 active:scale-95 transition-all shadow-md relative overflow-hidden",
+                    "flex items-center h-7 text-white px-2.5 rounded-md gap-1.5 active:scale-95 transition-all shadow-md relative overflow-hidden",
                     siteSettings.isCartEnabled === false ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700 shadow-red-600/40"
                   )}
                 >
