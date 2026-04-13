@@ -123,15 +123,15 @@ const DEFAULT_PRODUCTS: Product[] = [
 
 function PromoBadge({ label, subLabel }: { label: string; subLabel?: string }) {
   return (
-    <div className="flex items-center h-6 mt-2">
-      <div className="flex items-center bg-red-600 text-white px-2 h-full rounded-l-md gap-1.5 relative z-10">
+    <div className="flex items-center h-7 mt-2">
+      <div className="flex items-center bg-red-600 text-white px-1.5 h-full rounded-l-md gap-1 relative z-10">
         <div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shrink-0">
           <Clock size={10} className="text-red-600" />
         </div>
-        <span className="text-[11px] font-black whitespace-nowrap tracking-wider">{label}</span>
+        <span className="text-[11px] font-black whitespace-nowrap">{label}</span>
       </div>
       {subLabel && (
-        <div className="flex items-center border border-red-600 text-red-600 px-2 h-full rounded-r-md font-bold text-[11px] bg-white -ml-1 pl-2.5 tracking-wider">
+        <div className="flex items-center border border-red-600 text-red-600 pr-1.5 pl-2 h-full rounded-r-md font-bold text-[11px] bg-white -ml-1">
           {subLabel}
         </div>
       )}
