@@ -10,6 +10,7 @@ export interface Product {
   isNew?: boolean;
   promoLabel?: string; // e.g., "限时直降15元"
   promoSubLabel?: string; // e.g., "限购1件!"
+  colors?: string[]; // e.g., ["黑色", "白色"]
   specs?: string[]; // e.g., ["S", "M", "L"] or ["Red", "Blue"]
   sizeChart?: string; // Markdown or HTML string for size table
 }
@@ -17,6 +18,7 @@ export interface Product {
 export interface CartItem extends Product {
   num: number;
   selectedSpec?: string;
+  selectedColor?: string;
 }
 
 export interface Order {

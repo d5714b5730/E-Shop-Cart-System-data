@@ -352,6 +352,8 @@ export default function App() {
   });
   const [isSyncing, setIsSyncing] = useState(false);
   const [specModalProduct, setSpecModalProduct] = useState<Product | null>(null);
+  const [modalSelectedColor, setModalSelectedColor] = useState<string>('');
+  const [modalSelectedSpec, setModalSelectedSpec] = useState<string>('');
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
   const [igAccount, setIgAccount] = useState('');
   const [editingCartKey, setEditingCartKey] = useState<string | null>(null);
@@ -583,22 +585,29 @@ export default function App() {
     localStorage.setItem('categories', JSON.stringify(categories));
   }, [categories]);
 
-  const addToCart = (product: Product, selectedSpec?: string) => {
-    if (product.specs && product.specs.length > 0 && !selectedSpec) {
+  const addToCart = (product: Product, selectedSpec?: string, selectedColor?: string) => {
+    const needsSpec = product.specs && product.specs.length > 0;
+    const needsColor = product.colors && product.colors.length > 0;
+
+    if ((needsSpec && !selectedSpec) || (needsColor && !selectedColor)) {
       setSpecModalProduct(product);
+      setModalSelectedSpec(selectedSpec || '');
+      setModalSelectedColor(selectedColor || '');
       return;
     }
 
     setCart(prev => {
-      const existing = prev.find(item => item.id === product.id && item.selectedSpec === selectedSpec);
+      const existing = prev.find(item => item.id === product.id && item.selectedSpec === selectedSpec && item.selectedColor === selectedColor);
       if (existing) {
         return prev.map(item => 
-          (item.id === product.id && item.selectedSpec === selectedSpec) ? { ...item, num: item.num + 1 } : item
+          (item.id === product.id && item.selectedSpec === selectedSpec && item.selectedColor === selectedColor) ? { ...item, num: item.num + 1 } : item
         );
       }
-      return [...prev, { ...product, num: 1, selectedSpec }];
+      return [...prev, { ...product, num: 1, selectedSpec, selectedColor }];
     });
     setSpecModalProduct(null);
+    setModalSelectedSpec('');
+    setModalSelectedColor('');
     
     setShowCartSuccess(true);
     setTimeout(() => setShowCartSuccess(false), 700);
@@ -644,7 +653,7 @@ export default function App() {
     if (!lastOrder) return;
     
     const itemsText = lastOrder.items.map(item => 
-      `${item.name}${item.selectedSpec ? ` (${item.selectedSpec})` : ''} x${item.num} ¥${Math.floor(item.price * item.num)}`
+      `${item.name}${item.selectedColor ? ` (${item.selectedColor})` : ''}${item.selectedSpec ? ` (${item.selectedSpec})` : ''} x${item.num} ¥${Math.floor(item.price * item.num)}`
     ).join('\n');
 
     const orderText = `-【${igAccount || '您的帳號'}｜預購訂單】-
@@ -840,7 +849,7 @@ ${itemsText}
                   </div>
                 ) : (
                   cart.map((item, idx) => {
-                    const itemKey = `${item.id}-${item.selectedSpec || idx}`;
+                    const itemKey = `${item.id}-${item.selectedColor || ''}-${item.selectedSpec || idx}`;
                     const isEditing = editingCartKey === itemKey;
                     
                     return (
@@ -856,11 +865,18 @@ ${itemsText}
                         <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                           <div>
                             <h4 className="font-bold text-gray-900 text-sm leading-tight">{item.name}</h4>
-                            {item.selectedSpec && (
-                              <span className="text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded mt-1 inline-block">
-                                規格: {item.selectedSpec}
-                              </span>
-                            )}
+                            <div className="flex gap-1 flex-wrap mt-1">
+                              {item.selectedColor && (
+                                <span className="text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded inline-block">
+                                  顏色: {item.selectedColor}
+                                </span>
+                              )}
+                              {item.selectedSpec && (
+                                <span className="text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded inline-block">
+                                  規格: {item.selectedSpec}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <div className="flex items-center justify-between mt-2">
                             <div className="flex items-baseline gap-0.5">
@@ -1002,6 +1018,7 @@ ${itemsText}
                           <img src={item.imgs[0]} alt="" className="w-10 h-10 object-cover rounded" referrerPolicy="no-referrer" />
                           <div>
                             <p className="text-sm font-medium">{item.name}</p>
+                            {item.selectedColor && <p className="text-[10px] text-gray-400">顏色: {item.selectedColor}</p>}
                             {item.selectedSpec && <p className="text-[10px] text-gray-400">規格: {item.selectedSpec}</p>}
                             <p className="text-[10px] text-gray-400">x{item.num}</p>
                           </div>
@@ -1077,7 +1094,7 @@ ${itemsText}
 
         {/* Spec Selection Modal */}
         {specModalProduct && (
-          <Modal onClose={() => setSpecModalProduct(null)}>
+          <Modal onClose={() => { setSpecModalProduct(null); setModalSelectedColor(''); setModalSelectedSpec(''); }}>
             <div className="p-8">
               <div className="flex items-center gap-6 mb-8">
                 <img 
@@ -1092,20 +1109,47 @@ ${itemsText}
                 </div>
               </div>
               
-              <div className="mb-8">
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">選擇規格</label>
-                <div className="flex flex-wrap gap-3">
-                  {specModalProduct.specs?.map(spec => (
-                    <button
-                      key={spec}
-                      onClick={() => addToCart(specModalProduct, spec)}
-                      className="px-6 py-3 bg-gray-50 hover:bg-red-500 hover:text-white rounded-xl font-bold text-sm transition-all border border-gray-100 hover:border-red-500 hover:shadow-lg hover:shadow-red-100"
-                    >
-                      {spec}
-                    </button>
-                  ))}
+              {specModalProduct.colors && specModalProduct.colors.length > 0 && (
+                <div className="mb-8">
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">選擇顏色</label>
+                  <div className="flex flex-wrap gap-3">
+                    {specModalProduct.colors.map(color => (
+                      <button
+                        key={color}
+                        onClick={() => setModalSelectedColor(color)}
+                        className={`px-6 py-3 rounded-xl font-bold text-sm transition-all border ${modalSelectedColor === color ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500'}`}
+                      >
+                        {color}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {specModalProduct.specs && specModalProduct.specs.length > 0 && (
+                <div className="mb-8">
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">選擇規格</label>
+                  <div className="flex flex-wrap gap-3">
+                    {specModalProduct.specs.map(spec => (
+                      <button
+                        key={spec}
+                        onClick={() => setModalSelectedSpec(spec)}
+                        className={`px-6 py-3 rounded-xl font-bold text-sm transition-all border ${modalSelectedSpec === spec ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500'}`}
+                      >
+                        {spec}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={() => addToCart(specModalProduct, modalSelectedSpec, modalSelectedColor)}
+                disabled={(!!specModalProduct.specs?.length && !modalSelectedSpec) || (!!specModalProduct.colors?.length && !modalSelectedColor)}
+                className="w-full py-4 mb-8 bg-gray-900 text-white rounded-2xl font-black text-lg hover:bg-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-gray-200"
+              >
+                加入購物車
+              </button>
               
               {specModalProduct.sizeChart && (
                 <div className="mb-8">
@@ -1574,6 +1618,7 @@ function AdminModal({
     description: '',
     promoLabel: '',
     promoSubLabel: '',
+    color: '',
     specs: '',
     sizeChart: '',
     isNew: false,
@@ -1586,6 +1631,7 @@ function AdminModal({
     category: '',
     promoLabel: '',
     promoSubLabel: '',
+    color: '',
     sizeChart: '',
     isNew: false,
     isHot: false,
@@ -1593,6 +1639,7 @@ function AdminModal({
     updateCategory: false,
     updatePromoLabel: false,
     updatePromoSubLabel: false,
+    updateColor: false,
     updateSizeChart: false,
     updateIsNew: false,
     updateIsHot: false,
@@ -1605,7 +1652,7 @@ function AdminModal({
   }, [siteSettings]);
 
   const resetForm = () => {
-    setFormData({ name: '', sn: '', price: '', category: '服裝', description: '', promoLabel: '', promoSubLabel: '', specs: '', sizeChart: '', isNew: false, isHot: false, imgs: [] });
+    setFormData({ name: '', sn: '', price: '', category: '服裝', description: '', promoLabel: '', promoSubLabel: '', color: '', specs: '', sizeChart: '', isNew: false, isHot: false, imgs: [] });
     setEditingProduct(null);
   };
 
@@ -1616,6 +1663,7 @@ function AdminModal({
     const descriptions = (formData.description || '').split(',').map(d => d.trim()).filter(Boolean);
     const promoLabels = (formData.promoLabel || '').split(',').map(l => l.trim());
     const promoSubLabels = (formData.promoSubLabel || '').split(',').map(l => l.trim());
+    const colors = (formData.color || '').split(',').map(c => c.trim()).filter(Boolean);
     const specsList = (formData.specs || '').split(',').map(s => s.trim()).filter(Boolean);
     const sizeCharts = (formData.sizeChart || '').split(',').map(s => s.trim());
     
@@ -1644,6 +1692,7 @@ function AdminModal({
         description: descriptions[i] || descriptions[0] || '',
         promoLabel: promoLabels[i] || promoLabels[0] || '',
         promoSubLabel: promoSubLabels[i] || promoSubLabels[0] || '',
+        colors: colors.length > 0 ? colors : undefined,
         specs: specsList.length > 0 ? specsList : undefined,
         sizeChart: sizeCharts[i] || sizeCharts[0] || '',
         isNew: formData.isNew,
@@ -1672,6 +1721,7 @@ function AdminModal({
       description: formData.description || '',
       promoLabel: formData.promoLabel || '',
       promoSubLabel: formData.promoSubLabel || '',
+      colors: formData.color ? formData.color.split(',').map(s => s.trim()).filter(Boolean) : undefined,
       specs: formData.specs ? formData.specs.split(',').map(s => s.trim()).filter(Boolean) : undefined,
       sizeChart: formData.sizeChart || '',
       isNew: formData.isNew || false,
@@ -1697,6 +1747,7 @@ function AdminModal({
       description: product.description || '',
       promoLabel: product.promoLabel || '',
       promoSubLabel: product.promoSubLabel || '',
+      color: product.colors ? product.colors.join(', ') : '',
       specs: product.specs ? product.specs.join(', ') : '',
       sizeChart: product.sizeChart || '',
       isNew: product.isNew || false,
@@ -1730,6 +1781,7 @@ function AdminModal({
           category: bulkFormData.updateCategory ? (bulkFormData.category || p.category) : p.category,
           promoLabel: bulkFormData.updatePromoLabel ? bulkFormData.promoLabel : p.promoLabel,
           promoSubLabel: bulkFormData.updatePromoSubLabel ? bulkFormData.promoSubLabel : p.promoSubLabel,
+          colors: bulkFormData.updateColor ? (bulkFormData.color ? bulkFormData.color.split(',').map(c => c.trim()).filter(Boolean) : undefined) : p.colors,
           sizeChart: bulkFormData.updateSizeChart ? bulkFormData.sizeChart : p.sizeChart,
           isNew: bulkFormData.updateIsNew ? bulkFormData.isNew : p.isNew,
           isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : p.isHot,
@@ -1746,6 +1798,7 @@ function AdminModal({
           category: bulkFormData.updateCategory ? (bulkFormData.category || item.category) : item.category,
           promoLabel: bulkFormData.updatePromoLabel ? bulkFormData.promoLabel : item.promoLabel,
           promoSubLabel: bulkFormData.updatePromoSubLabel ? bulkFormData.promoSubLabel : item.promoSubLabel,
+          colors: bulkFormData.updateColor ? (bulkFormData.color ? bulkFormData.color.split(',').map(c => c.trim()).filter(Boolean) : undefined) : item.colors,
           sizeChart: bulkFormData.updateSizeChart ? bulkFormData.sizeChart : item.sizeChart,
           isNew: bulkFormData.updateIsNew ? bulkFormData.isNew : item.isNew,
           isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : item.isHot,
@@ -1899,14 +1952,18 @@ function AdminModal({
                           category: categories[1] || '服裝',
                           promoLabel: '',
                           promoSubLabel: '',
+                          color: '',
                           sizeChart: '',
                           isNew: false,
+                          isHot: false,
                           updatePrice: false,
                           updateCategory: false,
                           updatePromoLabel: false,
                           updatePromoSubLabel: false,
+                          updateColor: false,
                           updateSizeChart: false,
                           updateIsNew: false,
+                          updateIsHot: false,
                         });
                         setActiveTab('bulk');
                       }}
@@ -2114,6 +2171,27 @@ function AdminModal({
                       placeholder="例如：限購1件!"
                       value={bulkFormData.promoSubLabel}
                       onChange={e => setBulkFormData(prev => ({ ...prev, promoSubLabel: e.target.value }))}
+                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:ring-2 ring-blue-500 outline-none transition-all"
+                    />
+                  )}
+
+                  <div className="pt-4 flex items-center justify-between">
+                    <label className="flex items-center gap-2 font-bold text-gray-700">
+                      <input 
+                        type="checkbox" 
+                        checked={bulkFormData.updateColor}
+                        onChange={e => setBulkFormData(prev => ({ ...prev, updateColor: e.target.checked }))}
+                        className="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                      />
+                      更新商品顏色
+                    </label>
+                  </div>
+                  {bulkFormData.updateColor && (
+                    <input 
+                      type="text" 
+                      placeholder="例如：黑色"
+                      value={bulkFormData.color}
+                      onChange={e => setBulkFormData(prev => ({ ...prev, color: e.target.value }))}
                       className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:ring-2 ring-blue-500 outline-none transition-all"
                     />
                   )}
@@ -2470,6 +2548,19 @@ function AdminModal({
                       value={formData.promoSubLabel}
                       onChange={e => setFormData(prev => ({ ...prev, promoSubLabel: e.target.value }))}
                       placeholder={activeTab === 'add' ? "例：限購1件!, 限量50台" : "例：限購1件!"}
+                      className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
+                      {activeTab === 'add' ? '商品顏色 (逗號分隔)' : '商品顏色'}
+                    </label>
+                    <input 
+                      type="text" 
+                      value={formData.color}
+                      onChange={e => setFormData(prev => ({ ...prev, color: e.target.value }))}
+                      placeholder={activeTab === 'add' ? "例：黑色, 白色" : "例：黑色"}
                       className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
                     />
                   </div>
