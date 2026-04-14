@@ -717,15 +717,15 @@ ${itemsText}
         </div>
 
         {/* Announcement Banner */}
-        <div className="bg-red-50/50 border-t border-red-100/50">
+        <div className="bg-gray-100 border-t border-gray-200">
           <div className="container mx-auto px-4 py-1.5 flex items-center gap-2">
-            <div className="shrink-0 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+            <div className="shrink-0 w-4 h-4 bg-black rounded-full flex items-center justify-center">
               <Zap size={10} className="text-white fill-white" />
             </div>
-            <div className="flex flex-col sm:flex-row sm:gap-4 text-[11px] sm:text-xs text-red-600 font-bold leading-tight">
+            <div className="flex flex-col sm:flex-row sm:gap-4 text-[11px] sm:text-xs text-gray-900 font-bold leading-tight">
               {siteSettings.subtitle.map((line, idx) => (
                 <p key={idx} className="flex items-center gap-1">
-                  <span className="w-1 h-1 bg-red-400 rounded-full" />
+                  <span className="w-1 h-1 bg-black rounded-full" />
                   {line}
                 </p>
               ))}
@@ -740,7 +740,7 @@ ${itemsText}
           <button
             onClick={() => setActiveCategory('全部')}
             className={cn(
-              "px-5 py-2 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2",
+              "px-3 py-1.5 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2",
               activeCategory === '全部' 
                 ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
                 : "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300 hover:text-gray-900 shadow-sm"
@@ -751,7 +751,7 @@ ${itemsText}
           <button
             onClick={() => setActiveCategory('新品')}
             className={cn(
-              "px-5 py-2 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2",
+              "px-3 py-1.5 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2",
               activeCategory === '新品' 
                 ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
                 : "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300 hover:text-gray-900 shadow-sm"
@@ -771,9 +771,9 @@ ${itemsText}
                   : "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300 hover:text-gray-900 shadow-sm"
               )}
             >
-              <option value="" disabled className="hidden text-xs sm:text-sm">分類</option>
+              <option value="" disabled className="hidden text-[11px] sm:text-xs">分類</option>
               {categories.filter(c => c !== '全部').map(cat => (
-                <option key={cat} value={cat} className="text-gray-900 bg-white text-xs sm:text-sm">{cat}</option>
+                <option key={cat} value={cat} className="text-gray-900 bg-white text-[11px] sm:text-xs">{cat}</option>
               ))}
             </select>
             <ChevronDown size={14} className={cn(
