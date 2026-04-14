@@ -29,17 +29,21 @@ app.get("/api/debug", (req, res) => {
 
 // API to get products from GitHub
 app.get("/api/products", async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     try {
       if (!GITHUB_TOKEN) {
         return res.status(500).json({ error: "GITHUB_TOKEN is not configured" });
       }
 
       const response = await globalThis.fetch(
-        `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`,
+        `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}?t=${Date.now()}`,
         {
           headers: {
             Accept: "application/vnd.github+json",
             Authorization: `Bearer ${GITHUB_TOKEN}`,
+            "Cache-Control": "no-cache",
           },
         }
       );
@@ -64,17 +68,21 @@ app.get("/api/products", async (req, res) => {
 
   // API to get settings from GitHub
   app.get("/api/settings", async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     try {
       if (!GITHUB_TOKEN) {
         return res.status(500).json({ error: "GITHUB_TOKEN is not configured" });
       }
 
       const response = await globalThis.fetch(
-        `https://api.github.com/repos/${GITHUB_REPO}/contents/${SETTINGS_FILE_PATH}`,
+        `https://api.github.com/repos/${GITHUB_REPO}/contents/${SETTINGS_FILE_PATH}?t=${Date.now()}`,
         {
           headers: {
             Accept: "application/vnd.github+json",
             Authorization: `Bearer ${GITHUB_TOKEN}`,
+            "Cache-Control": "no-cache",
           },
         }
       );
@@ -113,17 +121,21 @@ app.get("/api/products", async (req, res) => {
 
   // API to get categories from GitHub
   app.get("/api/categories", async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     try {
       if (!GITHUB_TOKEN) {
         return res.status(500).json({ error: "GITHUB_TOKEN is not configured" });
       }
 
       const response = await globalThis.fetch(
-        `https://api.github.com/repos/${GITHUB_REPO}/contents/categories.json`,
+        `https://api.github.com/repos/${GITHUB_REPO}/contents/categories.json?t=${Date.now()}`,
         {
           headers: {
             Accept: "application/vnd.github+json",
             Authorization: `Bearer ${GITHUB_TOKEN}`,
+            "Cache-Control": "no-cache",
           },
         }
       );

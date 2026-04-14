@@ -387,7 +387,7 @@ export default function App() {
   const loadProductsFromGitHub = async () => {
     setIsSyncing(true);
     try {
-      const response = await globalThis.fetch('/api/products');
+      const response = await globalThis.fetch(`/api/products?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         
@@ -414,7 +414,7 @@ export default function App() {
 
   const loadSettingsFromGitHub = async () => {
     try {
-      const response = await globalThis.fetch('/api/settings');
+      const response = await globalThis.fetch(`/api/settings?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         const settings = data.settings;
@@ -432,7 +432,7 @@ export default function App() {
 
   const loadCategoriesFromGitHub = async () => {
     try {
-      const response = await globalThis.fetch('/api/categories');
+      const response = await globalThis.fetch(`/api/categories?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         setCategories(data.categories);
