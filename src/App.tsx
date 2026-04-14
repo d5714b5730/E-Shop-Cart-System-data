@@ -202,15 +202,15 @@ function ProductCard({ product, addToCart, siteSettings }: any): React.JSX.Eleme
       </div>
 
       {/* Top Floating Elements */}
-      <div className="absolute top-6 left-6 right-6 z-20 flex justify-between items-start">
+      <div className="absolute top-12 sm:top-6 left-4 sm:left-6 right-4 sm:right-6 z-20 flex justify-between items-start">
         <div className="flex flex-col gap-2">
-          <span className="px-3 py-1 bg-white/20 backdrop-blur-xl text-white text-[10px] font-bold rounded-full border border-white/20 uppercase tracking-wider">
+          {/* <span className="px-3 py-1 bg-white/20 backdrop-blur-xl text-white text-[10px] font-bold rounded-full border border-white/20 uppercase tracking-wider">
             {product.category}
-          </span>
+          </span> */}
           {product.isHot && (
             <span className="px-3 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full shadow-lg shadow-red-500/40 uppercase tracking-wider flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-              HOT
+              近期熱銷
             </span>
           )}
         </div>
