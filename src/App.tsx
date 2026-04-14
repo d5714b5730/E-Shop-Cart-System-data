@@ -444,31 +444,75 @@ export default function App() {
     }
   };
 
+  const generateMD5LikeHash = async (data: any) => {
+    const msgUint8 = new TextEncoder().encode(JSON.stringify(data));
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const syncWithRetryAndVerify = async (
+    endpoint: string,
+    dataKey: string,
+    data: any,
+    currentSha: string | null,
+    setSha: (sha: string) => void,
+    maxRetries = 3
+  ) => {
+    const localHash = await generateMD5LikeHash(data);
+    let lastError = null;
+    let activeSha = currentSha;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const saveRes = await globalThis.fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [dataKey]: data, sha: activeSha }),
+        });
+        
+        if (!saveRes.ok) {
+          const errData = await saveRes.json();
+          throw new Error(errData.message || `Save failed with status ${saveRes.status}`);
+        }
+        
+        const saveData = await saveRes.json();
+        const newSha = saveData.sha;
+
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        const fetchRes = await globalThis.fetch(`${endpoint}?t=${Date.now()}`);
+        if (!fetchRes.ok) throw new Error(`Fetch failed with status ${fetchRes.status}`);
+        const fetchData = await fetchRes.json();
+        
+        const remoteHash = await generateMD5LikeHash(fetchData[dataKey]);
+        
+        if (localHash === remoteHash) {
+          setSha(newSha);
+          return true;
+        } else {
+          console.warn(`Attempt ${attempt}: Hash mismatch. Local: ${localHash}, Remote: ${remoteHash}`);
+          activeSha = fetchData.sha;
+          if (attempt === maxRetries) throw new Error('校驗失敗：遠端資料與本地不一致');
+        }
+      } catch (error) {
+        console.warn(`Attempt ${attempt}: Error during sync`, error);
+        lastError = error;
+        if (attempt === maxRetries) throw lastError;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    return false;
+  };
+
   const saveCategoriesToGitHub = async (updatedCategories: string[], showToastMsg = true, updateSyncState = true) => {
     if (updateSyncState) setIsSyncing(true);
     try {
-      const response = await globalThis.fetch('/api/categories', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          categories: updatedCategories,
-          sha: categoriesSHA,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCategoriesSHA(data.sha);
-        if (showToastMsg) showToast('分類已成功儲存到 GitHub！', 'success');
-      } else {
-        const error = await response.json();
-        if (showToastMsg) showToast('保存分類失敗：' + (error.message || '未知錯誤'), 'error');
-      }
-    } catch (error) {
+      await syncWithRetryAndVerify('/api/categories', 'categories', updatedCategories, categoriesSHA, setCategoriesSHA);
+      if (showToastMsg) showToast('分類已成功儲存並校驗通過！', 'success');
+    } catch (error: any) {
       console.error('Error saving categories:', error);
-      if (showToastMsg) showToast('保存分類過程中發生錯誤', 'error');
+      if (showToastMsg) showToast('保存分類失敗：' + (error.message || '未知錯誤'), 'error');
     } finally {
       if (updateSyncState) setIsSyncing(false);
     }
@@ -477,28 +521,11 @@ export default function App() {
   const saveSettingsToGitHub = async (updatedSettings: SiteSettings, showToastMsg = true, updateSyncState = true) => {
     if (updateSyncState) setIsSyncing(true);
     try {
-      const response = await globalThis.fetch('/api/settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          settings: updatedSettings,
-          sha: settingsSHA,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSettingsSHA(data.sha);
-        if (showToastMsg) showToast('設定已成功儲存到 GitHub！', 'success');
-      } else {
-        const error = await response.json();
-        if (showToastMsg) showToast('保存設定失敗：' + (error.message || '未知錯誤'), 'error');
-      }
-    } catch (error) {
+      await syncWithRetryAndVerify('/api/settings', 'settings', updatedSettings, settingsSHA, setSettingsSHA);
+      if (showToastMsg) showToast('設定已成功儲存並校驗通過！', 'success');
+    } catch (error: any) {
       console.error('Error saving settings:', error);
-      if (showToastMsg) showToast('保存設定過程中發生錯誤', 'error');
+      if (showToastMsg) showToast('保存設定失敗：' + (error.message || '未知錯誤'), 'error');
     } finally {
       if (updateSyncState) setIsSyncing(false);
     }
@@ -507,28 +534,11 @@ export default function App() {
   const saveProductsToGitHub = async (updatedProducts: Product[], showToastMsg = true, updateSyncState = true) => {
     if (updateSyncState) setIsSyncing(true);
     try {
-      const response = await globalThis.fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          products: updatedProducts,
-          sha: currentSHA,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCurrentSHA(data.sha);
-        if (showToastMsg) showToast('商品已成功保存到 GitHub！', 'success');
-      } else {
-        const error = await response.json();
-        if (showToastMsg) showToast('保存失敗: ' + (error.message || '未知錯誤'), 'error');
-      }
-    } catch (error) {
+      await syncWithRetryAndVerify('/api/products', 'products', updatedProducts, currentSHA, setCurrentSHA);
+      if (showToastMsg) showToast('商品已成功保存並校驗通過！', 'success');
+    } catch (error: any) {
       console.error('Error saving products:', error);
-      if (showToastMsg) showToast('保存時發生錯誤', 'error');
+      if (showToastMsg) showToast('保存商品失敗：' + (error.message || '未知錯誤'), 'error');
     } finally {
       if (updateSyncState) setIsSyncing(false);
     }
