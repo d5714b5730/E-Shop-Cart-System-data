@@ -111,6 +111,81 @@ app.get("/api/products", async (req, res) => {
     }
   });
 
+  // API to get categories from GitHub
+  app.get("/api/categories", async (req, res) => {
+    try {
+      if (!GITHUB_TOKEN) {
+        return res.status(500).json({ error: "GITHUB_TOKEN is not configured" });
+      }
+
+      const response = await globalThis.fetch(
+        `https://api.github.com/repos/${GITHUB_REPO}/contents/categories.json`,
+        {
+          headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        return res.json({
+          categories: ['全部', '服裝', '鞋包', '飾品', '美妝', '生活'],
+          sha: null
+        });
+      }
+
+      const data = await response.json() as any;
+      const content = Buffer.from(data.content, 'base64').toString('utf-8');
+      
+      res.json({
+        categories: JSON.parse(content),
+        sha: data.sha
+      });
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // API to save categories to GitHub
+  app.post("/api/categories", async (req, res) => {
+    try {
+      if (!GITHUB_TOKEN) {
+        return res.status(500).json({ error: "GITHUB_TOKEN is not configured" });
+      }
+
+      const { categories, sha } = req.body;
+
+      const response = await globalThis.fetch(
+        `https://api.github.com/repos/${GITHUB_REPO}/contents/categories.json`,
+        {
+          method: "PUT",
+          headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+          },
+          body: JSON.stringify({
+            message: "更新分類",
+            content: Buffer.from(JSON.stringify(categories, null, 2)).toString('base64'),
+            sha: sha || undefined,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return res.status(response.status).json(errorData);
+      }
+
+      const data = await response.json() as any;
+      res.json({ success: true, sha: data.content.sha });
+    } catch (error) {
+      console.error("Error saving categories:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // API to save settings to GitHub
   app.post("/api/settings", async (req, res) => {
     try {

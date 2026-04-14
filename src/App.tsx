@@ -335,6 +335,8 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
   const [currentSHA, setCurrentSHA] = useState<string | null>(null);
+  const [settingsSHA, setSettingsSHA] = useState<string | null>(null);
+  const [categoriesSHA, setCategoriesSHA] = useState<string | null>(null);
   const [siteSettings, setSiteSettings] = useState<SiteSettings>({
     title: "90s加購專區",
     subtitle: [
@@ -348,7 +350,6 @@ export default function App() {
     freeShippingThreshold: 1000,
     isCartEnabled: true
   });
-  const [settingsSHA, setSettingsSHA] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [specModalProduct, setSpecModalProduct] = useState<Product | null>(null);
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
@@ -429,8 +430,52 @@ export default function App() {
     }
   };
 
-  const saveSettingsToGitHub = async (updatedSettings: SiteSettings) => {
-    setIsSyncing(true);
+  const loadCategoriesFromGitHub = async () => {
+    try {
+      const response = await globalThis.fetch('/api/categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data.categories);
+        setCategoriesSHA(data.sha);
+        console.log('Loaded categories from GitHub');
+      }
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
+
+  const saveCategoriesToGitHub = async (updatedCategories: string[], showToastMsg = true, updateSyncState = true) => {
+    if (updateSyncState) setIsSyncing(true);
+    try {
+      const response = await globalThis.fetch('/api/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          categories: updatedCategories,
+          sha: categoriesSHA,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCategoriesSHA(data.sha);
+        if (showToastMsg) showToast('分類已成功儲存到 GitHub！', 'success');
+      } else {
+        const error = await response.json();
+        if (showToastMsg) showToast('保存分類失敗：' + (error.message || '未知錯誤'), 'error');
+      }
+    } catch (error) {
+      console.error('Error saving categories:', error);
+      if (showToastMsg) showToast('保存分類過程中發生錯誤', 'error');
+    } finally {
+      if (updateSyncState) setIsSyncing(false);
+    }
+  };
+
+  const saveSettingsToGitHub = async (updatedSettings: SiteSettings, showToastMsg = true, updateSyncState = true) => {
+    if (updateSyncState) setIsSyncing(true);
     try {
       const response = await globalThis.fetch('/api/settings', {
         method: 'POST',
@@ -446,21 +491,21 @@ export default function App() {
       if (response.ok) {
         const data = await response.json();
         setSettingsSHA(data.sha);
-        showToast('設定已成功儲存到 GitHub！', 'success');
+        if (showToastMsg) showToast('設定已成功儲存到 GitHub！', 'success');
       } else {
         const error = await response.json();
-        showToast('保存設定失敗：' + (error.message || '未知錯誤'), 'error');
+        if (showToastMsg) showToast('保存設定失敗：' + (error.message || '未知錯誤'), 'error');
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      showToast('保存設定過程中發生錯誤', 'error');
+      if (showToastMsg) showToast('保存設定過程中發生錯誤', 'error');
     } finally {
-      setIsSyncing(false);
+      if (updateSyncState) setIsSyncing(false);
     }
   };
 
-  const saveProductsToGitHub = async (updatedProducts: Product[]) => {
-    setIsSyncing(true);
+  const saveProductsToGitHub = async (updatedProducts: Product[], showToastMsg = true, updateSyncState = true) => {
+    if (updateSyncState) setIsSyncing(true);
     try {
       const response = await globalThis.fetch('/api/products', {
         method: 'POST',
@@ -476,22 +521,43 @@ export default function App() {
       if (response.ok) {
         const data = await response.json();
         setCurrentSHA(data.sha);
-        showToast('商品已成功保存到 GitHub！', 'success');
+        if (showToastMsg) showToast('商品已成功保存到 GitHub！', 'success');
       } else {
         const error = await response.json();
-        showToast('保存失敗: ' + (error.message || '未知錯誤'), 'error');
+        if (showToastMsg) showToast('保存失敗: ' + (error.message || '未知錯誤'), 'error');
       }
     } catch (error) {
       console.error('Error saving products:', error);
-      showToast('保存時發生錯誤', 'error');
+      if (showToastMsg) showToast('保存時發生錯誤', 'error');
+    } finally {
+      if (updateSyncState) setIsSyncing(false);
+    }
+  };
+
+  const saveAllToGitHub = async () => {
+    setIsSyncing(true);
+    try {
+      await Promise.all([
+        saveProductsToGitHub(products, false, false),
+        saveSettingsToGitHub(siteSettings, false, false),
+        saveCategoriesToGitHub(categories, false, false)
+      ]);
+      showToast('所有變更（商品、設定、分類）已成功保存到 GitHub！', 'success');
+    } catch (error) {
+      showToast('保存過程中發生錯誤', 'error');
     } finally {
       setIsSyncing(false);
     }
   };
 
-  useEffect(() => {
+  const loadAllFromGitHub = () => {
     loadProductsFromGitHub();
     loadSettingsFromGitHub();
+    loadCategoriesFromGitHub();
+  };
+
+  useEffect(() => {
+    loadAllFromGitHub();
   }, []);
 
   useEffect(() => {
@@ -656,7 +722,7 @@ ${itemsText}
             <div className="shrink-0 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
               <Zap size={10} className="text-white fill-white" />
             </div>
-            <div className="flex flex-col sm:flex-row sm:gap-4 text-[9px] sm:text-[10px] text-red-600 font-bold leading-tight">
+            <div className="flex flex-col sm:flex-row sm:gap-4 text-[11px] sm:text-xs text-red-600 font-bold leading-tight">
               {siteSettings.subtitle.map((line, idx) => (
                 <p key={idx} className="flex items-center gap-1">
                   <span className="w-1 h-1 bg-red-400 rounded-full" />
@@ -699,19 +765,19 @@ ${itemsText}
               value={activeCategory !== '全部' && activeCategory !== '新品' ? activeCategory : ''}
               onChange={(e) => setActiveCategory(e.target.value)}
               className={cn(
-                "appearance-none px-5 py-2 pr-8 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2 outline-none cursor-pointer",
+                "appearance-none px-3 py-1.5 pr-7 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2 outline-none cursor-pointer",
                 activeCategory !== '全部' && activeCategory !== '新品'
                   ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
                   : "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300 hover:text-gray-900 shadow-sm"
               )}
             >
-              <option value="" disabled className="hidden">分類</option>
+              <option value="" disabled className="hidden text-xs sm:text-sm">分類</option>
               {categories.filter(c => c !== '全部').map(cat => (
-                <option key={cat} value={cat} className="text-gray-900 bg-white">{cat}</option>
+                <option key={cat} value={cat} className="text-gray-900 bg-white text-xs sm:text-sm">{cat}</option>
               ))}
             </select>
             <ChevronDown size={14} className={cn(
-              "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none",
+              "absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none",
               activeCategory !== '全部' && activeCategory !== '新品' ? "text-white" : "text-gray-500"
             )} />
           </div>
@@ -1075,9 +1141,9 @@ ${itemsText}
             siteSettings={siteSettings}
             setSiteSettings={setSiteSettings}
             onClose={() => setIsAdminOpen(false)} 
-            onSaveToGitHub={() => saveProductsToGitHub(products)}
+            onSaveToGitHub={saveAllToGitHub}
             onSaveSettings={saveSettingsToGitHub}
-            onRefreshFromGitHub={loadProductsFromGitHub}
+            onRefreshFromGitHub={loadAllFromGitHub}
             isSyncing={isSyncing}
             showToast={showToast}
             handleConfirm={handleConfirm}
