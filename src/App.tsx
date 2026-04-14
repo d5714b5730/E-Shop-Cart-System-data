@@ -534,14 +534,15 @@ export default function App() {
     }
   };
 
-  const saveAllToGitHub = async () => {
+  const saveAllToGitHub = async (currentSettings: SiteSettings) => {
     setIsSyncing(true);
     try {
       await Promise.all([
         saveProductsToGitHub(products, false, false),
-        saveSettingsToGitHub(siteSettings, false, false),
+        saveSettingsToGitHub(currentSettings, false, false),
         saveCategoriesToGitHub(categories, false, false)
       ]);
+      setSiteSettings(currentSettings);
       showToast('所有變更（商品、設定、分類）已成功保存到 GitHub！', 'success');
     } catch (error) {
       showToast('保存過程中發生錯誤', 'error');
@@ -1143,7 +1144,6 @@ ${itemsText}
             onClose={() => setIsAdminOpen(false)} 
             onSaveToGitHub={saveAllToGitHub}
             onSaveSettings={saveSettingsToGitHub}
-            onRefreshFromGitHub={loadAllFromGitHub}
             isSyncing={isSyncing}
             showToast={showToast}
             handleConfirm={handleConfirm}
@@ -1529,7 +1529,6 @@ function AdminModal({
   onClose,
   onSaveToGitHub,
   onSaveSettings,
-  onRefreshFromGitHub,
   isSyncing,
   showToast,
   handleConfirm
@@ -1543,9 +1542,8 @@ function AdminModal({
   siteSettings: SiteSettings;
   setSiteSettings: React.Dispatch<React.SetStateAction<SiteSettings>>;
   onClose: () => void;
-  onSaveToGitHub: () => void;
+  onSaveToGitHub: (settings: SiteSettings) => void;
   onSaveSettings: (settings: SiteSettings) => void;
-  onRefreshFromGitHub: () => void;
   isSyncing: boolean;
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
   handleConfirm: (message: string, onConfirm: () => void) => void;
@@ -1771,17 +1769,7 @@ function AdminModal({
           </div>
           <div className="flex items-center gap-2">
             <button 
-              onClick={onRefreshFromGitHub}
-              disabled={isSyncing}
-              className="p-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-all disabled:opacity-50"
-              title="從 GitHub 重新整理"
-            >
-              <motion.div animate={isSyncing ? { rotate: 360 } : {}} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
-                <Zap size={20} />
-              </motion.div>
-            </button>
-            <button 
-              onClick={onSaveToGitHub}
+              onClick={() => onSaveToGitHub(settingsFormData)}
               disabled={isSyncing}
               className="flex items-center gap-2 px-6 py-2.5 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-all shadow-lg shadow-blue-100 disabled:opacity-50"
             >
