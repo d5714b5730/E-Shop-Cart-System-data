@@ -51,14 +51,16 @@
     "name": "北歐風簡約檯燈",
     "sn": "SP003",
     "price": 129,
-    "category": "家居",
+    "category": "背心 / 美背小可愛",
     "description": "三段調光設計，柔和護眼光線，簡約設計裝點空間。",
     "promoLabel": "限時加購",
     "promoSubLabel": "本期 4/15結單 !",
     "imgs": [
-      "https://picsum.photos/seed/h1/600/1067",
-      "https://picsum.photos/seed/h2/600/1067"
-    ]
+      "/api/images/images/1776170219312_1000089737.jpg"
+    ],
+    "sizeChart": "",
+    "isNew": true,
+    "isHot": false
   },
   {
     "id": 4,
