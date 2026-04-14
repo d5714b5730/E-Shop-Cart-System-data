@@ -56,10 +56,7 @@
     "promoLabel": "限時加購",
     "promoSubLabel": "本期 4/15結單 !",
     "imgs": [
-      "/api/images/images/1776170219312_1000089737.jpg",
-      "/api/images/images/1776171941470_1000089733.jpg",
-      "/api/images/images/1776171943771_1000089735.jpg",
-      "/api/images/images/1776171946109_1000089736.jpg"
+      "/api/images/images/1776170219312_1000089737.jpg"
     ],
     "sizeChart": "",
     "isNew": true,
