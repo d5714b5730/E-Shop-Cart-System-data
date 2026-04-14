@@ -15,10 +15,10 @@
       "/api/images/images/1775926847043_1000089565.jpg"
     ],
     "specs": [
-      "S",
-      "M",
-      "L",
-      "XL"
+      "百搭純白",
+      "經典正黑",
+      "2026新色淡黃",
+      "2026新色軍綠"
     ],
     "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th>\n            <th class=\"py-2\">胸圍</th>\n            <th class=\"py-2\">衣長</th>\n          </tr>\n        </thead>\n        <tbody>\n          <tr class=\"border-b border-white/5\">\n            <td class=\"py-2\">S</td>\n            <td class=\"py-2\">100cm</td>\n            <td class=\"py-2\">68cm</td>\n          </tr>\n          <tr class=\"border-b border-white/5\">\n            <td class=\"py-2\">M</td>\n            <td class=\"py-2\">104cm</td>\n            <td class=\"py-2\">70cm</td>\n          </tr>\n          <tr>\n            <td class=\"py-2\">L</td>\n            <td class=\"py-2\">108cm</td>\n            <td class=\"py-2\">72cm</td>\n          </tr>\n        </tbody>\n      </table>\n    ",
     "isHot": true
