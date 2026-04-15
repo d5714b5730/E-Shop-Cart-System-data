@@ -195,6 +195,8 @@ function ProductCard({ product, addToCart, siteSettings }: any): React.JSX.Eleme
                 className="w-full h-full object-contain pointer-events-none"
                 referrerPolicy="no-referrer"
                 draggable="false"
+                loading={idx === 0 ? "eager" : "lazy"}
+                decoding="async"
               />
             </div>
           ))}
@@ -656,17 +658,18 @@ export default function App() {
       `${item.name}${item.selectedColor ? ` (${item.selectedColor})` : ''}${item.selectedSpec ? ` (${item.selectedSpec})` : ''} x${item.num} ¥${Math.floor(item.price * item.num)}`
     ).join('\n');
 
-    const orderText = `-【${igAccount || '您的帳號'}｜預購訂單】-
+    const orderText = `-【${igAccount || '您的帳號'}｜90s預購訂單】-
 ${lastOrder.date}
 
-◆ 九零預購訂單內容：
+◆ 預購商品內容：
 ${itemsText}
 
+🎁 自助下單獎勵 -¥${lastOrder.promotionAmount || 0}
 +運費 ¥${lastOrder.shippingFee}
 ——————————————
 = ¥${Math.floor(lastOrder.total)} (預購訂單金額)
 
-◆ 將訂單內容複製貼上發給九零
+◆ 將訂單內容發給九零：
 1、只購買預購商品：
 → 等九零回覆匯款資訊
 
@@ -860,6 +863,8 @@ ${itemsText}
                             alt="" 
                             className="w-full h-full object-contain"
                             referrerPolicy="no-referrer"
+                            loading="lazy"
+                            decoding="async"
                           />
                         </div>
                         <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
@@ -1015,7 +1020,7 @@ ${itemsText}
                     {lastOrder.items.map(item => (
                       <div key={item.id} className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                          <img src={item.imgs[0]} alt="" className="w-10 h-10 object-cover rounded" referrerPolicy="no-referrer" />
+                          <img src={item.imgs[0]} alt="" className="w-10 h-10 object-cover rounded" referrerPolicy="no-referrer" loading="lazy" decoding="async" />
                           <div>
                             <p className="text-sm font-medium">{item.name}</p>
                             {item.selectedColor && <p className="text-[10px] text-gray-400">顏色: {item.selectedColor}</p>}
@@ -1102,6 +1107,8 @@ ${itemsText}
                   alt="" 
                   className="w-24 h-24 object-cover rounded-2xl shadow-lg" 
                   referrerPolicy="no-referrer"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div>
                   <h3 className="text-xl font-black text-gray-900 mb-1">{specModalProduct.name}</h3>
@@ -1656,6 +1663,27 @@ function AdminModal({
     setEditingProduct(null);
   };
 
+  const handleRemoveImg = async (idx: number, imgUrl: string) => {
+    // Optimistically remove from UI
+    setFormData(prev => ({ ...prev, imgs: prev.imgs.filter((_, i) => i !== idx) }));
+    
+    // If it's a GitHub image, delete it from backend
+    if (imgUrl.startsWith('/api/images/')) {
+      try {
+        const res = await fetch('/api/delete-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: imgUrl })
+        });
+        if (!res.ok) {
+          console.error('Failed to delete image from GitHub');
+        }
+      } catch (err) {
+        console.error('Error deleting image:', err);
+      }
+    }
+  };
+
   const handleBatchUpload = async () => {
     const names = (formData.name || '').split(',').map(n => n.trim()).filter(Boolean);
     const sns = (formData.sn || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -1762,11 +1790,29 @@ function AdminModal({
       showToast('請選擇要刪除的商品', 'info');
       return;
     }
-    handleConfirm(`確定要批量刪除選中的 ${selectedIds.length} 個商品嗎？`, () => {
+    handleConfirm(`確定要批量刪除選中的 ${selectedIds.length} 個商品嗎？`, async () => {
+      // Find images to delete
+      const productsToDelete = products.filter(p => selectedIds.includes(p.id));
+      const imagesToDelete = productsToDelete.flatMap(p => p.imgs).filter(img => img.startsWith('/api/images/'));
+      
+      // Delete products from state
       setProducts(prev => prev.filter(p => !selectedIds.includes(p.id)));
       setCart(prev => prev.filter(item => !selectedIds.includes(item.id)));
       setSelectedIds([]);
       showToast('批量刪除成功', 'success');
+
+      // Delete images from GitHub in the background
+      for (const imgUrl of imagesToDelete) {
+        try {
+          await fetch('/api/delete-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: imgUrl })
+          });
+        } catch (err) {
+          console.error('Error deleting image during product deletion:', err);
+        }
+      }
     });
   };
 
@@ -2035,7 +2081,7 @@ function AdminModal({
                     >
                       {selectedIds.includes(p.id) && <CheckCircle2 size={14} className="text-white" />}
                     </div>
-                    <img src={p.imgs[0]} alt="" className="w-16 h-16 object-cover rounded-xl shadow-sm" referrerPolicy="no-referrer" />
+                    <img src={p.imgs[0]} alt="" className="w-16 h-16 object-cover rounded-xl shadow-sm" referrerPolicy="no-referrer" loading="lazy" decoding="async" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded uppercase">
@@ -2398,7 +2444,7 @@ function AdminModal({
                     <div className="flex gap-2 overflow-x-auto pb-2">
                       {formData.imgs.map((img, idx) => (
                         <div key={idx} className="relative group flex-shrink-0">
-                          <img src={img} alt="" className="w-20 h-20 object-cover rounded-xl" />
+                          <img src={img} alt="" className="w-20 h-20 object-cover rounded-xl" loading="lazy" decoding="async" />
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 rounded-xl transition-opacity">
                             <button 
                               type="button"
@@ -2430,7 +2476,7 @@ function AdminModal({
                             </button>
                             <button 
                               type="button"
-                              onClick={() => setFormData(prev => ({ ...prev, imgs: prev.imgs.filter((_, i) => i !== idx) }))}
+                              onClick={() => handleRemoveImg(idx, img)}
                               className="text-white hover:text-red-300 p-1"
                             >
                               <X size={16} />
@@ -2909,7 +2955,21 @@ function AdminModal({
                           </label>
                           {settingsFormData.logoUrl && (
                             <button 
-                              onClick={() => setSettingsFormData(prev => ({ ...prev, logoUrl: '' }))}
+                              onClick={async () => {
+                                const url = settingsFormData.logoUrl;
+                                setSettingsFormData(prev => ({ ...prev, logoUrl: '' }));
+                                if (url && url.startsWith('/api/images/')) {
+                                  try {
+                                    await fetch('/api/delete-image', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ url })
+                                    });
+                                  } catch (err) {
+                                    console.error('Error deleting logo:', err);
+                                  }
+                                }
+                              }}
                               className="px-6 py-3 bg-red-50 text-red-500 rounded-2xl font-bold text-sm hover:bg-red-100 transition-all"
                             >
                               移除

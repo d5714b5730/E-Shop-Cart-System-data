@@ -315,6 +315,78 @@ app.get("/api/products", async (req, res) => {
     }
   });
 
+  // API to delete image from GitHub
+  app.post("/api/delete-image", async (req, res) => {
+    try {
+      if (!GITHUB_TOKEN) {
+        return res.status(500).json({ error: "GITHUB_TOKEN is not configured" });
+      }
+
+      const { url } = req.body;
+      if (!url) {
+        return res.status(400).json({ error: "URL is required" });
+      }
+
+      // Only process our own images
+      if (!url.startsWith("/api/images/images/")) {
+        return res.json({ success: true, message: "Not a GitHub image, ignored" });
+      }
+
+      const filePath = url.replace("/api/images/", "");
+      const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
+      const encodedPath = filePath.split('/').map(part => encodeURIComponent(part)).join('/');
+
+      // 1. Get the file SHA
+      const getResponse = await globalThis.fetch(
+        `https://api.github.com/repos/${GITHUB_REPO}/contents/${encodedPath}?ref=${GITHUB_BRANCH}`,
+        {
+          headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+          },
+        }
+      );
+
+      if (!getResponse.ok) {
+        if (getResponse.status === 404) {
+          return res.json({ success: true, message: "Image already deleted or not found" });
+        }
+        const errorData = await getResponse.json() as any;
+        return res.status(getResponse.status).json(errorData);
+      }
+
+      const fileData = await getResponse.json() as any;
+      const sha = fileData.sha;
+
+      // 2. Delete the file
+      const deleteResponse = await globalThis.fetch(
+        `https://api.github.com/repos/${GITHUB_REPO}/contents/${encodedPath}`,
+        {
+          method: "DELETE",
+          headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+          },
+          body: JSON.stringify({
+            message: "刪除商品圖片",
+            sha: sha,
+            branch: GITHUB_BRANCH,
+          }),
+        }
+      );
+
+      if (!deleteResponse.ok) {
+        const errorData = await deleteResponse.json() as any;
+        return res.status(deleteResponse.status).json(errorData);
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Proxy for GitHub images (useful for private repos)
   app.get("/api/images/*", async (req, res) => {
     try {
@@ -346,6 +418,9 @@ app.get("/api/products", async (req, res) => {
       if (contentType) {
         res.setHeader("Content-Type", contentType);
       }
+      
+      // Add aggressive caching for images since filenames include timestamps and are unique
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
       
       const buffer = await response.arrayBuffer();
       res.send(Buffer.from(buffer));
