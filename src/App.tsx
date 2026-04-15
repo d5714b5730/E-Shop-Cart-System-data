@@ -718,7 +718,7 @@ ${itemsText}
                 setActiveCategory('全部');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="text-lg font-black tracking-tighter text-gray-900 hover:text-red-600 transition-colors cursor-pointer"
+              className="text-lg font-black tracking-tighter text-gray-900 cursor-pointer"
             >
               {siteSettings.title}
             </a>
@@ -778,22 +778,22 @@ ${itemsText}
               value={activeCategory}
               onChange={(e) => setActiveCategory(e.target.value)}
               className={cn(
-                "appearance-none px-3 py-1 pr-8 rounded-2xl whitespace-nowrap transition-all text-xs sm:text-sm font-black tracking-wide border-2 outline-none cursor-pointer shadow-sm",
+                "appearance-none px-2 py-1 pr-6 rounded-full whitespace-nowrap transition-all text-[10px] sm:text-[11px] font-black tracking-wide border-2 outline-none cursor-pointer shadow-sm",
                 activeCategory === '全部'
                   ? "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300"
-                  : "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105"
+                  : "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200"
               )}
             >
-              <option value="全部">全部</option>
+              <option value="全部">商品分類</option>
               {activeCategory === '近期熱銷' && <option value="近期熱銷">近期熱銷</option>}
-              <optgroup label="商品分類">
+              <optgroup label="分類列表" className="text-[10px]">
                 {categories.filter(c => c !== '全部').map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat} value={cat} className="py-0">{cat}</option>
                 ))}
               </optgroup>
             </select>
-            <ChevronDown size={14} className={cn(
-              "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none",
+            <ChevronDown size={12} className={cn(
+              "absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none",
               activeCategory === '全部' ? "text-gray-500" : "text-white"
             )} />
           </div>
