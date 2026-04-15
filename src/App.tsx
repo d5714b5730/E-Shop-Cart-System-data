@@ -794,7 +794,7 @@ ${itemsText}
                   : "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200"
               )}
             >
-              <option value="全部">商品分類</option>
+              <option value="全部">全部商品 / 分類</option>
               {activeCategory === '近期熱銷' && <option value="近期熱銷">近期熱銷</option>}
               <optgroup label="分類列表" className="text-[10px]">
                 {categories.filter(c => c !== '全部').map(cat => (
