@@ -2346,44 +2346,14 @@ function AdminModal({
                             const file = selectedFiles[i];
                             const base64 = await new Promise<string>((resolve, reject) => {
                               const reader = new FileReader();
-                              reader.onload = ev => {
-                                const img = new Image();
-                                img.onload = () => {
-                                  const canvas = document.createElement('canvas');
-                                  let width = img.width;
-                                  let height = img.height;
-                                  
-                                  // Max dimension 1200px
-                                  const MAX_DIM = 1200;
-                                  if (width > height && width > MAX_DIM) {
-                                    height *= MAX_DIM / width;
-                                    width = MAX_DIM;
-                                  } else if (height > MAX_DIM) {
-                                    width *= MAX_DIM / height;
-                                    height = MAX_DIM;
-                                  }
-                                  
-                                  canvas.width = width;
-                                  canvas.height = height;
-                                  const ctx = canvas.getContext('2d');
-                                  if (!ctx) {
-                                    resolve(ev.target?.result as string);
-                                    return;
-                                  }
-                                  ctx.drawImage(img, 0, 0, width, height);
-                                  // Compress to JPEG with 0.8 quality
-                                  resolve(canvas.toDataURL('image/jpeg', 0.8));
-                                };
-                                img.onerror = () => resolve(ev.target?.result as string);
-                                img.src = ev.target?.result as string;
-                              };
+                              reader.onload = ev => resolve(ev.target?.result as string);
                               reader.onerror = reject;
                               reader.readAsDataURL(file);
                             });
                             
                             const pureBase64 = base64.split(',')[1];
-                            // Force .jpg extension since we compress to jpeg
-                            const fileName = `${Date.now()}_${file.name.replace(/\.[^/.]+$/, "")}.jpg`;
+                            const fileExt = file.name.split('.').pop() || 'jpg';
+                            const fileName = `img_${Date.now()}_${i}_${file.name.replace(/\.[^/.]+$/, "")}.${fileExt}`;
                             
                             const res = await globalThis.fetch('/api/upload-image', {
                               method: 'POST',
@@ -2880,38 +2850,13 @@ function AdminModal({
                                 try {
                                   const base64 = await new Promise<string>((resolve, reject) => {
                                     const reader = new FileReader();
-                                    reader.onload = ev => {
-                                      const img = new Image();
-                                      img.onload = () => {
-                                        const canvas = document.createElement('canvas');
-                                        let width = img.width;
-                                        let height = img.height;
-                                        const MAX_DIM = 800;
-                                        if (width > height && width > MAX_DIM) {
-                                          height *= MAX_DIM / width;
-                                          width = MAX_DIM;
-                                        } else if (height > MAX_DIM) {
-                                          width *= MAX_DIM / height;
-                                          height = MAX_DIM;
-                                        }
-                                        canvas.width = width;
-                                        canvas.height = height;
-                                        const ctx = canvas.getContext('2d');
-                                        if (!ctx) {
-                                          resolve(ev.target?.result as string);
-                                          return;
-                                        }
-                                        ctx.drawImage(img, 0, 0, width, height);
-                                        resolve(canvas.toDataURL('image/jpeg', 0.8));
-                                      };
-                                      img.onerror = () => resolve(ev.target?.result as string);
-                                      img.src = ev.target?.result as string;
-                                    };
+                                    reader.onload = ev => resolve(ev.target?.result as string);
                                     reader.onerror = reject;
                                     reader.readAsDataURL(file);
                                   });
                                   const pureBase64 = base64.split(',')[1];
-                                  const fileName = `logo_${Date.now()}_${file.name.replace(/\.[^/.]+$/, "")}.jpg`;
+                                  const fileExt = file.name.split('.').pop() || 'jpg';
+                                  const fileName = `logo_${Date.now()}_${file.name.replace(/\.[^/.]+$/, "")}.${fileExt}`;
                                   const res = await globalThis.fetch('/api/upload-image', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
