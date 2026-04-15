@@ -88,19 +88,5 @@
       "2026新色淡黃",
       "2026新色軍綠"
     ]
-  },
-  {
-    "id": 4,
-    "name": "保濕修護面霜",
-    "sn": "SP004",
-    "price": 259,
-    "category": "美妝",
-    "description": "深層滋潤配方，修復肌膚屏障，鎖水保濕長效呵護。",
-    "isHot": true,
-    "promoLabel": "限時加購",
-    "promoSubLabel": "本期 4/15結單 !",
-    "imgs": [
-      "https://picsum.photos/seed/b1/600/1067"
-    ]
   }
 ]
