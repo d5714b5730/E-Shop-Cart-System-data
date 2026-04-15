@@ -138,9 +138,10 @@ function PromoBadge({ label, subLabel }: { label: string; subLabel?: string }) {
   );
 }
 
-function ProductCard({ product, addToCart, siteSettings }: any): React.JSX.Element {
+function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: any): React.JSX.Element {
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const scrollToImage = (index: number) => {
@@ -237,7 +238,16 @@ function ProductCard({ product, addToCart, siteSettings }: any): React.JSX.Eleme
               </h3>
               
               {product.description && (
-                <p className="text-xs sm:text-sm text-white/80 line-clamp-2 font-medium leading-snug drop-shadow-md">
+                <p 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsExpanded(!isExpanded);
+                  }}
+                  className={cn(
+                    "text-xs sm:text-sm text-white/80 font-medium leading-snug drop-shadow-md cursor-pointer transition-all duration-300",
+                    !isExpanded && "line-clamp-2"
+                  )}
+                >
                   {product.description}
                 </p>
               )}
@@ -803,7 +813,12 @@ ${itemsText}
         <main className="flex-1 overflow-y-auto snap-y snap-mandatory sm:snap-none flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-0 sm:gap-8 container mx-auto px-0 sm:px-4 py-0 sm:py-6">
           {filteredProducts.map(product => (
             <div key={product.id} className="snap-start sm:snap-none snap-always h-full sm:h-auto flex-shrink-0">
-              <ProductCard product={product} addToCart={addToCart} siteSettings={siteSettings} />
+              <ProductCard 
+                product={product} 
+                addToCart={addToCart} 
+                siteSettings={siteSettings} 
+                setActiveCategory={setActiveCategory}
+              />
             </div>
           ))}
         </main>
