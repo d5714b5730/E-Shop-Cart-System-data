@@ -39,7 +39,6 @@ const DEFAULT_PRODUCTS: Product[] = [
     description: '採用 100% 精梳棉，親膚透氣，經典版型百搭舒適。',
     promoLabel: '限時直降15元',
     promoSubLabel: '限購1件!',
-    isNew: true,
     imgs: [
       'https://picsum.photos/seed/t1/600/1067',
       'https://picsum.photos/seed/t2/600/1067',
@@ -210,10 +209,16 @@ function ProductCard({ product, addToCart, siteSettings }: any): React.JSX.Eleme
             {product.category}
           </span> */}
           {product.isHot && (
-            <span className="px-3 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full shadow-lg shadow-red-500/40 uppercase tracking-wider flex items-center gap-1.5">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveCategory('近期熱銷');
+              }}
+              className="px-3 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full shadow-lg shadow-red-500/40 uppercase tracking-wider flex items-center gap-1.5 hover:bg-red-600 transition-colors pointer-events-auto"
+            >
               <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
               近期熱銷
-            </span>
+            </button>
           )}
         </div>
       </div>
@@ -686,8 +691,8 @@ ${itemsText}
 
   const filteredProducts = activeCategory === '全部' 
     ? products 
-    : activeCategory === '新品'
-      ? products.filter(p => p.isNew)
+    : activeCategory === '近期熱銷'
+      ? products.filter(p => p.isHot)
       : products.filter(p => p.category === activeCategory);
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.num, 0);
@@ -706,9 +711,17 @@ ${itemsText}
                 <Package className="text-white" size={16} />
               </div>
             )}
-            <h1 className="text-lg font-black tracking-tighter text-gray-900">
+            <a 
+              href="/" 
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveCategory('全部');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="text-lg font-black tracking-tighter text-gray-900 hover:text-red-600 transition-colors cursor-pointer"
+            >
               {siteSettings.title}
-            </h1>
+            </a>
           </div>
           <div className="flex gap-2 items-center">
             <button 
@@ -760,48 +773,28 @@ ${itemsText}
       <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Categories - Floating over products on mobile */}
         <div className="absolute sm:static top-0 left-0 right-0 z-40 flex gap-3 mb-0 sm:mb-6 overflow-x-auto scrollbar-hide pb-3 sm:pb-2 items-center px-4 sm:px-0 pt-3 sm:pt-0 shrink-0 bg-transparent border-none pointer-events-none [&>*]:pointer-events-auto container mx-auto">
-          <button
-            onClick={() => setActiveCategory('全部')}
-            className={cn(
-              "px-3 py-1.5 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2",
-              activeCategory === '全部' 
-                ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
-                : "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300 hover:text-gray-900 shadow-sm"
-            )}
-          >
-            全部商品
-          </button>
-          <button
-            onClick={() => setActiveCategory('新品')}
-            className={cn(
-              "px-3 py-1.5 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2",
-              activeCategory === '新品' 
-                ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
-                : "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300 hover:text-gray-900 shadow-sm"
-            )}
-          >
-            新品
-          </button>
-          
           <div className="relative pointer-events-auto">
             <select
-              value={activeCategory !== '全部' && activeCategory !== '新品' ? activeCategory : ''}
+              value={activeCategory}
               onChange={(e) => setActiveCategory(e.target.value)}
               className={cn(
-                "appearance-none px-3 py-1.5 pr-7 rounded-xl whitespace-nowrap transition-all text-xs sm:text-sm font-bold tracking-wide border-2 outline-none cursor-pointer",
-                activeCategory !== '全部' && activeCategory !== '新品'
-                  ? "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105" 
-                  : "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300 hover:text-gray-900 shadow-sm"
+                "appearance-none px-3 py-1 pr-8 rounded-2xl whitespace-nowrap transition-all text-xs sm:text-sm font-black tracking-wide border-2 outline-none cursor-pointer shadow-sm",
+                activeCategory === '全部'
+                  ? "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300"
+                  : "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200 scale-105"
               )}
             >
-              <option value="" disabled className="hidden text-[11px] sm:text-xs">分類</option>
-              {categories.filter(c => c !== '全部').map(cat => (
-                <option key={cat} value={cat} className="text-gray-900 bg-white text-[11px] sm:text-xs">{cat}</option>
-              ))}
+              <option value="全部">全部</option>
+              {activeCategory === '近期熱銷' && <option value="近期熱銷">近期熱銷</option>}
+              <optgroup label="商品分類">
+                {categories.filter(c => c !== '全部').map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </optgroup>
             </select>
             <ChevronDown size={14} className={cn(
-              "absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none",
-              activeCategory !== '全部' && activeCategory !== '新品' ? "text-white" : "text-gray-500"
+              "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none",
+              activeCategory === '全部' ? "text-gray-500" : "text-white"
             )} />
           </div>
         </div>
@@ -1628,7 +1621,6 @@ function AdminModal({
     color: '',
     specs: '',
     sizeChart: '',
-    isNew: false,
     isHot: false,
     imgs: [] as string[]
   });
@@ -1640,7 +1632,6 @@ function AdminModal({
     promoSubLabel: '',
     color: '',
     sizeChart: '',
-    isNew: false,
     isHot: false,
     updatePrice: false,
     updateCategory: false,
@@ -1648,7 +1639,6 @@ function AdminModal({
     updatePromoSubLabel: false,
     updateColor: false,
     updateSizeChart: false,
-    updateIsNew: false,
     updateIsHot: false,
   });
 
@@ -1659,7 +1649,7 @@ function AdminModal({
   }, [siteSettings]);
 
   const resetForm = () => {
-    setFormData({ name: '', sn: '', price: '', category: '服裝', description: '', promoLabel: '', promoSubLabel: '', color: '', specs: '', sizeChart: '', isNew: false, isHot: false, imgs: [] });
+    setFormData({ name: '', sn: '', price: '', category: '服裝', description: '', promoLabel: '', promoSubLabel: '', color: '', specs: '', sizeChart: '', isHot: false, imgs: [] });
     setEditingProduct(null);
   };
 
@@ -1723,7 +1713,6 @@ function AdminModal({
         colors: colors.length > 0 ? colors : undefined,
         specs: specsList.length > 0 ? specsList : undefined,
         sizeChart: sizeCharts[i] || sizeCharts[0] || '',
-        isNew: formData.isNew,
         isHot: formData.isHot,
         imgs: productImgs
       });
@@ -1752,7 +1741,6 @@ function AdminModal({
       colors: formData.color ? formData.color.split(',').map(s => s.trim()).filter(Boolean) : undefined,
       specs: formData.specs ? formData.specs.split(',').map(s => s.trim()).filter(Boolean) : undefined,
       sizeChart: formData.sizeChart || '',
-      isNew: formData.isNew || false,
       isHot: formData.isHot || false,
       imgs: updatedImgs.length > 0 ? updatedImgs : [`https://picsum.photos/seed/${Math.random()}/600/800`]
     };
@@ -1778,7 +1766,6 @@ function AdminModal({
       color: product.colors ? product.colors.join(', ') : '',
       specs: product.specs ? product.specs.join(', ') : '',
       sizeChart: product.sizeChart || '',
-      isNew: product.isNew || false,
       isHot: product.isHot || false,
       imgs: product.imgs
     });
@@ -1829,7 +1816,6 @@ function AdminModal({
           promoSubLabel: bulkFormData.updatePromoSubLabel ? bulkFormData.promoSubLabel : p.promoSubLabel,
           colors: bulkFormData.updateColor ? (bulkFormData.color ? bulkFormData.color.split(',').map(c => c.trim()).filter(Boolean) : undefined) : p.colors,
           sizeChart: bulkFormData.updateSizeChart ? bulkFormData.sizeChart : p.sizeChart,
-          isNew: bulkFormData.updateIsNew ? bulkFormData.isNew : p.isNew,
           isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : p.isHot,
         };
       }
@@ -1846,7 +1832,6 @@ function AdminModal({
           promoSubLabel: bulkFormData.updatePromoSubLabel ? bulkFormData.promoSubLabel : item.promoSubLabel,
           colors: bulkFormData.updateColor ? (bulkFormData.color ? bulkFormData.color.split(',').map(c => c.trim()).filter(Boolean) : undefined) : item.colors,
           sizeChart: bulkFormData.updateSizeChart ? bulkFormData.sizeChart : item.sizeChart,
-          isNew: bulkFormData.updateIsNew ? bulkFormData.isNew : item.isNew,
           isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : item.isHot,
         };
       }
@@ -2000,7 +1985,6 @@ function AdminModal({
                           promoSubLabel: '',
                           color: '',
                           sizeChart: '',
-                          isNew: false,
                           isHot: false,
                           updatePrice: false,
                           updateCategory: false,
@@ -2008,7 +1992,6 @@ function AdminModal({
                           updatePromoSubLabel: false,
                           updateColor: false,
                           updateSizeChart: false,
-                          updateIsNew: false,
                           updateIsHot: false,
                         });
                         setActiveTab('bulk');
@@ -2507,15 +2490,6 @@ function AdminModal({
                   </div>
                   
                   <div className="flex items-center gap-6">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={formData.isNew}
-                        onChange={e => setFormData(prev => ({ ...prev, isNew: e.target.checked }))}
-                        className="w-5 h-5 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
-                      />
-                      <span className="text-sm font-bold text-gray-700">標記為新品</span>
-                    </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input 
                         type="checkbox" 
