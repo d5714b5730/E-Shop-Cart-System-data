@@ -69,24 +69,23 @@
   {
     "id": 3,
     "name": "原廠正品 | 冰絲美背小可愛",
-    "sn": "SP003",
+    "sn": "A001",
     "price": 390,
     "category": "背心 / 美背小可愛",
     "description": "去年人手一件！陪妳一整個夏天（2026新色加開！）",
     "promoLabel": "限時加購",
     "promoSubLabel": "本期 4/15結單 !",
     "imgs": [
-      "/api/images/images/1776222406013_1000089735.jpg",
-      "/api/images/images/1776170219312_1000089737.jpg"
+      "/api/images/images/1776245498370_1000089761.jpg"
     ],
     "sizeChart": "",
     "isNew": true,
     "isHot": true,
-    "specs": [
+    "colors": [
       "百搭純白",
       "經典正黑",
-      "2026新色淡黃",
-      "2026新色軍綠"
+      "2026新色-淡黃",
+      "2026新色-軍綠"
     ]
   }
 ]
