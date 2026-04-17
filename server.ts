@@ -8,7 +8,8 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_REPO = process.env.GITHUB_REPO || "d5714b5730/E-Shop-Cart-System-data";
@@ -283,9 +284,10 @@ app.get("/api/products", async (req, res) => {
 
       const { content, fileName } = req.body;
       const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
+      const encodedFileName = encodeURIComponent(fileName);
 
       const response = await globalThis.fetch(
-        `https://api.github.com/repos/${GITHUB_REPO}/contents/images/${fileName}`,
+        `https://api.github.com/repos/${GITHUB_REPO}/contents/images/${encodedFileName}`,
         {
           method: "PUT",
           headers: {

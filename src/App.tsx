@@ -2430,9 +2430,11 @@ function AdminModal({
                             }
                           }
                           setFormData(prev => ({ ...prev, imgs: [...prev.imgs, ...newImgs] }));
-                        } catch (err) {
+                        } catch (err: any) {
                           console.error('Upload error:', err);
-                          showToast('上傳過程中發生錯誤', 'error');
+                          if (!err.message?.includes('Upload failed')) {
+                            showToast('上傳過程中發生錯誤', 'error');
+                          }
                         } finally {
                           setIsUploading(false);
                           e.target.value = '';
@@ -2960,9 +2962,11 @@ function AdminModal({
                                     showToast(`Logo 上傳失敗: ${errorMessage}`, 'error');
                                     throw new Error(`Upload failed: ${errorMessage}`);
                                   }
-                                } catch (err) {
+                                } catch (err: any) {
                                   console.error(err);
-                                  showToast('上傳出錯', 'error');
+                                  if (!err.message?.includes('Upload failed')) {
+                                    showToast('上傳出錯', 'error');
+                                  }
                                 } finally {
                                   setIsUploading(false);
                                 }
