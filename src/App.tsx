@@ -120,9 +120,12 @@ const DEFAULT_PRODUCTS: Product[] = [
   }
 ];
 
-function PromoBadge({ label, subLabel }: { label: string; subLabel?: string }) {
+function PromoBadge({ label, subLabel, onClick }: { label: string; subLabel?: string; onClick?: () => void }) {
   return (
-    <div className="flex items-center h-7">
+    <div 
+      className={cn("flex items-center h-7", onClick && "cursor-pointer active:scale-95 transition-transform truncate")}
+      onClick={onClick}
+    >
       <div className="flex items-center bg-red-600 text-white px-1.5 h-full rounded-l-md gap-1 relative z-10">
         <div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shrink-0">
           <Clock size={10} className="text-red-600" />
@@ -286,7 +289,11 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
                   )}
                 </div>
                 {product.promoLabel && siteSettings.isCartEnabled !== false && (
-                  <PromoBadge label={product.promoLabel} subLabel={product.promoSubLabel} />
+                  <PromoBadge 
+                    label={product.promoLabel} 
+                    subLabel={product.promoSubLabel} 
+                    onClick={() => addToCart(product)}
+                  />
                 )}
                 <button 
                   onClick={() => addToCart(product)}
@@ -409,7 +416,7 @@ export default function App() {
   const loadProductsFromGitHub = async () => {
     setIsSyncing(true);
     try {
-      const response = await globalThis.fetch(`/api/products?t=${Date.now()}`);
+      const response = await fetch(`/api/products?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         
@@ -436,7 +443,7 @@ export default function App() {
 
   const loadSettingsFromGitHub = async () => {
     try {
-      const response = await globalThis.fetch(`/api/settings?t=${Date.now()}`);
+      const response = await fetch(`/api/settings?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         const settings = data.settings;
@@ -454,7 +461,7 @@ export default function App() {
 
   const loadCategoriesFromGitHub = async () => {
     try {
-      const response = await globalThis.fetch(`/api/categories?t=${Date.now()}`);
+      const response = await fetch(`/api/categories?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         setCategories(data.categories);
@@ -487,7 +494,7 @@ export default function App() {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        const saveRes = await globalThis.fetch(endpoint, {
+        const saveRes = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ [dataKey]: data, sha: activeSha }),
@@ -503,7 +510,7 @@ export default function App() {
 
         await new Promise(resolve => setTimeout(resolve, 1500));
 
-        const fetchRes = await globalThis.fetch(`${endpoint}?t=${Date.now()}`);
+        const fetchRes = await fetch(`${endpoint}?t=${Date.now()}`);
         if (!fetchRes.ok) throw new Error(`Fetch failed with status ${fetchRes.status}`);
         const fetchData = await fetchRes.json();
         
@@ -700,7 +707,10 @@ ${itemsText}
 → 等九零更新綜合訂單`;
 
     navigator.clipboard.writeText(orderText).then(() => {
-      showToast('訂單內容已複製', 'dark-success');
+      showToast('訂單內容已複製，3 秒後將自動跳轉至 Instagram', 'dark-success');
+      setTimeout(() => {
+        window.location.href = 'https://www.instagram.com/90s.flash.club/';
+      }, 3000);
     }).catch(err => {
       console.error('Copy failed:', err);
       showToast('複製失敗，請手動截圖', 'error');
@@ -805,8 +815,8 @@ ${itemsText}
               <option value="全部">全部商品 / 分類</option>
               {activeCategory === '近期熱銷' && <option value="近期熱銷">近期熱銷</option>}
               <optgroup label="分類列表" className="text-[10px]">
-                {categories.filter(c => c !== '全部').map(cat => (
-                  <option key={cat} value={cat} className="py-0">{cat}</option>
+                {categories.filter(c => c !== '全部').map((cat, idx) => (
+                  <option key={`${cat}-${idx}`} value={cat} className="py-0">{cat}</option>
                 ))}
               </optgroup>
             </select>
@@ -819,8 +829,8 @@ ${itemsText}
 
         {/* Scrollable Main Area */}
         <main className="flex-1 overflow-y-auto snap-y snap-mandatory sm:snap-none flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-0 sm:gap-8 container mx-auto px-0 sm:px-4 py-0 sm:py-6">
-          {filteredProducts.map(product => (
-            <div key={product.id} className="snap-start sm:snap-none snap-always h-full sm:h-auto flex-shrink-0">
+          {filteredProducts.map((product, idx) => (
+            <div key={`${product.id}-${idx}`} className="snap-start sm:snap-none snap-always h-full sm:h-auto flex-shrink-0">
               <ProductCard 
                 product={product} 
                 addToCart={addToCart} 
@@ -868,7 +878,7 @@ ${itemsText}
                   </div>
                 ) : (
                   cart.map((item, idx) => {
-                    const itemKey = `${item.id}-${item.selectedColor || ''}-${item.selectedSpec || idx}`;
+                    const itemKey = `${item.id}-${item.selectedColor || ''}-${item.selectedSpec || idx}-${idx}`;
                     const isEditing = editingCartKey === itemKey;
                     
                     return (
@@ -1033,8 +1043,8 @@ ${itemsText}
                     <p className="text-sm text-gray-400 mt-2">{lastOrder.date}</p>
                   </div>
                   <div className="space-y-4 mb-8">
-                    {lastOrder.items.map(item => (
-                      <div key={item.id} className="flex justify-between items-center">
+                    {lastOrder.items.map((item, idx) => (
+                      <div key={`${item.id}-${item.selectedColor || ''}-${item.selectedSpec || idx}-${idx}`} className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
                           <img src={item.imgs[0]} alt="" className="w-10 h-10 object-cover rounded" referrerPolicy="no-referrer" loading="lazy" decoding="async" />
                           <div>
@@ -1138,13 +1148,13 @@ ${itemsText}
                 <div className="mb-8">
                   <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">選擇顏色</label>
                   <div className="flex flex-wrap gap-3">
-                    {specModalProduct.colors.map(color => {
+                    {specModalProduct.colors.map((color, idx) => {
                       const colorPrice = (specModalProduct.colorPrices && specModalProduct.colorPrices[color]);
                       const isDifferentPrice = colorPrice && colorPrice !== specModalProduct.price;
                       
                       return (
                         <button
-                          key={color}
+                          key={`${color}-${idx}`}
                           onClick={() => setModalSelectedColor(color)}
                           className={`group relative px-6 py-3 rounded-xl font-bold text-sm transition-all border flex flex-col items-center ${
                             modalSelectedColor === color 
@@ -1171,9 +1181,9 @@ ${itemsText}
                 <div className="mb-8">
                   <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">選擇規格</label>
                   <div className="flex flex-wrap gap-3">
-                    {specModalProduct.specs.map(spec => (
+                    {specModalProduct.specs.map((spec, idx) => (
                       <button
-                        key={spec}
+                        key={`${spec}-${idx}`}
                         onClick={() => setModalSelectedSpec(spec)}
                         className={`px-6 py-3 rounded-xl font-bold text-sm transition-all border ${modalSelectedSpec === spec ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500'}`}
                       >
@@ -2019,7 +2029,7 @@ function AdminModal({
                     onChange={e => setFilterCategory(e.target.value)}
                     className="bg-transparent text-sm font-medium outline-none"
                   >
-                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                    {categories.map((c, idx) => <option key={`${c}-${idx}`} value={c}>{c}</option>)}
                   </select>
                 </div>
               </div>
@@ -2100,9 +2110,9 @@ function AdminModal({
                 </span>
               </div>
               <div className="grid grid-cols-1 gap-3">
-                {filteredAdminProducts.map(p => (
+                {filteredAdminProducts.map((p, pIdx) => (
                   <div 
-                    key={p.id} 
+                    key={`${p.id}-${pIdx}`} 
                     className={cn(
                       "group flex items-center gap-4 p-4 border rounded-2xl transition-all",
                       selectedIds.includes(p.id) ? "border-blue-500 bg-blue-50/50" : "border-gray-100 hover:border-gray-200 hover:bg-gray-50/50"
@@ -2205,7 +2215,7 @@ function AdminModal({
                       onChange={e => setBulkFormData(prev => ({ ...prev, category: e.target.value }))}
                       className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:ring-2 ring-blue-500 outline-none transition-all"
                     >
-                      {categories.filter(c => c !== '全部').map(c => <option key={c} value={c}>{c}</option>)}
+                      {categories.filter(c => c !== '全部').map((c, idx) => <option key={`${c}-${idx}`} value={c}>{c}</option>)}
                     </select>
                   )}
                 </div>
@@ -2397,7 +2407,7 @@ function AdminModal({
                             const fileExt = file.name.split('.').pop() || 'jpg';
                             const fileName = `img_${Date.now()}_${i}_${file.name.replace(/\.[^/.]+$/, "")}.${fileExt}`;
                             
-                            const res = await globalThis.fetch('/api/upload-image', {
+                            const res = await fetch('/api/upload-image', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ content: pureBase64, fileName })
@@ -2502,9 +2512,9 @@ function AdminModal({
                 <div className="sm:col-span-2 pt-4 border-t border-gray-100">
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">商品分類</label>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {categories.filter(c => c !== '全部').map(c => (
+                    {categories.filter(c => c !== '全部').map((c, idx) => (
                       <button
-                        key={c}
+                        key={`${c}-${idx}`}
                         onClick={() => setFormData(prev => ({ ...prev, category: c }))}
                         className={cn(
                           "px-4 py-2 rounded-xl text-sm font-bold transition-all",
@@ -2617,8 +2627,8 @@ function AdminModal({
                     <div className="sm:col-span-2 mt-2 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50 space-y-3">
                       <label className="block text-[10px] font-black text-blue-400 uppercase tracking-wider">顏色差價設置 (選填)</label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        {formData.color.split(',').map(c => c.trim()).filter(Boolean).map(color => (
-                          <div key={color} className="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-blue-50">
+                        {formData.color.split(',').map(c => c.trim()).filter(Boolean).map((color, idx) => (
+                          <div key={`${color}-${idx}`} className="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-blue-50">
                             <span className="text-[10px] font-bold text-gray-500 min-w-[3rem] truncate">{color}</span>
                             <div className="flex-1 flex items-center gap-1 border-b border-gray-100 pb-1">
                               <span className="text-[10px] font-black text-red-500">¥</span>
@@ -2745,8 +2755,8 @@ function AdminModal({
                 <div className="space-y-3">
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">現有分類</label>
                   <div className="grid grid-cols-1 gap-2">
-                    {categories.filter(c => c !== '全部').map(c => (
-                      <div key={c} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl group hover:bg-gray-100 transition-all">
+                    {categories.filter(c => c !== '全部').map((c, idx) => (
+                      <div key={`${c}-${idx}`} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl group hover:bg-gray-100 transition-all">
                         <span className="font-bold text-gray-700">{c}</span>
                         <button 
                           onClick={() => {
@@ -2929,7 +2939,7 @@ function AdminModal({
                                   const pureBase64 = base64.split(',')[1];
                                   const fileExt = file.name.split('.').pop() || 'jpg';
                                   const fileName = `logo_${Date.now()}_${file.name.replace(/\.[^/.]+$/, "")}.${fileExt}`;
-                                  const res = await globalThis.fetch('/api/upload-image', {
+                                  const res = await fetch('/api/upload-image', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({ content: pureBase64, fileName })
