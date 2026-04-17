@@ -39,6 +39,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
   horizontalListSortingStrategy,
+  rectSortingStrategy,
   useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -216,7 +217,7 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
           }}
         >
           {product.imgs.map((img, idx) => (
-            <div key={idx} className="w-full h-full flex-shrink-0 snap-center">
+            <div key={idx} className="w-full h-full flex-shrink-0 snap-center snap-always">
               <img 
                 src={img} 
                 alt="" 
@@ -1804,11 +1805,11 @@ const SortableImageItem: React.FC<SortableImageItemProps> = ({
       {...attributes}
       {...listeners}
       className={cn(
-        "relative group flex-shrink-0 touch-none",
+        "relative group touch-none",
         isDragging && "opacity-50 scale-105 shadow-xl z-50 ring-2 ring-blue-500 rounded-xl"
       )}
     >
-      <img src={url} alt="" className="w-20 h-20 object-cover rounded-xl select-none" referrerPolicy="no-referrer" loading="lazy" decoding="async" />
+      <img src={url} alt="" className="w-full aspect-[3/4] object-cover rounded-xl select-none" referrerPolicy="no-referrer" loading="lazy" decoding="async" />
       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center rounded-xl transition-opacity">
         <button 
           type="button"
@@ -2690,7 +2691,7 @@ function AdminModal({
                       <label className="block text-xs font-bold text-gray-400 uppercase">已選取圖片</label>
                       <span className="text-[10px] text-gray-400 font-medium">拖曳圖片可調整顯示順序</span>
                     </div>
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
                       <DndContext
                         sensors={sensors}
                         collisionDetection={closestCenter}
@@ -2698,7 +2699,7 @@ function AdminModal({
                       >
                         <SortableContext
                           items={formData.imgs.map((_, idx) => `img-${idx}`)}
-                          strategy={horizontalListSortingStrategy}
+                          strategy={rectSortingStrategy}
                         >
                           {formData.imgs.map((img, idx) => (
                             <SortableImageItem
