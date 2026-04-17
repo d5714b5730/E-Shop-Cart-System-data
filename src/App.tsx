@@ -281,6 +281,9 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
                   <span className="text-3xl font-black text-white tracking-tighter leading-none">
                     {Math.floor(product.price)}
                   </span>
+                  {product.colorPrices && Object.values(product.colorPrices).some(p => p !== product.price) && (
+                    <span className="text-[10px] font-bold text-white/60 ml-0.5 tracking-tighter italic">起</span>
+                  )}
                 </div>
                 {product.promoLabel && siteSettings.isCartEnabled !== false && (
                   <PromoBadge label={product.promoLabel} subLabel={product.promoSubLabel} />
@@ -614,13 +617,18 @@ export default function App() {
     }
 
     setCart(prev => {
+      // Calculate effective price based on selected color
+      const effectivePrice = (product.colorPrices && selectedColor && product.colorPrices[selectedColor]) 
+        ? product.colorPrices[selectedColor] 
+        : product.price;
+
       const existing = prev.find(item => item.id === product.id && item.selectedSpec === selectedSpec && item.selectedColor === selectedColor);
       if (existing) {
         return prev.map(item => 
           (item.id === product.id && item.selectedSpec === selectedSpec && item.selectedColor === selectedColor) ? { ...item, num: item.num + 1 } : item
         );
       }
-      return [...prev, { ...product, num: 1, selectedSpec, selectedColor }];
+      return [...prev, { ...product, price: effectivePrice, num: 1, selectedSpec, selectedColor }];
     });
     setSpecModalProduct(null);
     setModalSelectedSpec('');
@@ -1120,7 +1128,9 @@ ${itemsText}
                 />
                 <div>
                   <h3 className="text-xl font-black text-gray-900 mb-1">{specModalProduct.name}</h3>
-                  <p className="text-2xl font-black text-red-500">¥{Math.floor(specModalProduct.price)}</p>
+                  <p className="text-2xl font-black text-red-500">
+                    ¥{Math.floor((specModalProduct.colorPrices && modalSelectedColor && specModalProduct.colorPrices[modalSelectedColor]) || specModalProduct.price)}
+                  </p>
                 </div>
               </div>
               
@@ -1128,15 +1138,31 @@ ${itemsText}
                 <div className="mb-8">
                   <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">選擇顏色</label>
                   <div className="flex flex-wrap gap-3">
-                    {specModalProduct.colors.map(color => (
-                      <button
-                        key={color}
-                        onClick={() => setModalSelectedColor(color)}
-                        className={`px-6 py-3 rounded-xl font-bold text-sm transition-all border ${modalSelectedColor === color ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500'}`}
-                      >
-                        {color}
-                      </button>
-                    ))}
+                    {specModalProduct.colors.map(color => {
+                      const colorPrice = (specModalProduct.colorPrices && specModalProduct.colorPrices[color]);
+                      const isDifferentPrice = colorPrice && colorPrice !== specModalProduct.price;
+                      
+                      return (
+                        <button
+                          key={color}
+                          onClick={() => setModalSelectedColor(color)}
+                          className={`group relative px-6 py-3 rounded-xl font-bold text-sm transition-all border flex flex-col items-center ${
+                            modalSelectedColor === color 
+                              ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' 
+                              : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500'
+                          }`}
+                        >
+                          <span>{color}</span>
+                          {isDifferentPrice && (
+                            <span className={`text-[9px] mt-0.5 font-black ${
+                              modalSelectedColor === color ? 'text-white/80' : 'text-red-500'
+                            }`}>
+                              ¥{Math.floor(colorPrice)}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -1637,6 +1663,7 @@ function AdminModal({
     specs: '',
     sizeChart: '',
     isHot: false,
+    colorPrices: {} as Record<string, string>,
     imgs: [] as string[]
   });
 
@@ -1664,7 +1691,7 @@ function AdminModal({
   }, [siteSettings]);
 
   const resetForm = () => {
-    setFormData({ name: '', sn: '', price: '', category: '服裝', description: '', promoLabel: '', promoSubLabel: '', color: '', specs: '', sizeChart: '', isHot: false, imgs: [] });
+    setFormData({ name: '', sn: '', price: '', category: '服裝', description: '', promoLabel: '', promoSubLabel: '', color: '', specs: '', sizeChart: '', isHot: false, colorPrices: {}, imgs: [] });
     setEditingProduct(null);
   };
 
@@ -1710,6 +1737,12 @@ function AdminModal({
     const newProducts: Product[] = [];
     const imgsPerProduct = Math.max(1, Math.floor(imgList.length / names.length));
 
+    const colorPrices: Record<string, number> = {};
+    Object.entries(formData.colorPrices).forEach(([c, p]) => {
+      const val = parseFloat(p as string);
+      if (!isNaN(val)) colorPrices[c] = val;
+    });
+
     for (let i = 0; i < names.length; i++) {
       const productImgs = imgList.slice(i * imgsPerProduct, (i + 1) * imgsPerProduct);
       if (productImgs.length === 0) {
@@ -1726,6 +1759,7 @@ function AdminModal({
         promoLabel: promoLabels[i] || promoLabels[0] || '',
         promoSubLabel: promoSubLabels[i] || promoSubLabels[0] || '',
         colors: colors.length > 0 ? colors : undefined,
+        colorPrices: Object.keys(colorPrices).length > 0 ? colorPrices : undefined,
         specs: specsList.length > 0 ? specsList : undefined,
         sizeChart: sizeCharts[i] || sizeCharts[0] || '',
         isHot: formData.isHot,
@@ -1744,6 +1778,12 @@ function AdminModal({
     
     const updatedImgs = [...formData.imgs];
 
+    const colorPrices: Record<string, number> = {};
+    Object.entries(formData.colorPrices).forEach(([c, p]) => {
+      const val = parseFloat(p as string);
+      if (!isNaN(val)) colorPrices[c] = val;
+    });
+
     const updatedProduct: Product = {
       ...editingProduct,
       name: formData.name || '',
@@ -1754,6 +1794,7 @@ function AdminModal({
       promoLabel: formData.promoLabel || '',
       promoSubLabel: formData.promoSubLabel || '',
       colors: formData.color ? formData.color.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+      colorPrices: Object.keys(colorPrices).length > 0 ? colorPrices : undefined,
       specs: formData.specs ? formData.specs.split(',').map(s => s.trim()).filter(Boolean) : undefined,
       sizeChart: formData.sizeChart || '',
       isHot: formData.isHot || false,
@@ -1782,6 +1823,7 @@ function AdminModal({
       specs: product.specs ? product.specs.join(', ') : '',
       sizeChart: product.sizeChart || '',
       isHot: product.isHot || false,
+      colorPrices: product.colorPrices ? Object.fromEntries(Object.entries(product.colorPrices).map(([k, v]) => [k, v.toString()])) : {},
       imgs: product.imgs
     });
     setActiveTab('edit');
@@ -2557,7 +2599,7 @@ function AdminModal({
                     />
                   </div>
 
-                  <div>
+                  <div className="sm:col-span-2">
                     <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
                       {activeTab === 'add' ? '商品顏色 (逗號分隔)' : '商品顏色'}
                     </label>
@@ -2569,6 +2611,36 @@ function AdminModal({
                       className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
                     />
                   </div>
+
+                  {/* Color-specific prices */}
+                  {formData.color.split(',').map(c => c.trim()).filter(Boolean).length > 0 && (
+                    <div className="sm:col-span-2 mt-2 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50 space-y-3">
+                      <label className="block text-[10px] font-black text-blue-400 uppercase tracking-wider">顏色差價設置 (選填)</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {formData.color.split(',').map(c => c.trim()).filter(Boolean).map(color => (
+                          <div key={color} className="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-blue-50">
+                            <span className="text-[10px] font-bold text-gray-500 min-w-[3rem] truncate">{color}</span>
+                            <div className="flex-1 flex items-center gap-1 border-b border-gray-100 pb-1">
+                              <span className="text-[10px] font-black text-red-500">¥</span>
+                              <input 
+                                type="number" 
+                                placeholder="價格"
+                                value={formData.colorPrices[color] || ''}
+                                onChange={e => setFormData(prev => ({
+                                  ...prev,
+                                  colorPrices: {
+                                    ...prev.colorPrices,
+                                    [color]: e.target.value
+                                  }
+                                }))}
+                                className="w-full bg-transparent border-none outline-none text-xs font-bold"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-xs font-bold text-gray-400 uppercase mb-2">
