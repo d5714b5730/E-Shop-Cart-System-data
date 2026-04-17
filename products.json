@@ -49,53 +49,6 @@
     }
   },
   {
-    "id": 1776233660560,
-    "name": "夏日港風紅｜針織掛脖背心",
-    "sn": "SP1776233660560",
-    "price": 0,
-    "category": "服裝",
-    "description": "經典明艷的港風夏日背心來啦！剛剛好的小V領 小小性感不會太露，版型修身纖瘦 還很遮副乳！領口+袖口加強包邊能穿更久，比一般針織更厚0.1mm ，質感更好 卻不悶熱！\n* 此款背心無胸墊 *",
-    "promoLabel": "",
-    "promoSubLabel": "",
-    "sizeChart": "",
-    "isHot": false,
-    "imgs": [
-      "https://picsum.photos/seed/0.9461522615760093/600/800"
-    ]
-  },
-  {
-    "id": 1,
-    "name": "👩🏻‍❤️‍👩🏼測試測試測試測試測試測試",
-    "sn": "SP001",
-    "price": 6666,
-    "category": "連身裙 / 套裝",
-    "description": "採用 100% 精梳棉，親膚透氣，經典版型百搭舒適。",
-    "promoLabel": "限時加購",
-    "promoSubLabel": "本期 4/15結單 !",
-    "isNew": true,
-    "imgs": [
-      "/api/images/images/1775804573902_photo_2026-04-06_17-19-52.jpg",
-      "/api/images/images/1775812563573_1.png",
-      "/api/images/images/1775926847043_1000089565.jpg"
-    ],
-    "specs": [
-      "S",
-      "M",
-      "L"
-    ],
-    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th>\n            <th class=\"py-2\">胸圍</th>\n            <th class=\"py-2\">衣長</th>\n          </tr>\n        </thead>\n        <tbody>\n          <tr class=\"border-b border-white/5\">\n            <td class=\"py-2\">S</td>\n            <td class=\"py-2\">100cm</td>\n            <td class=\"py-2\">68cm</td>\n          </tr>\n          <tr class=\"border-b border-white/5\">\n            <td class=\"py-2\">M</td>\n            <td class=\"py-2\">104cm</td>\n            <td class=\"py-2\">70cm</td>\n          </tr>\n          <tr>\n            <td class=\"py-2\">L</td>\n            <td class=\"py-2\">108cm</td>\n            <td class=\"py-2\">72cm</td>\n          </tr>\n        </tbody>\n      </table>\n    ",
-    "isHot": false,
-    "color": "百搭純白, 經典正黑, 2026新色淡黃, 2026新色軍綠",
-    "colors": [
-      "黑",
-      "白",
-      "紅"
-    ],
-    "variantPrices": {
-      "黑+白": 780
-    }
-  },
-  {
     "id": 2,
     "name": "無線藍牙耳機",
     "sn": "SP002",
