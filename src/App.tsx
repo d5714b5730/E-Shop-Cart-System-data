@@ -23,9 +23,26 @@ import {
   ArrowLeft,
   Zap,
   Clock,
-  ChevronDown
+  ChevronDown,
+  GripVertical
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import {
+  DndContext,
+  closestCenter,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { cn } from './lib/utils';
 import { Product, CartItem, Order, SiteSettings } from './types';
 
@@ -1661,6 +1678,91 @@ function SizeChartEditor({ value, onChange }: { value: string; onChange: (val: s
   );
 }
 
+interface SortableProductItemProps {
+  p: Product;
+  isSelected: boolean;
+  onSelect: () => void;
+  onEdit: () => void;
+}
+
+const SortableProductItem: React.FC<SortableProductItemProps> = ({ 
+  p, 
+  isSelected, 
+  onSelect, 
+  onEdit 
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: p.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={cn(
+        "group flex items-center gap-4 p-4 border rounded-2xl transition-all touch-none",
+        isSelected ? "border-blue-500 bg-blue-50/50" : "border-gray-100 hover:border-gray-200 hover:bg-gray-50/50",
+        isDragging && "opacity-50 scale-[1.02] shadow-2xl bg-white border-blue-400 z-50 cursor-grabbing"
+      )}
+    >
+      <div className="flex items-center gap-3">
+        {/* Drag handle icon - visual only now as listeners are on parent */}
+        <div className="p-1 text-gray-300 group-hover:text-gray-500 transition-colors cursor-grab">
+          <GripVertical size={20} />
+        </div>
+        
+        <div 
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+          }}
+          className={cn(
+            "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer",
+            isSelected ? "bg-blue-500 border-blue-500" : "border-gray-200"
+          )}
+        >
+          {isSelected && <CheckCircle2 size={14} className="text-white" />}
+        </div>
+      </div>
+      
+      <img src={p.imgs[0]} alt="" className="w-16 h-16 object-cover rounded-xl shadow-sm select-none" referrerPolicy="no-referrer" loading="lazy" decoding="async" />
+      
+      <div className="flex-1 min-w-0 select-none">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded uppercase">
+            {p.category}
+          </span>
+        </div>
+        <h4 className="font-bold truncate text-gray-800">{p.name}</h4>
+        <p className="text-sm font-bold text-red-500">¥{Math.floor(p.price)}</p>
+      </div>
+      
+      <button 
+        onClick={(e) => {
+          e.stopPropagation();
+          onEdit();
+        }}
+        className="p-3 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all"
+      >
+        <Edit3 size={20} />
+      </button>
+    </div>
+  );
+};
+
 function AdminModal({ 
   products, 
   setProducts, 
@@ -1856,6 +1958,31 @@ function AdminModal({
     resetForm();
     setActiveTab('list');
     showToast('商品更新成功', 'success');
+  };
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    setProducts((prev) => {
+      const oldIndex = prev.findIndex((p) => p.id === active.id);
+      const newIndex = prev.findIndex((p) => p.id === over.id);
+      return arrayMove(prev, oldIndex, newIndex);
+    });
   };
 
   const startEdit = (product: Product) => {
@@ -2068,7 +2195,7 @@ function AdminModal({
                     onChange={e => setFilterCategory(e.target.value)}
                     className="bg-transparent text-sm font-medium outline-none"
                   >
-                    {categories.map((c, idx) => <option key={`${c}-${idx}`} value={c}>{c}</option>)}
+                                  {categories.map((c, idx) => <option key={`${c}-${idx}`} value={c}>{c}</option>)}
                   </select>
                 </div>
               </div>
@@ -2118,7 +2245,7 @@ function AdminModal({
                 </motion.div>
               )}
 
-              {/* List */}
+              {/* List Header */}
               <div className="flex items-center gap-3 px-2 py-2 mb-2">
                 <div 
                   onClick={() => {
@@ -2147,47 +2274,35 @@ function AdminModal({
                 >
                   全選
                 </span>
+                <span className="text-[10px] text-gray-400 ml-auto font-medium">長按區塊可拖動排序</span>
               </div>
+
+              {/* List Content */}
               <div className="grid grid-cols-1 gap-3">
-                {filteredAdminProducts.map((p, pIdx) => (
-                  <div 
-                    key={`${p.id}-${pIdx}`} 
-                    className={cn(
-                      "group flex items-center gap-4 p-4 border rounded-2xl transition-all",
-                      selectedIds.includes(p.id) ? "border-blue-500 bg-blue-50/50" : "border-gray-100 hover:border-gray-200 hover:bg-gray-50/50"
-                    )}
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={filteredAdminProducts.map(p => p.id)}
+                    strategy={verticalListSortingStrategy}
                   >
-                    <div 
-                      onClick={() => {
-                        setSelectedIds(prev => 
-                          prev.includes(p.id) ? prev.filter(id => id !== p.id) : [...prev, p.id]
-                        );
-                      }}
-                      className={cn(
-                        "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer",
-                        selectedIds.includes(p.id) ? "bg-blue-500 border-blue-500" : "border-gray-200"
-                      )}
-                    >
-                      {selectedIds.includes(p.id) && <CheckCircle2 size={14} className="text-white" />}
-                    </div>
-                    <img src={p.imgs[0]} alt="" className="w-16 h-16 object-cover rounded-xl shadow-sm" referrerPolicy="no-referrer" loading="lazy" decoding="async" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded uppercase">
-                          {p.category}
-                        </span>
-                      </div>
-                      <h4 className="font-bold truncate text-gray-800">{p.name}</h4>
-                      <p className="text-sm font-bold text-red-500">¥{Math.floor(p.price)}</p>
-                    </div>
-                    <button 
-                      onClick={() => startEdit(p)}
-                      className="p-3 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all"
-                    >
-                      <Edit3 size={20} />
-                    </button>
-                  </div>
-                ))}
+                    {filteredAdminProducts.map((p) => (
+                      <SortableProductItem
+                        key={p.id}
+                        p={p}
+                        isSelected={selectedIds.includes(p.id)}
+                        onSelect={() => {
+                          setSelectedIds(prev => 
+                            prev.includes(p.id) ? prev.filter(id => id !== p.id) : [...prev, p.id]
+                          );
+                        }}
+                        onEdit={() => startEdit(p)}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
                 {filteredAdminProducts.length === 0 && (
                   <div className="text-center py-20 text-gray-400">
                     <Package size={48} className="mx-auto mb-4 opacity-20" />
