@@ -14,8 +14,6 @@ import {
   Upload,
   Copy,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   Search,
   Edit3,
   Filter,
@@ -40,6 +38,7 @@ import {
   arrayMove,
   SortableContext,
   verticalListSortingStrategy,
+  horizontalListSortingStrategy,
   useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -162,7 +161,9 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToImage = (index: number) => {
     if (carouselRef.current) {
@@ -176,15 +177,15 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
   };
 
   useEffect(() => {
-    if (isHovered || product.imgs.length <= 1) return;
+    if (isHovered || isScrolling || product.imgs.length <= 1) return;
     
     const timer = setTimeout(() => {
       const nextIdx = (currentImgIdx + 1) % product.imgs.length;
       scrollToImage(nextIdx);
-    }, 3000);
+    }, 4500);
 
     return () => clearTimeout(timer);
-  }, [currentImgIdx, isHovered, product.imgs.length]);
+  }, [currentImgIdx, isHovered, isScrolling, product.imgs.length]);
 
   return (
     <motion.div
@@ -205,6 +206,13 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
             const width = e.currentTarget.offsetWidth;
             const index = Math.round(scrollLeft / width);
             if (index !== currentImgIdx) setCurrentImgIdx(index);
+            
+            // Handle scrolling state to pause carousel
+            setIsScrolling(true);
+            if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+            scrollTimeoutRef.current = setTimeout(() => {
+              setIsScrolling(false);
+            }, 1500); // 1.5 seconds after scroll stops
           }}
         >
           {product.imgs.map((img, idx) => (
@@ -1763,6 +1771,63 @@ const SortableProductItem: React.FC<SortableProductItemProps> = ({
   );
 };
 
+interface SortableImageItemProps {
+  id: string;
+  url: string;
+  onRemove: () => void;
+}
+
+const SortableImageItem: React.FC<SortableImageItemProps> = ({ 
+  id, 
+  url, 
+  onRemove 
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={cn(
+        "relative group flex-shrink-0 touch-none",
+        isDragging && "opacity-50 scale-105 shadow-xl z-50 ring-2 ring-blue-500 rounded-xl"
+      )}
+    >
+      <img src={url} alt="" className="w-20 h-20 object-cover rounded-xl select-none" referrerPolicy="no-referrer" loading="lazy" decoding="async" />
+      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center rounded-xl transition-opacity">
+        <button 
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          className="bg-red-500 text-white p-1.5 rounded-lg hover:bg-red-600 transition-colors shadow-lg"
+        >
+          <X size={16} />
+        </button>
+      </div>
+      <div className="absolute -top-1 -left-1 bg-white p-1 rounded-full shadow-md text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+        <GripVertical size={12} />
+      </div>
+    </div>
+  );
+};
+
 function AdminModal({ 
   products, 
   setProducts, 
@@ -1982,6 +2047,18 @@ function AdminModal({
       const oldIndex = prev.findIndex((p) => p.id === active.id);
       const newIndex = prev.findIndex((p) => p.id === over.id);
       return arrayMove(prev, oldIndex, newIndex);
+    });
+  };
+
+  const handleImageDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    setFormData(prev => {
+      const oldIndex = parseInt(active.id.toString().split('-')[1]);
+      const newIndex = parseInt(over.id.toString().split('-')[1]);
+      const newImgs = arrayMove(prev.imgs, oldIndex, newIndex);
+      return { ...prev, imgs: newImgs };
     });
   };
 
@@ -2609,50 +2686,30 @@ function AdminModal({
 
                 {formData.imgs.length > 0 && (
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2">已選取圖片</label>
-                    <div className="flex gap-2 overflow-x-auto pb-2">
-                      {formData.imgs.map((img, idx) => (
-                        <div key={idx} className="relative group flex-shrink-0">
-                          <img src={img} alt="" className="w-20 h-20 object-cover rounded-xl" loading="lazy" decoding="async" />
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 rounded-xl transition-opacity">
-                            <button 
-                              type="button"
-                              onClick={() => {
-                                if (idx > 0) {
-                                  const newImgs = [...formData.imgs];
-                                  [newImgs[idx - 1], newImgs[idx]] = [newImgs[idx], newImgs[idx - 1]];
-                                  setFormData(prev => ({ ...prev, imgs: newImgs }));
-                                }
-                              }}
-                              className="text-white hover:text-blue-300 p-1"
-                              disabled={idx === 0}
-                            >
-                              <ChevronLeft size={16} />
-                            </button>
-                            <button 
-                              type="button"
-                              onClick={() => {
-                                if (idx < formData.imgs.length - 1) {
-                                  const newImgs = [...formData.imgs];
-                                  [newImgs[idx], newImgs[idx + 1]] = [newImgs[idx + 1], newImgs[idx]];
-                                  setFormData(prev => ({ ...prev, imgs: newImgs }));
-                                }
-                              }}
-                              className="text-white hover:text-blue-300 p-1"
-                              disabled={idx === formData.imgs.length - 1}
-                            >
-                              <ChevronRight size={16} />
-                            </button>
-                            <button 
-                              type="button"
-                              onClick={() => handleRemoveImg(idx, img)}
-                              className="text-white hover:text-red-300 p-1"
-                            >
-                              <X size={16} />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-xs font-bold text-gray-400 uppercase">已選取圖片</label>
+                      <span className="text-[10px] text-gray-400 font-medium">拖曳圖片可調整顯示順序</span>
+                    </div>
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleImageDragEnd}
+                      >
+                        <SortableContext
+                          items={formData.imgs.map((_, idx) => `img-${idx}`)}
+                          strategy={horizontalListSortingStrategy}
+                        >
+                          {formData.imgs.map((img, idx) => (
+                            <SortableImageItem
+                              key={`img-${idx}`}
+                              id={`img-${idx}`}
+                              url={img}
+                              onRemove={() => handleRemoveImg(idx, img)}
+                            />
+                          ))}
+                        </SortableContext>
+                      </DndContext>
                     </div>
                   </div>
                 )}
