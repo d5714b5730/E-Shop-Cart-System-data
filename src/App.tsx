@@ -326,6 +326,45 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
   );
 }
 
+// 圖片上傳前的優化處理，確保不超過平台 Payload 限制 (約 4.5MB)
+// 如果原本就小於 3MB 則維持原樣上傳，否則進行輕微壓縮以維持原解析度但降低體積
+const getOptimizedBase64 = async (file: File): Promise<string> => {
+  if (file.size <= 3 * 1024 * 1024) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = ev => resolve((ev.target?.result as string).split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      // 維持原始解析度
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('無法初始化畫布'));
+        return;
+      }
+      ctx.drawImage(img, 0, 0);
+      // 使用 0.9 品質進行優化，這通常能顯著降低體積且肉眼難辨差異
+      const optimizedData = canvas.toDataURL('image/jpeg', 0.9);
+      resolve(optimizedData.split(',')[1]);
+      URL.revokeObjectURL(url);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('圖片載入失敗'));
+    };
+    img.src = url;
+  });
+};
+
 export default function App() {
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('products');
@@ -2396,14 +2435,7 @@ function AdminModal({
                         try {
                           for (let i = 0; i < selectedFiles.length; i++) {
                             const file = selectedFiles[i];
-                            const base64 = await new Promise<string>((resolve, reject) => {
-                              const reader = new FileReader();
-                              reader.onload = ev => resolve(ev.target?.result as string);
-                              reader.onerror = reject;
-                              reader.readAsDataURL(file);
-                            });
-                            
-                            const pureBase64 = base64.split(',')[1];
+                            const pureBase64 = await getOptimizedBase64(file);
                             const fileExt = file.name.split('.').pop() || 'jpg';
                             const fileName = `img_${Date.now()}_${i}_${file.name.replace(/\.[^/.]+$/, "")}.${fileExt}`;
                             
@@ -2932,13 +2964,7 @@ function AdminModal({
                                 if (!file) return;
                                 setIsUploading(true);
                                 try {
-                                  const base64 = await new Promise<string>((resolve, reject) => {
-                                    const reader = new FileReader();
-                                    reader.onload = ev => resolve(ev.target?.result as string);
-                                    reader.onerror = reject;
-                                    reader.readAsDataURL(file);
-                                  });
-                                  const pureBase64 = base64.split(',')[1];
+                                  const pureBase64 = await getOptimizedBase64(file);
                                   const fileExt = file.name.split('.').pop() || 'jpg';
                                   const fileName = `logo_${Date.now()}_${file.name.replace(/\.[^/.]+$/, "")}.${fileExt}`;
                                   const res = await fetch('/api/upload-image', {
