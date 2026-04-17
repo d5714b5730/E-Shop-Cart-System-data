@@ -47,28 +47,5 @@
       "任選3色折$100": 1250,
       "任選3色組合價($416/件)": 1250
     }
-  },
-  {
-    "id": 2,
-    "name": "無線藍牙耳機",
-    "sn": "SP002",
-    "price": 8888,
-    "category": "服裝",
-    "description": "主動降噪技術，長達 30 小時續航，享受純淨音質。",
-    "isHot": true,
-    "promoLabel": "限時加購",
-    "promoSubLabel": "本期 4/15結單 !",
-    "imgs": [
-      "/api/images/images/1775996524809_1000089592.jpg",
-      "https://picsum.photos/seed/d2/600/1067",
-      "https://picsum.photos/seed/d1/600/1067"
-    ],
-    "specs": [
-      "黑色",
-      "白色",
-      "午夜藍"
-    ],
-    "sizeChart": "",
-    "isNew": true
   }
 ]
