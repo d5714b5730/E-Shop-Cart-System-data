@@ -6,8 +6,8 @@
     "price": 750,
     "category": "連身裙 / 套裝",
     "description": "",
-    "promoLabel": "",
-    "promoSubLabel": "",
+    "promoLabel": "限時加購",
+    "promoSubLabel": "本期 4/15 結單!!",
     "colors": [
       "上衣",
       "長裙",
@@ -43,7 +43,7 @@
     "category": "背心 / 美背小可愛",
     "description": "去年人手2件！陪妳一整個夏天自帶胸墊+冰絲版本（🆕2026加開新色：淡黃、軍綠）",
     "promoLabel": "限時加購",
-    "promoSubLabel": "本期 4/15結單 !",
+    "promoSubLabel": "本期 4/15 結單!!",
     "imgs": [
       "/api/images/images/img_1776424039343_0_1000089917.jpg",
       "/api/images/images/img_1776432160699_0_1000089936.jpg",
