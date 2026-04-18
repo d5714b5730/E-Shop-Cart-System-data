@@ -1,5 +1,36 @@
 [
   {
+    "id": 1776491397290,
+    "name": "夏日純棉削肩背心+長裙蕾絲擺套裝",
+    "sn": "SP1776491397290",
+    "price": 0,
+    "category": "連身裙 / 套裝",
+    "description": "",
+    "promoLabel": "",
+    "promoSubLabel": "",
+    "colors": [
+      "兩件套",
+      "削肩背心",
+      "長裙"
+    ],
+    "colorPrices": {
+      "兩件套": 1250,
+      "削肩背心": 690,
+      "長裙": 750
+    },
+    "sizeChart": "",
+    "isHot": false,
+    "imgs": [
+      "/api/images/images/img_1776491125511_0_1000089592.jpg",
+      "/api/images/images/img_1776491127348_1_1000089980.jpg",
+      "/api/images/images/img_1776491130132_2_1000089981.jpg",
+      "/api/images/images/img_1776491133094_3_1000089983.jpg",
+      "/api/images/images/img_1776491136071_4_1000089982.jpg",
+      "/api/images/images/img_1776491138970_5_1000089978.jpg",
+      "/api/images/images/img_1776491141855_6_1000089979.jpg"
+    ]
+  },
+  {
     "id": 3,
     "name": "春夏必收！原廠供貨正品冰絲美背小可愛",
     "sn": "A001",
