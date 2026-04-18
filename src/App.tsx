@@ -1191,28 +1191,28 @@ ${itemsText}
         {/* Spec Selection Modal */}
         {specModalProduct && (
           <Modal onClose={() => { setSpecModalProduct(null); setModalSelectedColor(''); setModalSelectedSpec(''); }}>
-            <div className="p-8">
-              <div className="flex items-center gap-6 mb-8">
+            <div className="p-5">
+              <div className="flex items-center gap-4 mb-5">
                 <img 
                   src={specModalProduct.imgs[0]} 
                   alt="" 
-                  className="w-24 h-24 object-cover rounded-2xl shadow-lg" 
+                  className="w-20 h-20 object-cover rounded-2xl shadow-lg" 
                   referrerPolicy="no-referrer"
                   loading="lazy"
                   decoding="async"
                 />
                 <div>
-                  <h3 className="text-xl font-black text-gray-900 mb-1">{specModalProduct.name}</h3>
-                  <p className="text-2xl font-black text-red-500">
+                  <h3 className="text-lg font-black text-gray-900 leading-tight">{specModalProduct.name}</h3>
+                  <p className="text-xl font-black text-red-500 mt-0.5">
                     ¥{Math.floor((specModalProduct.colorPrices && modalSelectedColor && specModalProduct.colorPrices[modalSelectedColor]) || specModalProduct.price)}
                   </p>
                 </div>
               </div>
               
               {specModalProduct.colors && specModalProduct.colors.length > 0 && (
-                <div className="mb-8">
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">選擇顏色</label>
-                  <div className="flex flex-wrap gap-3">
+                <div className="mb-5">
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">選擇顏色</label>
+                  <div className="flex flex-wrap gap-2">
                     {specModalProduct.colors.map((color, idx) => {
                       const colorPrice = (specModalProduct.colorPrices && specModalProduct.colorPrices[color]);
                       const isDifferentPrice = colorPrice && colorPrice !== specModalProduct.price;
@@ -1221,7 +1221,7 @@ ${itemsText}
                         <button
                           key={`${color}-${idx}`}
                           onClick={() => setModalSelectedColor(color)}
-                          className={`group relative px-6 py-3 rounded-xl font-bold text-sm transition-all border flex flex-col items-center ${
+                          className={`group relative px-4 py-2.5 rounded-xl font-bold text-xs transition-all border flex flex-col items-center min-w-[80px] ${
                             modalSelectedColor === color 
                               ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' 
                               : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500'
@@ -1229,7 +1229,7 @@ ${itemsText}
                         >
                           <span>{color}</span>
                           {isDifferentPrice && (
-                            <span className={`text-[9px] mt-0.5 font-black ${
+                            <span className={`text-[8px] mt-0.5 font-black ${
                               modalSelectedColor === color ? 'text-white/80' : 'text-red-500'
                             }`}>
                               ¥{Math.floor(colorPrice)}
@@ -1243,14 +1243,14 @@ ${itemsText}
               )}
 
               {specModalProduct.specs && specModalProduct.specs.length > 0 && (
-                <div className="mb-8">
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">選擇規格</label>
-                  <div className="flex flex-wrap gap-3">
+                <div className="mb-5">
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">選擇規格</label>
+                  <div className="flex flex-wrap gap-2">
                     {specModalProduct.specs.map((spec, idx) => (
                       <button
                         key={`${spec}-${idx}`}
                         onClick={() => setModalSelectedSpec(spec)}
-                        className={`px-6 py-3 rounded-xl font-bold text-sm transition-all border ${modalSelectedSpec === spec ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500'}`}
+                        className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all border ${modalSelectedSpec === spec ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500'}`}
                       >
                         {spec}
                       </button>
@@ -1262,17 +1262,17 @@ ${itemsText}
               <button
                 onClick={() => addToCart(specModalProduct, modalSelectedSpec, modalSelectedColor)}
                 disabled={(!!specModalProduct.specs?.length && !modalSelectedSpec) || (!!specModalProduct.colors?.length && !modalSelectedColor)}
-                className="w-full py-4 mb-8 bg-gray-900 text-white rounded-2xl font-black text-lg hover:bg-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-gray-200"
+                className="w-full py-3.5 mb-5 bg-gray-900 text-white rounded-2xl font-black text-base hover:bg-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-gray-200"
               >
                 加入購物車
               </button>
               
               {specModalProduct.sizeChart && (
-                <div className="mb-8">
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">尺碼表</label>
-                  <div className="overflow-x-auto border border-gray-100 rounded-xl p-4 bg-gray-50">
+                <div className="mb-5">
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">尺碼表 (手工測量±2cm為合理範圍 )</label>
+                  <div className="overflow-x-auto border border-gray-100 rounded-xl p-3 bg-gray-50">
                     <div 
-                      className="text-xs text-gray-600 leading-tight [&_table]:w-full [&_table]:border-collapse [&_th]:text-left [&_th]:p-2 [&_td]:p-2 [&_th]:border-b [&_th]:border-gray-200 [&_td]:border-b [&_td]:border-gray-200"
+                      className="text-[11px] text-gray-600 leading-tight [&_table]:w-full [&_table]:border-collapse [&_th]:text-left [&_th]:p-2 [&_td]:p-2 [&_th]:border-b [&_th]:border-gray-200 [&_td]:border-b [&_td]:border-gray-200"
                       dangerouslySetInnerHTML={{ __html: specModalProduct.sizeChart }}
                     />
                   </div>
@@ -1281,7 +1281,7 @@ ${itemsText}
               
               <button 
                 onClick={() => setSpecModalProduct(null)}
-                className="w-full py-4 bg-gray-100 text-gray-400 rounded-2xl font-bold hover:bg-gray-200 transition-all"
+                className="w-full py-3 bg-gray-100 text-gray-400 rounded-2xl font-bold hover:bg-gray-200 transition-all text-sm"
               >
                 取消
               </button>
@@ -1536,13 +1536,13 @@ function SizeChartEditor({ value, onChange }: { value: string; onChange: (val: s
       <table class="w-full border-collapse">
         <thead>
           <tr class="border-b border-white/10 text-left">
-            ${header.map(h => `<th class="py-2">${h}</th>`).join('')}
+            ${header.map((h, hIdx) => `<th class="py-2">${h}${hIdx > 0 && h.trim() ? '<small class="ml-0.5 text-[9px] opacity-60">cm</small>' : ''}</th>`).join('')}
           </tr>
         </thead>
         <tbody>
           ${body.map(row => `
             <tr class="border-b border-white/5">
-              ${row.map(c => `<td class="py-2">${c}</td>`).join('')}
+              ${row.map((c, cIdx) => `<td class="py-2">${c}${cIdx > 0 && c.trim() ? '<small class="ml-0.5 text-[9px] opacity-60">cm</small>' : ''}</td>`).join('')}
             </tr>
           `).join('')}
         </tbody>
@@ -1555,7 +1555,11 @@ function SizeChartEditor({ value, onChange }: { value: string; onChange: (val: s
     const trs = html.match(/<tr[^>]*>([\s\S]*?)<\/tr>/g) || [];
     trs.forEach(tr => {
       const tds = tr.match(/<(th|td)[^>]*>([\s\S]*?)<\/(th|td)>/g) || [];
-      const row = tds.map(td => td.replace(/<[^>]*>/g, '').trim());
+      const row = tds.map(td => {
+        // Remove the <small>cm</small> parts we added before getting text
+        let content = td.replace(/<small[^>]*>cm<\/small>/g, '');
+        return content.replace(/<[^>]*>/g, '').trim();
+      });
       if (row.length > 0) parsedRows.push(row);
     });
     return parsedRows;
