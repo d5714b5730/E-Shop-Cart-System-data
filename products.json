@@ -2,10 +2,10 @@
   {
     "id": 3,
     "name": "春夏必收！原廠供貨正品冰絲美背小可愛",
-    "sn": "A001",
+    "sn": "",
     "price": 450,
     "category": "背心 / 美背小可愛",
-    "description": "去年人手2件！陪妳一整個夏天自帶胸墊+冰絲版本（🆕2026加開新色：淡黃、軍綠）",
+    "description": "去年人手2件以上，超親膚超舒服的冰絲材質，真的有效的涼感冰絲❄️自帶胸墊陪妳輕鬆舒服的過一整個夏天 🆕2026加開新色：淡黃（推！）、軍綠",
     "promoLabel": "限時加購",
     "promoSubLabel": "本期 4/15 結單!!",
     "imgs": [
@@ -30,7 +30,7 @@
       "/api/images/images/img_1776425179100_4_1000089934.jpg",
       "/api/images/images/img_1776425184693_6_1000089939.jpg"
     ],
-    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">胸圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">均碼</td><td class=\"py-2\">68~88<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">37+5<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
+    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">胸圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">均碼</td><td class=\"py-2\">68~86<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">37+5<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
     "isNew": true,
     "isHot": true,
     "colors": [
