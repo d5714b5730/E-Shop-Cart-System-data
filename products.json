@@ -56,9 +56,9 @@
     "id": 1776588461899,
     "name": "多穿法隱形粉底液色內衣",
     "sn": "SP1776588461899",
-    "price": 450,
+    "price": 390,
     "category": "背心 / 美背小可愛",
-    "description": "掛脖+大露背+交叉美背一次滿足！還是隱形粉底液色，像是真的和肉肉融為一體🥟",
+    "description": "掛脖款+露背裝一件隱形✨還是隱形粉底液色像是真的和肉肉融為一體！🥟平價款中CP值較高的版本🆙建議手洗避免跑杯喔",
     "promoLabel": "",
     "promoSubLabel": "",
     "specs": [
@@ -67,7 +67,7 @@
       "L",
       "XL"
     ],
-    "sizeChart": "",
+    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">胸圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">S</td><td class=\"py-2\"></td><td class=\"py-2\"></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">M</td><td class=\"py-2\"></td><td class=\"py-2\"></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">L</td><td class=\"py-2\"></td><td class=\"py-2\"></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">XL</td><td class=\"py-2\"></td><td class=\"py-2\"></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
     "isHot": true,
     "imgs": [
       "/api/images/images/img_1776588167808_0_1000090083.jpg",
