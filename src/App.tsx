@@ -277,15 +277,17 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
               )}
 
               <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex items-baseline gap-1 drop-shadow-md mr-1">
-                  <span className="text-sm font-black text-red-500">¥</span>
-                  <span className="text-3xl font-black text-white tracking-tighter leading-none">
-                    {Math.floor(product.price)}
-                  </span>
-                  {product.colorPrices && Object.values(product.colorPrices).some(p => p !== product.price) && (
-                    <span className="text-[10px] font-bold text-white/60 ml-0.5 tracking-tighter italic">起</span>
-                  )}
-                </div>
+                {siteSettings.isCartEnabled !== false && (
+                  <div className="flex items-baseline gap-1 drop-shadow-md mr-1">
+                    <span className="text-sm font-black text-red-500">¥</span>
+                    <span className="text-3xl font-black text-white tracking-tighter leading-none">
+                      {Math.floor(product.price)}
+                    </span>
+                    {product.colorPrices && Object.values(product.colorPrices).some(p => p !== product.price) && (
+                      <span className="text-[10px] font-bold text-white/60 ml-0.5 tracking-tighter italic">起</span>
+                    )}
+                  </div>
+                )}
                 {product.promoLabel && siteSettings.isCartEnabled !== false && (
                   <PromoBadge 
                     label={product.promoLabel} 
