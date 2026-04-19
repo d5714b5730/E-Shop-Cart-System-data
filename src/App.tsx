@@ -159,10 +159,15 @@ function PromoBadge({ label, subLabel, onClick }: { label: string; subLabel?: st
 }
 
 function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: any): React.JSX.Element {
-  const [currentImgIdx, setCurrentImgIdx] = useState(0);
+  const [currentImgIdx, setCurrentImgIdx] = useState(product.imgs.length > 1 ? 1 : 0);
   const [isHovered, setIsHovered] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const isJumping = useRef(false);
+
+  const extendedImgs = product.imgs.length > 1 
+    ? [product.imgs[product.imgs.length - 1], ...product.imgs, product.imgs[0]]
+    : product.imgs;
 
   const scrollToImage = (index: number) => {
     if (carouselRef.current) {
@@ -174,6 +179,35 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
       setCurrentImgIdx(index);
     }
   };
+
+  // Handle silent jumps for infinite loop
+  useEffect(() => {
+    if (product.imgs.length <= 1 || !carouselRef.current) return;
+
+    if (currentImgIdx === 0 || currentImgIdx === extendedImgs.length - 1) {
+      isJumping.current = true;
+      const jumpTo = currentImgIdx === 0 ? product.imgs.length : 1;
+      
+      const timer = setTimeout(() => {
+        if (carouselRef.current) {
+          const width = carouselRef.current.offsetWidth;
+          carouselRef.current.scrollTo({ left: jumpTo * width, behavior: 'auto' });
+          setCurrentImgIdx(jumpTo);
+          isJumping.current = false;
+        }
+      }, 500); // Longer than the CSS transition/snap
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentImgIdx, product.imgs.length, extendedImgs.length]);
+
+  // Initial scroll position
+  useEffect(() => {
+    if (carouselRef.current && product.imgs.length > 1) {
+      const width = carouselRef.current.offsetWidth;
+      carouselRef.current.scrollLeft = width;
+    }
+  }, [product.imgs.length]);
 
   return (
     <motion.div
@@ -190,13 +224,14 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
           ref={carouselRef}
           className="flex h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide cursor-grab active:cursor-grabbing"
           onScroll={(e) => {
+            if (isJumping.current) return;
             const scrollLeft = e.currentTarget.scrollLeft;
             const width = e.currentTarget.offsetWidth;
             const index = Math.round(scrollLeft / width);
             if (index !== currentImgIdx) setCurrentImgIdx(index);
           }}
         >
-          {product.imgs.map((img, idx) => (
+          {extendedImgs.map((img, idx) => (
             <div key={idx} className="w-full h-full flex-shrink-0 snap-center snap-always">
               <img 
                 src={img} 
@@ -204,7 +239,7 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
                 className="w-full h-full object-contain pointer-events-none"
                 referrerPolicy="no-referrer"
                 draggable="false"
-                loading={idx === 0 ? "eager" : "lazy"}
+                loading={idx === 1 ? "eager" : "lazy"}
                 decoding="async"
               />
             </div>
@@ -264,15 +299,25 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
               {/* Carousel Progress Bar */}
               {product.imgs.length > 1 && (
                 <div className="flex gap-1 w-full h-[1px] my-1">
-                  {product.imgs.map((_, idx) => (
-                    <div 
-                      key={idx} 
-                      className={cn(
-                        "h-full flex-1 rounded-full transition-all duration-300",
-                        idx <= currentImgIdx ? "bg-white/40" : "bg-white/10"
-                      )} 
-                    />
-                  ))}
+                  {product.imgs.map((_, idx) => {
+                    // Map extended currentImgIdx back to real index (0 to length-1)
+                    // internal index 1 corresponds to real index 0
+                    const realActiveIdx = currentImgIdx === 0 
+                      ? product.imgs.length - 1 
+                      : currentImgIdx === extendedImgs.length - 1 
+                        ? 0 
+                        : currentImgIdx - 1;
+
+                    return (
+                      <div 
+                        key={idx} 
+                        className={cn(
+                          "h-full flex-1 rounded-full transition-all duration-300",
+                          idx <= realActiveIdx ? "bg-white/40" : "bg-white/10"
+                        )} 
+                      />
+                    );
+                  })}
                 </div>
               )}
 
