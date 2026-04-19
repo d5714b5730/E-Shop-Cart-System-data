@@ -1221,14 +1221,6 @@ ${itemsText}
                 </div>
               )}
 
-              <button
-                onClick={() => addToCart(specModalProduct, modalSelectedSpec, modalSelectedColor)}
-                disabled={(!!specModalProduct.specs?.length && !modalSelectedSpec) || (!!specModalProduct.colors?.length && !modalSelectedColor)}
-                className="w-full py-3.5 mb-5 bg-gray-900 text-white rounded-2xl font-black text-base hover:bg-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-gray-200"
-              >
-                加入購物車
-              </button>
-              
               {specModalProduct.sizeChart && (
                 <div className="mb-5">
                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">尺碼表 (手工測量±2cm為合理範圍 )</label>
@@ -1240,12 +1232,13 @@ ${itemsText}
                   </div>
                 </div>
               )}
-              
-              <button 
-                onClick={() => setSpecModalProduct(null)}
-                className="w-full py-3 bg-gray-100 text-gray-400 rounded-2xl font-bold hover:bg-gray-200 transition-all text-sm"
+
+              <button
+                onClick={() => addToCart(specModalProduct, modalSelectedSpec, modalSelectedColor)}
+                disabled={(!!specModalProduct.specs?.length && !modalSelectedSpec) || (!!specModalProduct.colors?.length && !modalSelectedColor)}
+                className="w-full py-3.5 bg-gray-900 text-white rounded-2xl font-black text-base hover:bg-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-gray-200"
               >
-                取消
+                加入購物車
               </button>
             </div>
           </Modal>
@@ -1420,6 +1413,13 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         className="relative w-full max-w-2xl max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
       >
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 z-[110] p-2 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-full transition-all shadow-sm"
+          aria-label="Close modal"
+        >
+          <X size={16} />
+        </button>
         {children}
       </motion.div>
     </div>
