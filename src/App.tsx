@@ -1187,31 +1187,19 @@ ${itemsText}
                 <div className="mb-5">
                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">選擇顏色</label>
                   <div className="flex flex-wrap gap-2">
-                    {specModalProduct.colors.map((color, idx) => {
-                      const colorPrice = (specModalProduct.colorPrices && specModalProduct.colorPrices[color]);
-                      const isDifferentPrice = colorPrice && colorPrice !== specModalProduct.price;
-                      
-                      return (
-                        <button
-                          key={`${color}-${idx}`}
-                          onClick={() => setModalSelectedColor(color)}
-                          className={`group relative px-4 py-2.5 rounded-xl font-bold text-xs transition-all border flex flex-col items-center min-w-[80px] ${
-                            modalSelectedColor === color 
-                              ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' 
-                              : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500'
-                          }`}
-                        >
-                          <span>{color}</span>
-                          {isDifferentPrice && (
-                            <span className={`text-[8px] mt-0.5 font-black ${
-                              modalSelectedColor === color ? 'text-white/80' : 'text-red-500'
-                            }`}>
-                              ¥{Math.floor(colorPrice)}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
+                    {specModalProduct.colors.map((color, idx) => (
+                      <button
+                        key={`${color}-${idx}`}
+                        onClick={() => setModalSelectedColor(color)}
+                        className={`group relative px-6 py-3 rounded-xl font-bold text-xs transition-all border flex items-center justify-center min-w-[80px] ${
+                          modalSelectedColor === color 
+                            ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' 
+                            : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500'
+                        }`}
+                      >
+                        <span>{color}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}
