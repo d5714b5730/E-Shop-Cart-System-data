@@ -175,10 +175,17 @@
     "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">腰圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">臀圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">褲長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">XS</td><td class=\"py-2\"></td><td class=\"py-2\"></td><td class=\"py-2\"></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">S</td><td class=\"py-2\"></td><td class=\"py-2\"></td><td class=\"py-2\"></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">L</td><td class=\"py-2\"></td><td class=\"py-2\"></td><td class=\"py-2\"></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
     "isHot": true,
     "imgs": [
+      "/api/images/images/img_1776601073259_0_1000090150.jpg",
       "/api/images/images/img_1776598126247_0_1000089919.jpg",
       "/api/images/images/img_1776598129418_1_1000089922.jpg",
       "/api/images/images/img_1776598132571_2_1000089921.jpg",
-      "/api/images/images/img_1776598135645_3_1000089920.jpg"
+      "/api/images/images/img_1776598135645_3_1000089920.jpg",
+      "/api/images/images/img_1776601114179_0_1000090185.jpg",
+      "/api/images/images/img_1776601117434_1_1000090183.jpg",
+      "/api/images/images/img_1776601147841_0_1000090156.jpg",
+      "/api/images/images/img_1776601171689_0_1000090184.jpg",
+      "/api/images/images/img_1776601174960_1_1000090172.jpg",
+      "/api/images/images/img_1776601178221_2_1000090166.jpg"
     ]
   }
 ]
