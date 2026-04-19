@@ -1,31 +1,5 @@
 [
   {
-    "id": 1776588461899,
-    "name": "多穿法隱形粉底液色內衣",
-    "sn": "SP1776588461899",
-    "price": 450,
-    "category": "背心 / 美背小可愛",
-    "description": "",
-    "promoLabel": "",
-    "promoSubLabel": "",
-    "specs": [
-      "S",
-      "M",
-      "L",
-      "XL"
-    ],
-    "sizeChart": "",
-    "isHot": true,
-    "imgs": [
-      "/api/images/images/img_1776588167808_0_1000090083.jpg",
-      "/api/images/images/img_1776588172554_1_1000090070.jpg",
-      "/api/images/images/img_1776588176125_2_1000090071.jpg",
-      "/api/images/images/img_1776588180461_3_1000090073.jpg",
-      "/api/images/images/img_1776588184214_4_1000090072.jpg",
-      "/api/images/images/img_1776588188307_5_1000090074.jpg"
-    ]
-  },
-  {
     "id": 3,
     "name": "春夏必收！原廠供貨正品冰絲美背小可愛",
     "sn": "",
@@ -77,6 +51,32 @@
       "任選3色組合價($416/件)": 1250,
       "任選3色組合價($400/件)": 1200
     }
+  },
+  {
+    "id": 1776588461899,
+    "name": "多穿法隱形粉底液色內衣",
+    "sn": "SP1776588461899",
+    "price": 450,
+    "category": "背心 / 美背小可愛",
+    "description": "掛脖+大露背+交叉美背一次滿足！還是隱形粉底液色，像是真的和肉肉融為一體🥟",
+    "promoLabel": "",
+    "promoSubLabel": "",
+    "specs": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "sizeChart": "",
+    "isHot": true,
+    "imgs": [
+      "/api/images/images/img_1776588167808_0_1000090083.jpg",
+      "/api/images/images/img_1776588172554_1_1000090070.jpg",
+      "/api/images/images/img_1776588176125_2_1000090071.jpg",
+      "/api/images/images/img_1776588180461_3_1000090073.jpg",
+      "/api/images/images/img_1776588184214_4_1000090072.jpg",
+      "/api/images/images/img_1776588188307_5_1000090074.jpg"
+    ]
   },
   {
     "id": 1776491397290,
