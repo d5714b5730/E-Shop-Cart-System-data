@@ -162,9 +162,7 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isScrolling, setIsScrolling] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToImage = (index: number) => {
     if (carouselRef.current) {
@@ -176,17 +174,6 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
       setCurrentImgIdx(index);
     }
   };
-
-  useEffect(() => {
-    if (isHovered || isScrolling || product.imgs.length <= 1) return;
-    
-    const timer = setTimeout(() => {
-      const nextIdx = (currentImgIdx + 1) % product.imgs.length;
-      scrollToImage(nextIdx);
-    }, 4500);
-
-    return () => clearTimeout(timer);
-  }, [currentImgIdx, isHovered, isScrolling, product.imgs.length]);
 
   return (
     <motion.div
@@ -207,13 +194,6 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
             const width = e.currentTarget.offsetWidth;
             const index = Math.round(scrollLeft / width);
             if (index !== currentImgIdx) setCurrentImgIdx(index);
-            
-            // Handle scrolling state to pause carousel
-            setIsScrolling(true);
-            if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-            scrollTimeoutRef.current = setTimeout(() => {
-              setIsScrolling(false);
-            }, 1500); // 1.5 seconds after scroll stops
           }}
         >
           {product.imgs.map((img, idx) => (
@@ -283,23 +263,15 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
 
               {/* Carousel Progress Bar */}
               {product.imgs.length > 1 && (
-                <div className="flex gap-1 w-1/3 h-[1px] my-1">
+                <div className="flex gap-1 w-full h-[1px] my-1">
                   {product.imgs.map((_, idx) => (
-                    <div key={idx} className="h-full flex-1 bg-white/10 rounded-full overflow-hidden">
-                      {idx === currentImgIdx ? (
-                        !isHovered && (
-                          <motion.div 
-                            key={currentImgIdx}
-                            initial={{ width: "0%" }}
-                            animate={{ width: "100%" }}
-                            transition={{ duration: 3, ease: "linear" }}
-                            className="h-full bg-white/40"
-                          />
-                        )
-                      ) : idx < currentImgIdx ? (
-                        <div className="h-full w-full bg-white/40" />
-                      ) : null}
-                    </div>
+                    <div 
+                      key={idx} 
+                      className={cn(
+                        "h-full flex-1 rounded-full transition-all duration-300",
+                        idx <= currentImgIdx ? "bg-white/40" : "bg-white/10"
+                      )} 
+                    />
                   ))}
                 </div>
               )}
