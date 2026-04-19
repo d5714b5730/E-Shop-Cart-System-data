@@ -887,19 +887,13 @@ ${itemsText}
         {isCartOpen && (
           <Modal onClose={() => setIsCartOpen(false)}>
             <div className="flex flex-col flex-1 min-h-0 bg-white">
-              <div className="p-4 border-b border-gray-50 flex justify-between items-center shrink-0">
+              <div className="p-4 border-b border-gray-50 flex justify-between items-center shrink-0 pr-12">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
                     <ShoppingCart className="text-white" size={16} />
                   </div>
                   <h2 className="text-xl font-black tracking-tighter">購物車</h2>
                 </div>
-                <button 
-                  onClick={() => setIsCartOpen(false)}
-                  className="p-2 hover:bg-gray-50 rounded-lg transition-all text-gray-400 hover:text-gray-900"
-                >
-                  <X size={20} />
-                </button>
               </div>
               <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-hide">
                 {cart.length === 0 ? (
@@ -1166,7 +1160,7 @@ ${itemsText}
         {specModalProduct && (
           <Modal onClose={() => { setSpecModalProduct(null); setModalSelectedColor(''); setModalSelectedSpec(''); }}>
             <div className="p-5">
-              <div className="flex items-center gap-4 mb-5">
+              <div className="flex items-center gap-4 mb-5 pr-10">
                 <img 
                   src={specModalProduct.imgs[0]} 
                   alt="" 
@@ -1333,13 +1327,6 @@ function AdminLogin({ onLogin, onClose }: { onLogin: () => void; onClose: () => 
   return (
     <Modal onClose={onClose}>
       <div className="p-10 bg-white w-full max-w-md mx-auto rounded-[2.5rem] shadow-2xl relative">
-        <button 
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2.5 hover:bg-gray-50 rounded-xl transition-all text-gray-400 hover:text-gray-900"
-        >
-          <X size={24} />
-        </button>
-        
         <div className="flex flex-col items-center text-center space-y-8 mt-4">
           <div className="w-24 h-24 bg-gray-900 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-gray-200">
             <Settings className="text-white" size={40} />
@@ -2131,7 +2118,7 @@ function AdminModal({
     <Modal onClose={onClose}>
       <div className="flex flex-col h-[90vh] bg-white">
         {/* Header */}
-        <div className="p-6 border-b flex justify-between items-center bg-gray-50/50">
+        <div className="p-6 border-b flex justify-between items-center bg-gray-50/50 pr-16">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500 text-white rounded-lg">
               <Package size={20} />
@@ -2146,9 +2133,6 @@ function AdminModal({
             >
               <Download size={18} />
               {isSyncing ? '同步中...' : '保存到 GitHub'}
-            </button>
-            <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-              <X size={24} />
             </button>
           </div>
         </div>
