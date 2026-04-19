@@ -1,5 +1,31 @@
 [
   {
+    "id": 1776598592321,
+    "name": "修飾腰臀比 | 顯瘦版型港風牛仔短褲（反摺兩穿）",
+    "sn": "SP1776598592321",
+    "price": 690,
+    "category": "短褲 / 長褲",
+    "description": "",
+    "promoLabel": "",
+    "promoSubLabel": "",
+    "colors": [
+      "作舊水洗藍"
+    ],
+    "specs": [
+      "XS",
+      "S",
+      "L"
+    ],
+    "sizeChart": "",
+    "isHot": true,
+    "imgs": [
+      "/api/images/images/img_1776598126247_0_1000089919.jpg",
+      "/api/images/images/img_1776598129418_1_1000089922.jpg",
+      "/api/images/images/img_1776598132571_2_1000089921.jpg",
+      "/api/images/images/img_1776598135645_3_1000089920.jpg"
+    ]
+  },
+  {
     "id": 1776591701142,
     "name": "解構主義 | 設計師款 摺領木釦設計襯衫",
     "sn": "SP1776591701142",
