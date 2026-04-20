@@ -9,7 +9,7 @@
   "orderFooterSubText": "- 訂單依最近生成時間為準，如需增減商品可點選重新加購 -",
   "shippingFee": 80,
   "freeShippingThreshold": 2500,
-  "isCartEnabled": true,
+  "isCartEnabled": false,
   "enablePromotion": true,
   "promotionAmount": 50,
   "promotionName": "自助下單獎勵"
