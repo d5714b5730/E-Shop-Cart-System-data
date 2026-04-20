@@ -15,7 +15,18 @@
     "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">肩寬（泡泡袖）<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">袖長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">均碼F</td><td class=\"py-2\">36~40<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">28<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">62<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
     "isHot": true,
     "imgs": [
-      "/api/images/images/img_1776591513014_0_1000090069.jpg"
+      "/api/images/images/img_1776591513014_0_1000090069.jpg",
+      "/api/images/images/img_1776664639282_0_1000090247.jpg",
+      "/api/images/images/img_1776664642535_1_1000090246.jpg",
+      "/api/images/images/img_1776664684626_0_1000090249.jpg",
+      "/api/images/images/img_1776664694354_0_1000090251.jpg",
+      "/api/images/images/img_1776664706313_0_1000090252.jpg",
+      "/api/images/images/img_1776664714774_0_1000090253.jpg",
+      "/api/images/images/img_1776664726756_0_1000090254.jpg",
+      "/api/images/images/img_1776664750778_0_1000090250.jpg",
+      "/api/images/images/img_1776664758454_0_1000090248.jpg",
+      "/api/images/images/img_1776664765840_0_1000090256.jpg",
+      "/api/images/images/img_1776664772511_0_1000090255.jpg"
     ]
   },
   {
