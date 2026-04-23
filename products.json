@@ -80,33 +80,6 @@
     }
   },
   {
-    "id": 1776934070361,
-    "name": "自留款 | 透氣乳膠細密孔胸墊夏日背心",
-    "sn": "SP1776934070361",
-    "price": 290,
-    "category": "背心 / 美背小可愛",
-    "description": "去年春夏我穿出門最多的背心第二名！（第一名是冰絲那件XD）滿滿透氣孔的胸墊真的舒服、無感、不悶熱！加粗肩帶更包副乳+更有安全感，關鍵是超好搭，隨便加個襯衫或牛仔外套都好看，先淺上一下經典復古棕🤎",
-    "promoLabel": "",
-    "promoSubLabel": "",
-    "colors": [
-      "復古棕",
-      "實穿黑"
-    ],
-    "sizeChart": "",
-    "isHot": false,
-    "imgs": [
-      "/api/images/images/img_1776933623441_0_1000090393.jpg",
-      "/api/images/images/img_1776933634155_0_1000090394.jpg",
-      "/api/images/images/img_1776933645869_0_1000090395.jpg",
-      "/api/images/images/img_1776933585998_0_1000090446.jpg",
-      "/api/images/images/img_1776933592373_0_1000090444.jpg",
-      "/api/images/images/img_1776933613965_0_1000090441.jpg",
-      "/api/images/images/img_1776933607267_0_1000090442.jpg",
-      "/api/images/images/img_1776933600336_0_1000090443.jpg"
-    ],
-    "hidden": true
-  },
-  {
     "id": 1776491397290,
     "name": "純淨夏 𐙚 ̊單側蝶結刺繡蕾絲擺上衣長裙",
     "sn": "",
@@ -161,7 +134,7 @@
     "description": "經典明艷的港風復古背心來啦！剛剛好的小V領，小小性感不會太露，版型修身纖瘦、還很遮副乳，領口+袖口加強包邊能穿更久。比一般針織更厚0.1mm，質感更好，卻不悶熱（推薦搭配掛脖粉底液內衣！）",
     "promoLabel": "限時預購",
     "promoSubLabel": "本期 4/30 結單",
-    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">針織高彈性！<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">S</td><td class=\"py-2\">大B以內選S即可<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">M</td><td class=\"py-2\">C及以上再選M<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
+    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼建議看罩杯</th><th class=\"py-2\">針織高彈性！<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">S</td><td class=\"py-2\">大B以內選S即可<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">M</td><td class=\"py-2\">C及以上再選M<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
     "isHot": false,
     "imgs": [
       "/api/images/images/img_1776922615383_0_1000078595.jpg",
@@ -354,5 +327,32 @@
       "/api/images/images/img_1776668610047_0_1000090265.jpg",
       "/api/images/images/img_1776668618936_2_1000090266.jpg"
     ]
+  },
+  {
+    "id": 1776934070361,
+    "name": "自留款 | 透氣乳膠細密孔胸墊夏日背心",
+    "sn": "SP1776934070361",
+    "price": 290,
+    "category": "背心 / 美背小可愛",
+    "description": "去年春夏我穿出門最多的背心第二名！（第一名是冰絲那件XD）滿滿透氣孔的胸墊真的舒服、無感、不悶熱！加粗肩帶更包副乳+更有安全感，關鍵是超好搭，隨便加個襯衫或牛仔外套都好看，先淺上一下經典復古棕🤎",
+    "promoLabel": "",
+    "promoSubLabel": "",
+    "colors": [
+      "復古棕",
+      "實穿黑"
+    ],
+    "sizeChart": "",
+    "isHot": false,
+    "imgs": [
+      "/api/images/images/img_1776933623441_0_1000090393.jpg",
+      "/api/images/images/img_1776933634155_0_1000090394.jpg",
+      "/api/images/images/img_1776933645869_0_1000090395.jpg",
+      "/api/images/images/img_1776933585998_0_1000090446.jpg",
+      "/api/images/images/img_1776933592373_0_1000090444.jpg",
+      "/api/images/images/img_1776933613965_0_1000090441.jpg",
+      "/api/images/images/img_1776933607267_0_1000090442.jpg",
+      "/api/images/images/img_1776933600336_0_1000090443.jpg"
+    ],
+    "hidden": true
   }
 ]
