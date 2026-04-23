@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   ShoppingCart, 
   Settings, 
@@ -165,16 +165,18 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
   const carouselRef = useRef<HTMLDivElement>(null);
   const isJumping = useRef(false);
 
-  const extendedImgs = product.imgs.length > 1 
-    ? [product.imgs[product.imgs.length - 1], ...product.imgs, product.imgs[0]]
-    : product.imgs;
+  // Extend images for infinite loop: [Last, 1, 2, 3, First]
+  const extendedImgs = useMemo(() => {
+    if (product.imgs.length <= 1) return product.imgs;
+    return [product.imgs[product.imgs.length - 1], ...product.imgs, product.imgs[0]];
+  }, [product.imgs]);
 
-  const scrollToImage = (index: number) => {
+  const scrollToImage = (index: number, behavior: ScrollBehavior = 'smooth') => {
     if (carouselRef.current) {
       const width = carouselRef.current.offsetWidth;
       carouselRef.current.scrollTo({
         left: index * width,
-        behavior: 'smooth'
+        behavior
       });
       setCurrentImgIdx(index);
     }
@@ -185,29 +187,43 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
     if (product.imgs.length <= 1 || !carouselRef.current) return;
 
     if (currentImgIdx === 0 || currentImgIdx === extendedImgs.length - 1) {
-      isJumping.current = true;
       const jumpTo = currentImgIdx === 0 ? product.imgs.length : 1;
       
       const timer = setTimeout(() => {
         if (carouselRef.current) {
+          isJumping.current = true;
           const width = carouselRef.current.offsetWidth;
           carouselRef.current.scrollTo({ left: jumpTo * width, behavior: 'auto' });
           setCurrentImgIdx(jumpTo);
-          isJumping.current = false;
+          // Small delay to allow browser to complete the jump before enabling scroll events again
+          setTimeout(() => { isJumping.current = false; }, 50);
         }
-      }, 500); // Longer than the CSS transition/snap
+      }, 400); // Wait for smooth scroll/snap to finish
 
       return () => clearTimeout(timer);
     }
   }, [currentImgIdx, product.imgs.length, extendedImgs.length]);
 
-  // Initial scroll position
+  // Initial scroll position and Resize handling
   useEffect(() => {
-    if (carouselRef.current && product.imgs.length > 1) {
-      const width = carouselRef.current.offsetWidth;
-      carouselRef.current.scrollLeft = width;
-    }
-  }, [product.imgs.length]);
+    if (!carouselRef.current || product.imgs.length <= 1) return;
+
+    const updateScroll = () => {
+      if (carouselRef.current) {
+        const width = carouselRef.current.offsetWidth;
+        carouselRef.current.scrollTo({ left: currentImgIdx * width, behavior: 'auto' });
+      }
+    };
+
+    const observer = new ResizeObserver(() => {
+      updateScroll();
+    });
+
+    observer.observe(carouselRef.current);
+    updateScroll();
+
+    return () => observer.disconnect();
+  }, [product.imgs.length]); // Keep position based on currentImgIdx on resize
 
   return (
     <motion.div
@@ -1753,7 +1769,15 @@ const SortableProductItem: React.FC<SortableProductItemProps> = ({
             {p.category}
           </span>
         </div>
-        <h4 className="font-bold truncate text-gray-800">{p.name}</h4>
+        <h4 className="font-bold truncate text-gray-800 flex items-center gap-2">
+          {p.name}
+          {p.isHot && (
+            <span className="flex items-center gap-1 px-1.5 py-0.5 bg-red-100 text-red-600 text-[10px] font-black rounded-md animate-pulse">
+              <span className="w-1 h-1 bg-red-600 rounded-full" />
+              HOT
+            </span>
+          )}
+        </h4>
         <p className="text-sm font-bold text-red-500">¥{Math.floor(p.price)}</p>
       </div>
       
@@ -2115,7 +2139,7 @@ function AdminModal({
   const handleBulkUpdate = () => {
     if (selectedIds.length === 0) return;
 
-    setProducts(prev => prev.map(p => {
+    const newProducts = products.map(p => {
       if (selectedIds.includes(p.id)) {
         return {
           ...p,
@@ -2125,11 +2149,13 @@ function AdminModal({
           promoSubLabel: bulkFormData.updatePromoSubLabel ? bulkFormData.promoSubLabel : p.promoSubLabel,
           colors: bulkFormData.updateColor ? (bulkFormData.color ? bulkFormData.color.split(',').map(c => c.trim()).filter(Boolean) : undefined) : p.colors,
           sizeChart: bulkFormData.updateSizeChart ? bulkFormData.sizeChart : p.sizeChart,
-          isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : p.isHot,
+          isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : (p.isHot || false),
         };
       }
       return p;
-    }));
+    });
+
+    setProducts(newProducts);
 
     setCart(prev => prev.map(item => {
       if (selectedIds.includes(item.id)) {
@@ -2141,7 +2167,7 @@ function AdminModal({
           promoSubLabel: bulkFormData.updatePromoSubLabel ? bulkFormData.promoSubLabel : item.promoSubLabel,
           colors: bulkFormData.updateColor ? (bulkFormData.color ? bulkFormData.color.split(',').map(c => c.trim()).filter(Boolean) : undefined) : item.colors,
           sizeChart: bulkFormData.updateSizeChart ? bulkFormData.sizeChart : item.sizeChart,
-          isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : item.isHot,
+          isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : (item.isHot || false),
         };
       }
       return item;
@@ -2149,13 +2175,14 @@ function AdminModal({
 
     setSelectedIds([]);
     setActiveTab('list');
-    showToast(`成功批量更新 ${selectedIds.length} 個商品`, 'success');
+    showToast(`成功批量更新 ${selectedIds.length} 個商品，請記得點擊「儲存到 GitHub」以永久保存變更`, 'success');
   };
 
   const filteredAdminProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          p.sn.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = filterCategory === '全部' || p.category === filterCategory;
+    const matchesCategory = filterCategory === '全部' || 
+                           (filterCategory === '近期熱銷' ? p.isHot : p.category === filterCategory);
     return matchesSearch && matchesCategory;
   });
 
@@ -2555,15 +2582,24 @@ function AdminModal({
                     </label>
                   </div>
                   {bulkFormData.updateIsHot && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                       <button 
-                        onClick={() => setBulkFormData(prev => ({ ...prev, isHot: !prev.isHot }))}
+                        onClick={() => setBulkFormData(prev => ({ ...prev, isHot: true }))}
                         className={cn(
-                          "flex-1 py-3 rounded-2xl font-bold transition-all border-2",
-                          bulkFormData.isHot ? "bg-red-500 border-red-500 text-white" : "bg-white border-gray-200 text-gray-400"
+                          "flex-1 py-3 rounded-2xl font-bold transition-all border-2 text-sm",
+                          bulkFormData.isHot === true ? "bg-red-500 border-red-500 text-white" : "bg-white border-gray-200 text-gray-400 hover:border-gray-300"
                         )}
                       >
-                        {bulkFormData.isHot ? '設為HOT' : '取消HOT'}
+                        設為 HOT
+                      </button>
+                      <button 
+                        onClick={() => setBulkFormData(prev => ({ ...prev, isHot: false }))}
+                        className={cn(
+                          "flex-1 py-3 rounded-2xl font-bold transition-all border-2 text-sm",
+                          bulkFormData.isHot === false ? "bg-gray-700 border-gray-700 text-white" : "bg-white border-gray-200 text-gray-400 hover:border-gray-300"
+                        )}
+                      >
+                        隱藏 HOT
                       </button>
                     </div>
                   )}
