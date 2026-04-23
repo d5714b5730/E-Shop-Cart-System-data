@@ -13,7 +13,7 @@
       "灰色"
     ],
     "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">肩寬（泡泡袖）<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">袖長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">均碼F</td><td class=\"py-2\">36~40<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">28<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">62<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
-    "isHot": false,
+    "isHot": true,
     "imgs": [
       "/api/images/images/img_1776591513014_0_1000090069.jpg",
       "/api/images/images/img_1776664639282_0_1000090247.jpg",
@@ -59,7 +59,7 @@
     ],
     "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">胸圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">均碼</td><td class=\"py-2\">68~86<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">37+5<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
     "isNew": true,
-    "isHot": false,
+    "isHot": true,
     "colors": [
       "百搭純白",
       "實穿正黑",
@@ -108,7 +108,7 @@
       "上衣+長裙套裝優惠（原價$1500）": 1200
     },
     "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">胸圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">長裙腰圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">臀圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">裙長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">S</td><td class=\"py-2\">92<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">60<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">64~66<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">無限制<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">87<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">M</td><td class=\"py-2\">96<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">60<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">68~70<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">無限制<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">89<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">L</td><td class=\"py-2\">100<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">60<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">72~74<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">無限制<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">91<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
-    "isHot": false,
+    "isHot": true,
     "imgs": [
       "/api/images/images/img_1776491125511_0_1000089592.jpg",
       "/api/images/images/img_1776514172927_0_1000090017.jpg",
@@ -245,7 +245,7 @@
       "高級灰"
     ],
     "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">腰圍（鬆緊可拉伸）<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">臀圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">裙長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">均碼</td><td class=\"py-2\">64~76<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">無限制<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">91<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
-    "isHot": false,
+    "isHot": true,
     "imgs": [
       "/api/images/images/img_1776944937048_0_1000090252.jpg",
       "/api/images/images/img_1776925075336_0_1000090402.jpg",
