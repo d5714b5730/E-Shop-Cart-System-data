@@ -11,7 +11,7 @@
     "colors": [
       "高級灰"
     ],
-    "sizeChart": "",
+    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">腰圍（鬆緊可拉伸）<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">臀圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">裙長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">均碼</td><td class=\"py-2\">64~76<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">無限制<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">91<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
     "isHot": true,
     "imgs": [
       "/api/images/images/img_1776925075336_0_1000090402.jpg",
