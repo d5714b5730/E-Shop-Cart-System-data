@@ -1,5 +1,31 @@
 [
   {
+    "id": 1776934070361,
+    "name": "自留款 | 透氣乳膠細密孔胸墊夏日背心",
+    "sn": "SP1776934070361",
+    "price": 450,
+    "category": "背心 / 美背小可愛",
+    "description": "去年春夏我穿出門最多的背心第二名！（第一名是冰絲那件XD）滿滿透氣孔的胸墊真的舒服、無感、不悶熱！加粗肩帶更包副乳+更有安全感，關鍵是超好搭，隨便加個襯衫或牛仔外套都好看，先淺上一下經典復古棕🤎",
+    "promoLabel": "",
+    "promoSubLabel": "",
+    "colors": [
+      "復古棕",
+      "實穿黑"
+    ],
+    "sizeChart": "",
+    "isHot": false,
+    "imgs": [
+      "/api/images/images/img_1776933623441_0_1000090393.jpg",
+      "/api/images/images/img_1776933634155_0_1000090394.jpg",
+      "/api/images/images/img_1776933645869_0_1000090395.jpg",
+      "/api/images/images/img_1776933585998_0_1000090446.jpg",
+      "/api/images/images/img_1776933592373_0_1000090444.jpg",
+      "/api/images/images/img_1776933613965_0_1000090441.jpg",
+      "/api/images/images/img_1776933607267_0_1000090442.jpg",
+      "/api/images/images/img_1776933600336_0_1000090443.jpg"
+    ]
+  },
+  {
     "id": 1776591701142,
     "name": "設計款 | 大尖摺領設計木釦綴飾棉紗襯衫",
     "sn": "",
