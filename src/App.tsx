@@ -817,11 +817,12 @@ ${itemsText}
     });
   };
 
-  const filteredProducts = activeCategory === '全部' 
-    ? products 
-    : activeCategory === '近期熱銷'
-      ? products.filter(p => p.isHot)
-      : products.filter(p => p.category === activeCategory);
+  const filteredProducts = products.filter(p => {
+    if (p.hidden) return false;
+    if (activeCategory === '全部') return true;
+    if (activeCategory === '近期熱銷') return p.isHot;
+    return p.category === activeCategory;
+  });
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.num, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.num, 0);
@@ -1761,13 +1762,18 @@ const SortableProductItem: React.FC<SortableProductItemProps> = ({
         </div>
       </div>
       
-      <img src={p.imgs[0]} alt="" className="w-16 h-16 object-cover rounded-xl shadow-sm select-none" referrerPolicy="no-referrer" loading="lazy" decoding="async" />
+      <img src={p.imgs[0]} alt="" className={cn("w-16 h-16 object-cover rounded-xl shadow-sm select-none", p.hidden && "grayscale opacity-50")} referrerPolicy="no-referrer" loading="lazy" decoding="async" />
       
       <div className="flex-1 min-w-0 select-none">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded uppercase">
             {p.category}
           </span>
+          {p.hidden && (
+            <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded uppercase">
+              已隱藏
+            </span>
+          )}
         </div>
         <h4 className="font-bold truncate text-gray-800 flex items-center gap-2">
           {p.name}
@@ -1902,6 +1908,7 @@ function AdminModal({
     specs: '',
     sizeChart: '',
     isHot: false,
+    hidden: false,
     colorPrices: {} as Record<string, string>,
     imgs: [] as string[]
   });
@@ -1914,6 +1921,7 @@ function AdminModal({
     color: '',
     sizeChart: '',
     isHot: false,
+    hidden: false,
     updatePrice: false,
     updateCategory: false,
     updatePromoLabel: false,
@@ -1921,6 +1929,7 @@ function AdminModal({
     updateColor: false,
     updateSizeChart: false,
     updateIsHot: false,
+    updateHidden: false,
   });
 
   const [settingsFormData, setSettingsFormData] = useState<SiteSettings>({ ...siteSettings });
@@ -1930,7 +1939,7 @@ function AdminModal({
   }, [siteSettings]);
 
   const resetForm = () => {
-    setFormData({ name: '', sn: '', price: '', category: '服裝', description: '', promoLabel: '', promoSubLabel: '', color: '', specs: '', sizeChart: '', isHot: false, colorPrices: {}, imgs: [] });
+    setFormData({ name: '', sn: '', price: '', category: '服裝', description: '', promoLabel: '', promoSubLabel: '', color: '', specs: '', sizeChart: '', isHot: false, hidden: false, colorPrices: {}, imgs: [] });
     setEditingProduct(null);
   };
 
@@ -1988,7 +1997,7 @@ function AdminModal({
         productImgs.push(`https://picsum.photos/seed/${Math.random()}/600/800`);
       }
 
-      newProducts.push({
+        newProducts.push({
         id: Date.now() + i,
         name: names[i],
         sn: sns[i] || 'SP' + (Date.now() + i),
@@ -2002,6 +2011,7 @@ function AdminModal({
         specs: specsList.length > 0 ? specsList : undefined,
         sizeChart: sizeCharts[i] || sizeCharts[0] || '',
         isHot: formData.isHot,
+        hidden: formData.hidden,
         imgs: productImgs
       });
     }
@@ -2037,6 +2047,7 @@ function AdminModal({
       specs: formData.specs ? formData.specs.split(',').map(s => s.trim()).filter(Boolean) : undefined,
       sizeChart: formData.sizeChart || '',
       isHot: formData.isHot || false,
+      hidden: formData.hidden || false,
       imgs: updatedImgs.length > 0 ? updatedImgs : [`https://picsum.photos/seed/${Math.random()}/600/800`]
     };
 
@@ -2099,6 +2110,7 @@ function AdminModal({
       specs: product.specs ? product.specs.join(', ') : '',
       sizeChart: product.sizeChart || '',
       isHot: product.isHot || false,
+      hidden: product.hidden || false,
       colorPrices: product.colorPrices ? Object.fromEntries(Object.entries(product.colorPrices).map(([k, v]) => [k, v.toString()])) : {},
       imgs: product.imgs
     });
@@ -2150,6 +2162,7 @@ function AdminModal({
           colors: bulkFormData.updateColor ? (bulkFormData.color ? bulkFormData.color.split(',').map(c => c.trim()).filter(Boolean) : undefined) : p.colors,
           sizeChart: bulkFormData.updateSizeChart ? bulkFormData.sizeChart : p.sizeChart,
           isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : (p.isHot || false),
+          hidden: bulkFormData.updateHidden ? bulkFormData.hidden : (p.hidden || false),
         };
       }
       return p;
@@ -2168,6 +2181,7 @@ function AdminModal({
           colors: bulkFormData.updateColor ? (bulkFormData.color ? bulkFormData.color.split(',').map(c => c.trim()).filter(Boolean) : undefined) : item.colors,
           sizeChart: bulkFormData.updateSizeChart ? bulkFormData.sizeChart : item.sizeChart,
           isHot: bulkFormData.updateIsHot ? bulkFormData.isHot : (item.isHot || false),
+          hidden: bulkFormData.updateHidden ? bulkFormData.hidden : (item.hidden || false),
         };
       }
       return item;
@@ -2182,7 +2196,9 @@ function AdminModal({
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          p.sn.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = filterCategory === '全部' || 
-                           (filterCategory === '近期熱銷' ? p.isHot : p.category === filterCategory);
+                           (filterCategory === '近期熱銷' ? p.isHot : 
+                            filterCategory === '已隱藏' ? p.hidden :
+                            p.category === filterCategory);
     return matchesSearch && matchesCategory;
   });
 
@@ -2295,7 +2311,9 @@ function AdminModal({
                     onChange={e => setFilterCategory(e.target.value)}
                     className="bg-transparent text-sm font-medium outline-none"
                   >
-                                  {categories.map((c, idx) => <option key={`${c}-${idx}`} value={c}>{c}</option>)}
+                    {categories.map((c, idx) => <option key={`${c}-${idx}`} value={c}>{c}</option>)}
+                    <option value="近期熱銷">近期熱銷</option>
+                    <option value="已隱藏">已隱藏</option>
                   </select>
                 </div>
               </div>
@@ -2604,6 +2622,43 @@ function AdminModal({
                     </div>
                   )}
                 </div>
+
+                {/* Is Hidden */}
+                <div className="p-6 bg-gray-50 rounded-3xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 font-bold text-gray-700">
+                      <input 
+                        type="checkbox" 
+                        checked={bulkFormData.updateHidden}
+                        onChange={e => setBulkFormData(prev => ({ ...prev, updateHidden: e.target.checked }))}
+                        className="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                      />
+                      更新「隱藏」狀態
+                    </label>
+                  </div>
+                  {bulkFormData.updateHidden && (
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => setBulkFormData(prev => ({ ...prev, hidden: true }))}
+                        className={cn(
+                          "flex-1 py-3 rounded-2xl font-bold transition-all border-2 text-sm",
+                          bulkFormData.hidden === true ? "bg-gray-900 border-gray-900 text-white" : "bg-white border-gray-200 text-gray-400 hover:border-gray-300"
+                        )}
+                      >
+                        隱藏商品
+                      </button>
+                      <button 
+                        onClick={() => setBulkFormData(prev => ({ ...prev, hidden: false }))}
+                        className={cn(
+                          "flex-1 py-3 rounded-2xl font-bold transition-all border-2 text-sm",
+                          bulkFormData.hidden === false ? "bg-blue-500 border-blue-500 text-white" : "bg-white border-gray-200 text-gray-400 hover:border-gray-300"
+                        )}
+                      >
+                        顯示商品
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-4 pt-4">
@@ -2773,6 +2828,16 @@ function AdminModal({
                         className="w-5 h-5 rounded border-gray-300 text-red-500 focus:ring-red-500"
                       />
                       <span className="text-sm font-bold text-gray-700">標記為HOT</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.hidden}
+                        onChange={e => setFormData(prev => ({ ...prev, hidden: e.target.checked }))}
+                        className="w-5 h-5 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                      />
+                      <span className="text-sm font-bold text-gray-700">隱藏商品</span>
                     </label>
                   </div>
                 </div>

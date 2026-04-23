@@ -7,6 +7,7 @@ export interface Product {
   imgs: string[];
   description: string;
   isHot?: boolean;
+  hidden?: boolean;
   promoLabel?: string; // e.g., "限时直降15元"
   promoSubLabel?: string; // e.g., "限购1件!"
   colors?: string[]; // e.g., ["黑色", "白色"]
