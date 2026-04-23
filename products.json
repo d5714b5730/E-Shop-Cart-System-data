@@ -172,7 +172,11 @@
       "/api/images/images/img_1776922938203_0_1000090397.jpg",
       "/api/images/images/img_1776922956370_0_1000090399.jpg"
     ],
-    "hidden": false
+    "hidden": false,
+    "specs": [
+      "S",
+      "M"
+    ]
   },
   {
     "id": 1776588461899,
