@@ -126,6 +126,27 @@
     ]
   },
   {
+    "id": 1776923189291,
+    "name": "復古港風紅♦️針織掛脖背心",
+    "sn": "",
+    "price": 380,
+    "category": "背心 / 美背小可愛",
+    "description": "經典明艷的港風復古背心來啦！剛剛好的小V領，小小性感不會太露，版型修身纖瘦、還很遮副乳，領口+袖口加強包邊能穿更久。比一般針織更厚0.1mm，質感更好，卻不悶熱（推薦搭配掛脖粉底液內衣！）",
+    "promoLabel": "",
+    "promoSubLabel": "",
+    "sizeChart": "",
+    "isHot": true,
+    "imgs": [
+      "/api/images/images/img_1776922615383_0_1000078595.jpg",
+      "/api/images/images/img_1776922947544_0_1000090396.jpg",
+      "/api/images/images/img_1776922910380_0_1000090398.jpg",
+      "/api/images/images/img_1776922928000_0_1000090400.jpg",
+      "/api/images/images/img_1776922919521_0_1000090401.jpg",
+      "/api/images/images/img_1776922938203_0_1000090397.jpg",
+      "/api/images/images/img_1776922956370_0_1000090399.jpg"
+    ]
+  },
+  {
     "id": 1776588461899,
     "name": "Get露背裝！多穿法隱形粉底液色內衣",
     "sn": "",
@@ -149,27 +170,6 @@
       "/api/images/images/img_1776588184214_4_1000090072.jpg",
       "/api/images/images/img_1776588180461_3_1000090073.jpg",
       "/api/images/images/img_1776588188307_5_1000090074.jpg"
-    ]
-  },
-  {
-    "id": 1776923189291,
-    "name": "復古港風紅♦️針織掛脖背心",
-    "sn": "",
-    "price": 380,
-    "category": "背心 / 美背小可愛",
-    "description": "經典明艷的港風復古背心來啦！剛剛好的小V領，小小性感不會太露，版型修身纖瘦、還很遮副乳，領口+袖口加強包邊能穿更久。比一般針織更厚0.1mm，質感更好，卻不悶熱（推薦搭配掛脖粉底液內衣！）",
-    "promoLabel": "",
-    "promoSubLabel": "",
-    "sizeChart": "",
-    "isHot": true,
-    "imgs": [
-      "/api/images/images/img_1776922615383_0_1000078595.jpg",
-      "/api/images/images/img_1776922947544_0_1000090396.jpg",
-      "/api/images/images/img_1776922910380_0_1000090398.jpg",
-      "/api/images/images/img_1776922928000_0_1000090400.jpg",
-      "/api/images/images/img_1776922919521_0_1000090401.jpg",
-      "/api/images/images/img_1776922938203_0_1000090397.jpg",
-      "/api/images/images/img_1776922956370_0_1000090399.jpg"
     ]
   },
   {
