@@ -345,7 +345,7 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
                       {Math.floor(product.price)}
                     </span>
                     {product.colorPrices && Object.values(product.colorPrices).some(p => p !== product.price) && (
-                      <span className="text-[10px] font-bold text-white/60 ml-0.5 tracking-tighter italic">起</span>
+                      <span className="text-[8px] font-bold text-white/60 tracking-tighter italic">起</span>
                     )}
                   </div>
                 )}
