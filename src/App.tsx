@@ -340,7 +340,7 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: an
               <div className="flex items-center gap-2 flex-wrap">
                 {siteSettings.isCartEnabled !== false && (
                   <div className="flex items-baseline gap-1 drop-shadow-md mr-1">
-                    <span className="text-sm font-black text-red-500">¥</span>
+                    <span className="text-sm font-black text-red-500">NT.</span>
                     <span className="text-3xl font-black text-white tracking-tighter leading-none">
                       {Math.floor(product.price)}
                     </span>
@@ -774,7 +774,7 @@ export default function App() {
       shippingFee,
       promotionName: siteSettings.enablePromotion ? siteSettings.promotionName : undefined,
       promotionAmount: siteSettings.enablePromotion ? promotionAmount : undefined,
-      date: new Date().toLocaleString()
+      date: new Date().toLocaleString('zh-TW', { hour12: true }).replace(',', '')
     };
     setLastOrder(order);
     setCart([]);
@@ -785,26 +785,27 @@ export default function App() {
     if (!lastOrder) return;
     
     const itemsText = lastOrder.items.map(item => 
-      `${item.name}${item.selectedColor ? ` (${item.selectedColor})` : ''}${item.selectedSpec ? ` (${item.selectedSpec})` : ''} x${item.num} ¥${Math.floor(item.price * item.num)}`
+      `${item.name}${item.selectedColor ? ` (${item.selectedColor})` : ''}${item.selectedSpec ? ` (${item.selectedSpec})` : ''} x${item.num} NT.${Math.floor(item.price * item.num)}`
     ).join('\n');
 
-    const orderText = `-【${igAccount || '您的帳號'}｜90s預購訂單】-
+    const orderText = `-【90s預購訂單】-
 ${lastOrder.date}
+◆ 感謝親愛的 ${igAccount || '您的帳號'} 訂購✨ 九零會盡快為妳確認訂單！
 
+1、只購買預購商品
+→ 等待九零提供付款資訊
+
+2、也有購買限動特賣會
+→ 等待特賣結束&訂單更新
+
+——————————————
 ◆ 預購商品內容：
 ${itemsText}
 
-🎁 自助下單獎勵 -¥${lastOrder.promotionAmount || 0}
-+運費 ¥${lastOrder.shippingFee}
+🎁 自助下單獎勵 -NT.${lastOrder.promotionAmount || 0}
+📦 運費 +NT.${lastOrder.shippingFee}
 ——————————————
-= ¥${Math.floor(lastOrder.total)} (預購訂單金額)
-
-◆ 將訂單內容發給九零：
-1、只購買預購商品：
-→ 等九零回覆匯款資訊
-
-2、也有購買特賣會商品：
-→ 等九零更新綜合訂單`;
+= NT.${Math.floor(lastOrder.total)} (預購訂單金額)`;
 
     navigator.clipboard.writeText(orderText).then(() => {
       showToast('訂單內容已複製，3 秒後將自動跳轉至 Instagram', 'dark-success');
@@ -1006,7 +1007,7 @@ ${itemsText}
                           </div>
                           <div className="flex items-center justify-between mt-2">
                             <div className="flex items-baseline gap-0.5">
-                              <span className="text-[10px] font-black text-red-500">¥</span>
+                              <span className="text-[10px] font-black text-red-500">NT.</span>
                               <span className="font-black text-base text-red-500">{Math.floor(item.price)}</span>
                             </div>
                             
@@ -1064,30 +1065,30 @@ ${itemsText}
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-gray-500 font-bold">商品小計</span>
-                    <span className="font-black text-gray-900">¥{Math.floor(cartTotal)}</span>
+                    <span className="font-black text-gray-900">NT.{Math.floor(cartTotal)}</span>
                   </div>
 
-                  {siteSettings.enablePromotion && (
-                    <div className="flex justify-between items-center text-xs text-red-500">
-                      <span className="font-bold">{siteSettings.promotionName || '優惠折抵'}</span>
-                      <span className="font-black">-¥{siteSettings.promotionAmount || 0}</span>
-                    </div>
-                  )}
-                  
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-gray-500 font-bold">運費</span>
                     {siteSettings.freeShippingThreshold && cartTotal >= siteSettings.freeShippingThreshold ? (
                       <span className="font-black text-red-500 text-xs">0元</span>
                     ) : (
-                      <span className="font-black text-gray-900 text-xs">¥{siteSettings.shippingFee || 0}</span>
+                      <span className="font-black text-gray-900 text-xs">NT.{siteSettings.shippingFee || 0}</span>
                     )}
                   </div>
+
+                  {siteSettings.enablePromotion && (
+                    <div className="flex justify-between items-center text-xs text-red-500">
+                      <span className="font-bold">{siteSettings.promotionName || '優惠折抵'}</span>
+                      <span className="font-black">-NT.{siteSettings.promotionAmount || 0}</span>
+                    </div>
+                  )}
 
                   {siteSettings.freeShippingThreshold && cartTotal < siteSettings.freeShippingThreshold && (
                     <div className="bg-blue-50 p-2 rounded-lg flex items-center gap-2">
                       <Zap size={12} className="text-blue-500" />
                       <p className="text-[10px] font-bold text-blue-600">
-                        再買 ¥{Math.floor(siteSettings.freeShippingThreshold - cartTotal)} 元即可享免運優惠！
+                        再買 NT.{Math.floor(siteSettings.freeShippingThreshold - cartTotal)} 元即可享免運優惠！
                       </p>
                     </div>
                   )}
@@ -1097,7 +1098,7 @@ ${itemsText}
                       <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest">總計 (含運費)</span>
                     </div>
                     <div className="flex items-baseline gap-0.5">
-                      <span className="text-sm font-black text-red-500">¥</span>
+                      <span className="text-sm font-black text-red-500">NT.</span>
                       <span className="text-3xl font-black text-red-500 tracking-tighter">
                         {Math.floor(Math.max(0, 
                           cartTotal + 
@@ -1149,32 +1150,32 @@ ${itemsText}
                             <p className="text-[10px] text-gray-400">x{item.num}</p>
                           </div>
                         </div>
-                        <span className="text-sm font-bold">¥{Math.floor(item.price * item.num)}</span>
+                        <span className="text-sm font-bold">NT.{Math.floor(item.price * item.num)}</span>
                       </div>
                     ))}
                   </div>
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between items-center text-sm">
                       <span className="font-bold text-gray-500">商品小計</span>
-                      <span className="font-bold text-gray-900">¥{Math.floor(lastOrder.items.reduce((sum, item) => sum + item.price * item.num, 0))}</span>
+                      <span className="font-bold text-gray-900">NT.{Math.floor(lastOrder.items.reduce((sum, item) => sum + item.price * item.num, 0))}</span>
                     </div>
-                    {lastOrder.promotionAmount && (
-                      <div className="flex justify-between items-center text-sm text-red-500">
-                        <span className="font-bold">{lastOrder.promotionName || '優惠折抵'}</span>
-                        <span className="font-bold">-¥{lastOrder.promotionAmount}</span>
-                      </div>
-                    )}
                     <div className="flex justify-between items-center text-sm">
                       <span className="font-bold text-gray-500">運費</span>
                       {lastOrder.shippingFee === 0 ? (
                         <span className="font-bold text-red-500">0元</span>
                       ) : (
-                        <span className="font-bold text-gray-900">¥{lastOrder.shippingFee}</span>
+                        <span className="font-bold text-gray-900">NT.{lastOrder.shippingFee}</span>
                       )}
                     </div>
+                    {lastOrder.promotionAmount && (
+                      <div className="flex justify-between items-center text-sm text-red-500">
+                        <span className="font-bold">{lastOrder.promotionName || '優惠折抵'}</span>
+                        <span className="font-bold">-NT.{lastOrder.promotionAmount}</span>
+                      </div>
+                    )}
                     <div className="border-t pt-4 flex justify-between items-center">
                       <span className="font-bold text-gray-600">實付總額</span>
-                      <span className="text-2xl font-bold text-red-500">¥{Math.floor(lastOrder.total)}</span>
+                      <span className="text-2xl font-bold text-red-500">NT.{Math.floor(lastOrder.total)}</span>
                     </div>
                   </div>
 
@@ -1234,7 +1235,7 @@ ${itemsText}
                 <div>
                   <h3 className="text-lg font-black text-gray-900 leading-tight">{specModalProduct.name}</h3>
                   <p className="text-xl font-black text-red-500 mt-0.5">
-                    ¥{Math.floor((specModalProduct.colorPrices && modalSelectedColor && specModalProduct.colorPrices[modalSelectedColor]) || specModalProduct.price)}
+                    NT.{Math.floor((specModalProduct.colorPrices && modalSelectedColor && specModalProduct.colorPrices[modalSelectedColor]) || specModalProduct.price)}
                   </p>
                 </div>
               </div>
@@ -1784,7 +1785,7 @@ const SortableProductItem: React.FC<SortableProductItemProps> = ({
             </span>
           )}
         </h4>
-        <p className="text-sm font-bold text-red-500">¥{Math.floor(p.price)}</p>
+        <p className="text-sm font-bold text-red-500">NT.{Math.floor(p.price)}</p>
       </div>
       
       <button 
@@ -2934,7 +2935,7 @@ function AdminModal({
                           <div key={`${color}-${idx}`} className="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-blue-50">
                             <span className="text-[10px] font-bold text-gray-500 min-w-[3rem] truncate">{color}</span>
                             <div className="flex-1 flex items-center gap-1 border-b border-gray-100 pb-1">
-                              <span className="text-[10px] font-black text-red-500">¥</span>
+                              <span className="text-[10px] font-black text-red-500">NT.</span>
                               <input 
                                 type="number" 
                                 placeholder="價格"
