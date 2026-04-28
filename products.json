@@ -1,5 +1,36 @@
 [
   {
+    "id": 1776591701142,
+    "name": "獨家選品設計款 | 大尖摺領設計木釦綴飾棉紗襯衫",
+    "sn": "",
+    "price": 700,
+    "category": "上衣 / 襯衫",
+    "description": "2026夏日新款上市：超特別的大尖領+翻摺設計搭配立體圓木釦，絕不撞衫的小眾設計款⚜️🕰️",
+    "promoLabel": "限時預購",
+    "promoSubLabel": "本期 4/30 結單",
+    "colors": [
+      "杏色",
+      "灰色"
+    ],
+    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">肩寬（泡泡袖）<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">袖長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">均碼F</td><td class=\"py-2\">36~40<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">28<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">62<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
+    "isHot": true,
+    "imgs": [
+      "/api/images/images/img_1776591513014_0_1000090069.jpg",
+      "/api/images/images/img_1776972005822_2_1000090487.jpg",
+      "/api/images/images/img_1776971997793_0_1000090486.jpg",
+      "/api/images/images/img_1776972002568_1_1000090488.jpg",
+      "/api/images/images/img_1776664726756_0_1000090254.jpg",
+      "/api/images/images/img_1776664714774_0_1000090253.jpg",
+      "/api/images/images/img_1776664642535_1_1000090246.jpg",
+      "/api/images/images/img_1776664684626_0_1000090249.jpg",
+      "/api/images/images/img_1776664706313_0_1000090252.jpg",
+      "/api/images/images/img_1776664639282_0_1000090247.jpg",
+      "/api/images/images/img_1776664694354_0_1000090251.jpg",
+      "/api/images/images/img_1776664758454_0_1000090248.jpg"
+    ],
+    "hidden": false
+  },
+  {
     "id": 1777204091686,
     "name": "古董蕾絲襯裙",
     "sn": "",
@@ -75,37 +106,6 @@
       "S",
       "M",
       "L"
-    ],
-    "hidden": false
-  },
-  {
-    "id": 1776591701142,
-    "name": "獨家選品設計款 | 大尖摺領設計木釦綴飾棉紗襯衫",
-    "sn": "",
-    "price": 700,
-    "category": "上衣 / 襯衫",
-    "description": "2026夏日新款上市：超特別的大尖領+翻摺設計搭配立體圓木釦，絕不撞衫的小眾設計款⚜️🕰️",
-    "promoLabel": "限時預購",
-    "promoSubLabel": "本期 4/30 結單",
-    "colors": [
-      "杏色",
-      "灰色"
-    ],
-    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">肩寬（泡泡袖）<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">袖長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">均碼F</td><td class=\"py-2\">36~40<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">28<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">62<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
-    "isHot": true,
-    "imgs": [
-      "/api/images/images/img_1776591513014_0_1000090069.jpg",
-      "/api/images/images/img_1776972005822_2_1000090487.jpg",
-      "/api/images/images/img_1776971997793_0_1000090486.jpg",
-      "/api/images/images/img_1776972002568_1_1000090488.jpg",
-      "/api/images/images/img_1776664726756_0_1000090254.jpg",
-      "/api/images/images/img_1776664714774_0_1000090253.jpg",
-      "/api/images/images/img_1776664642535_1_1000090246.jpg",
-      "/api/images/images/img_1776664684626_0_1000090249.jpg",
-      "/api/images/images/img_1776664706313_0_1000090252.jpg",
-      "/api/images/images/img_1776664639282_0_1000090247.jpg",
-      "/api/images/images/img_1776664694354_0_1000090251.jpg",
-      "/api/images/images/img_1776664758454_0_1000090248.jpg"
     ],
     "hidden": false
   },
