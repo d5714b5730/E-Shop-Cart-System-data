@@ -811,7 +811,7 @@ ${itemsText}
       setShowCopySuccess(true);
       setTimeout(() => {
         window.location.href = 'https://www.instagram.com/90s.flash.club/';
-      }, 10000);
+      }, 7000);
     }).catch(err => {
       console.error('Copy failed:', err);
       showToast('複製失敗，請手動截圖', 'error');
@@ -1347,13 +1347,13 @@ ${itemsText}
               />
               <motion.div 
                 layoutId="copy-success-modal"
-                className="relative bg-white rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl overflow-hidden text-center border-4 border-blue-500/20"
+                className="relative bg-white rounded-[2.5rem] p-10 max-w-sm sm:max-w-md w-full shadow-2xl overflow-hidden text-center border-4 border-blue-500/20"
               >
                 <div className="absolute top-0 left-0 w-full h-2 bg-blue-500 overflow-hidden">
                   <motion.div 
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
-                    transition={{ duration: 10, ease: "linear" }}
+                    transition={{ duration: 7, ease: "linear" }}
                     className="h-full bg-blue-400 origin-left"
                   />
                 </div>
@@ -1364,13 +1364,13 @@ ${itemsText}
 
                 <div className="space-y-4">
                   <h3 className="text-xl font-black text-gray-900 leading-relaxed">
-                    ✨{igAccount || '您'}已成功複製訂單！✨<br/>
+                    <div className="whitespace-nowrap">✨{igAccount || '您'}已成功複製訂單！✨</div>
                     <span className="text-gray-400 text-sm">(文字版)</span>
                   </h3>
                   
                   <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                     <p className="text-gray-600 font-bold leading-relaxed">
-                      10 秒後自動跳回 Instagram，<br/>
+                      ３秒後自動跳回 Instagram，<br/>
                       請立即將訂單<span className="text-red-500">貼上給我</span>！
                     </p>
                   </div>
