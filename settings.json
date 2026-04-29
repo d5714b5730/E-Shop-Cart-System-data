@@ -7,7 +7,7 @@
   ],
   "logoUrl": "",
   "orderFooterText": "",
-  "orderFooterSubText": "- 訂單依最近生成時間為準，如有加減商品可點重新加購 -\n- 詳閱限動精選「預購須知」，付款完成默認同意須知 -",
+  "orderFooterSubText": "- 訂單依最近生成時間為準，如有加減商品可點重新加購 -\n 詳閱限動精選「預購須知」，付款完成默認同意須知 -",
   "shippingFee": 80,
   "freeShippingThreshold": 2500,
   "isCartEnabled": true,
