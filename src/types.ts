@@ -49,7 +49,6 @@ export interface SiteSettings {
   title: string;
   subtitle: string[];
   logoUrl: string;
-  orderFooterText?: string;
   orderFooterSubText?: string;
   shippingFee?: number;
   freeShippingThreshold?: number;

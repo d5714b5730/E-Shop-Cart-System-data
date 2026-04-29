@@ -471,7 +471,6 @@ export default function App() {
       "特賣會期間亦可加購（此專區不列入特賣會免運，但可合併出貨省運費）。"
     ],
     logoUrl: "",
-    orderFooterText: "📍前往IG將圖片發給九零統計結帳📍",
     orderFooterSubText: "- 此專區僅用於預購商品的訂單生成 -",
     shippingFee: 60,
     freeShippingThreshold: 1000,
@@ -487,6 +486,7 @@ export default function App() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'dark-success' } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [showCartSuccess, setShowCartSuccess] = useState(false);
+  const [showCopySuccess, setShowCopySuccess] = useState(false);
   
   const orderCardRef = useRef<HTMLDivElement>(null);
 
@@ -808,10 +808,10 @@ ${itemsText}
 = NT.${Math.floor(lastOrder.total)} (預購訂單金額)`;
 
     navigator.clipboard.writeText(orderText).then(() => {
-      showToast('訂單內容已複製，3 秒後將自動跳轉至 Instagram', 'dark-success');
+      setShowCopySuccess(true);
       setTimeout(() => {
         window.location.href = 'https://www.instagram.com/90s.flash.club/';
-      }, 3000);
+      }, 10000);
     }).catch(err => {
       console.error('Copy failed:', err);
       showToast('複製失敗，請手動截圖', 'error');
@@ -1211,7 +1211,6 @@ ${itemsText}
                   </div>
                 </div>
                 <div className="text-red-500 text-sm font-bold text-center mt-3 space-y-1">
-                  <div dangerouslySetInnerHTML={{ __html: siteSettings.orderFooterText || '📍前往IG將圖片發給九零統計結帳📍' }} />
                   <div className="text-xs opacity-80" dangerouslySetInnerHTML={{ __html: siteSettings.orderFooterSubText || '- 此專區僅用於預購商品的訂單生成 -' }} />
                 </div>
               </div>
@@ -1334,6 +1333,56 @@ ${itemsText}
 
         {/* Custom Notifications */}
         <AnimatePresence>
+          {showCopySuccess && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.5, y: -50 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className="fixed inset-0 z-[200] flex items-center justify-center p-6"
+            >
+              <div 
+                className="absolute inset-0 bg-black/40 backdrop-blur-md"
+                onClick={() => setShowCopySuccess(false)}
+              />
+              <motion.div 
+                layoutId="copy-success-modal"
+                className="relative bg-white rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl overflow-hidden text-center border-4 border-blue-500/20"
+              >
+                <div className="absolute top-0 left-0 w-full h-2 bg-blue-500 overflow-hidden">
+                  <motion.div 
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: 10, ease: "linear" }}
+                    className="h-full bg-blue-400 origin-left"
+                  />
+                </div>
+
+                <div className="mb-6 inline-flex p-4 bg-blue-50 rounded-full text-blue-500 animate-bounce">
+                  <CheckCircle2 size={48} />
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-xl font-black text-gray-900 leading-relaxed">
+                    ✨{igAccount || '您'}已成功複製訂單！✨<br/>
+                    <span className="text-gray-400 text-sm">(文字版)</span>
+                  </h3>
+                  
+                  <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <p className="text-gray-600 font-bold leading-relaxed">
+                      10 秒後自動跳回 Instagram，<br/>
+                      請立即將訂單<span className="text-red-500">貼上給我</span>！
+                    </p>
+                  </div>
+
+                  <p className="text-red-600 font-black text-sm animate-pulse">
+                    (重要！完成才算成功預購)
+                  </p>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+
           {showCartSuccess && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -3183,16 +3232,6 @@ function AdminModal({
 
                 {/* 3. Order Footer Section */}
                 <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-6">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">訂單生成頁底部文字 (支援 HTML)</label>
-                    <textarea 
-                      value={settingsFormData.orderFooterText || ''}
-                      onChange={e => setSettingsFormData(prev => ({ ...prev, orderFooterText: e.target.value }))}
-                      placeholder="例：📍前往IG將圖片發給九零統計結帳📍"
-                      rows={3}
-                      className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm resize-none"
-                    />
-                  </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">訂單生成頁底部副文字 (支援 HTML)</label>
                     <textarea 
