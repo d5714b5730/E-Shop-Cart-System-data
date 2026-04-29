@@ -1347,7 +1347,7 @@ ${itemsText}
               />
               <motion.div 
                 layoutId="copy-success-modal"
-                className="relative bg-white rounded-[2.5rem] p-10 max-w-sm sm:max-w-md w-full shadow-2xl overflow-hidden text-center border-4 border-blue-500/20"
+                className="relative bg-white rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl overflow-hidden text-center border-4 border-blue-500/20"
               >
                 <div className="absolute top-0 left-0 w-full h-2 bg-blue-500 overflow-hidden">
                   <motion.div 
@@ -1364,7 +1364,8 @@ ${itemsText}
 
                 <div className="space-y-4">
                   <h3 className="text-xl font-black text-gray-900 leading-relaxed">
-                    <div className="whitespace-nowrap">✨{igAccount || '您'}已成功複製訂單！✨</div>
+                    ✨ 親愛的 <span className="text-blue-500">{igAccount || '您'}</span> ✨<br/>
+                    妳已成功複製訂單！<br/>
                     <span className="text-gray-400 text-sm">(文字版)</span>
                   </h3>
                   
