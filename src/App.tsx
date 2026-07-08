@@ -22,7 +22,11 @@ import {
   Zap,
   Clock,
   ChevronDown,
-  GripVertical
+  GripVertical,
+  Gift,
+  ArrowRight,
+  MessageCircle,
+  Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -169,7 +173,7 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory, onSe
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onSelect(product)}
-      className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100/80 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer h-full"
+      className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100/80 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer h-auto sm:h-full"
     >
       {/* Image Section - Top of Card */}
       <div className="relative aspect-[4/5] bg-gray-50/30 overflow-hidden shrink-0">
@@ -195,9 +199,9 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory, onSe
       </div>
 
       {/* Info Section - Bottom of Card */}
-      <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between gap-2.5 bg-white">
+      <div className="p-3 sm:p-4 flex flex-col flex-1 gap-2 bg-white">
         <div className="space-y-1">
-          <h3 className="font-bold text-xs sm:text-sm text-gray-900 line-clamp-2 leading-snug group-hover:text-red-500 transition-colors duration-300">
+          <h3 className="font-black text-sm sm:text-base text-gray-900 line-clamp-2 leading-snug group-hover:text-red-500 transition-colors duration-300">
             {product.name}
           </h3>
           {product.description && (
@@ -220,7 +224,7 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory, onSe
               )}
             </div>
           ) : (
-            <span className="text-[10px] font-bold text-gray-400">未開放</span>
+            <span className="text-[10px] font-bold text-gray-400">待開放</span>
           )}
 
           <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
@@ -562,6 +566,7 @@ export default function App() {
   const [showCartSuccess, setShowCartSuccess] = useState(false);
   const [showCopySuccess, setShowCopySuccess] = useState(false);
   const [selectedDetailProduct, setSelectedDetailProduct] = useState<Product | null>(null);
+  const [isAnnouncementPopupOpen, setIsAnnouncementPopupOpen] = useState(false);
   
   const orderCardRef = useRef<HTMLDivElement>(null);
 
@@ -773,7 +778,16 @@ export default function App() {
 
   useEffect(() => {
     loadAllFromGitHub();
+    const hasSeen = localStorage.getItem('hasSeenAnnouncementPopup_v1');
+    if (!hasSeen) {
+      setIsAnnouncementPopupOpen(true);
+    }
   }, []);
+
+  const closeAnnouncementPopup = () => {
+    localStorage.setItem('hasSeenAnnouncementPopup_v1', 'true');
+    setIsAnnouncementPopupOpen(false);
+  };
 
   useEffect(() => {
     localStorage.setItem('products', JSON.stringify(products));
@@ -786,6 +800,15 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('categories', JSON.stringify(categories));
   }, [categories]);
+
+  useEffect(() => {
+    if (showCopySuccess) {
+      const timer = setTimeout(() => {
+        window.location.href = 'https://www.instagram.com/90s.flash.club/';
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [showCopySuccess]);
 
   const addToCart = (product: Product, selectedSpec?: string, selectedColor?: string) => {
     const needsSpec = product.specs && product.specs.length > 0;
@@ -851,6 +874,39 @@ export default function App() {
       promotionAmount: siteSettings.enablePromotion ? promotionAmount : undefined,
       date: new Date().toLocaleString('zh-TW', { hour12: true }).replace(',', '')
     };
+
+    // Auto-copy order text
+    const itemsText = order.items.map(item => 
+      `${item.name}${item.selectedColor ? ` (${item.selectedColor})` : ''}${item.selectedSpec ? ` (${item.selectedSpec})` : ''} x${item.num} NT.${Math.floor(item.price * item.num)}`
+    ).join('\n');
+
+    const orderText = `-【90s預購訂單】-
+${order.date}
+◆ 感謝親愛的 ${igAccount || '您的帳號'} 訂購✨ 九零會盡快為妳確認訂單！
+
+1、只購買預購商品
+→ 等待九零提供付款資訊
+
+2、也有購買限動特賣會
+→ 等待特賣結束&訂單更新
+
+——————————————
+◆ 預購商品內容：
+${itemsText}
+
+🎁 自助下單獎勵 -NT.${order.promotionAmount || 0}
+📦 運費 +NT.${order.shippingFee}
+——————————————
+= NT.${Math.floor(order.total)} (預購訂單金額)`;
+
+    navigator.clipboard.writeText(orderText).then(() => {
+      setShowCopySuccess(true);
+      showToast('訂單已生成，並已自動複製內容！', 'success');
+    }).catch(err => {
+      console.error('Auto-copy failed:', err);
+      showToast('訂單已生成！自動複製失敗，請手動截圖', 'error');
+    });
+
     setLastOrder(order);
     setCart([]);
     setIsCartOpen(false);
@@ -884,9 +940,7 @@ ${itemsText}
 
     navigator.clipboard.writeText(orderText).then(() => {
       setShowCopySuccess(true);
-      setTimeout(() => {
-        window.location.href = 'https://www.instagram.com/90s.flash.club/';
-      }, 7000);
+      showToast('訂單內容已複製到剪貼簿！', 'success');
     }).catch(err => {
       console.error('Copy failed:', err);
       showToast('複製失敗，請手動截圖', 'error');
@@ -952,6 +1006,14 @@ ${itemsText}
                 </div>
                 <div className="flex gap-2 items-center">
                   <button 
+                    onClick={() => setIsAnnouncementPopupOpen(true)}
+                    className="flex items-center gap-1 px-2.5 py-1.5 sm:px-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 active:scale-95 transition-all font-bold text-[11px] sm:text-xs shadow-sm border border-red-100/20"
+                    title="購物下單流程"
+                  >
+                    <Zap size={12} className="fill-red-600 shrink-0 animate-pulse" />
+                    <span>下單流程</span>
+                  </button>
+                  <button 
                     onClick={() => setIsAdminLoginOpen(true)}
                     className="p-2 text-gray-300 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
                     title="Admin Management"
@@ -976,23 +1038,6 @@ ${itemsText}
                       </motion.span>
                     )}
                   </button>
-                </div>
-              </div>
-
-              {/* Announcement Banner */}
-              <div className="bg-gray-100 border-t border-gray-200">
-                <div className="container mx-auto px-4 py-1.5 flex items-center gap-2">
-                  <div className="shrink-0 w-4 h-4 bg-black rounded-full flex items-center justify-center">
-                    <Zap size={10} className="text-white fill-white" />
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:gap-4 text-[11px] sm:text-xs text-gray-900 font-bold leading-tight">
-                    {siteSettings.subtitle.map((line, idx) => (
-                      <p key={idx} className="flex items-center gap-1">
-                        <span className="w-1 h-1 bg-black rounded-full" />
-                        {line}
-                      </p>
-                    ))}
-                  </div>
                 </div>
               </div>
             </header>
@@ -1035,7 +1080,7 @@ ${itemsText}
                 ) : (
                   <>
                     {/* Mobile Waterfall Flow (2 columns) */}
-                    <div className="grid grid-cols-2 gap-2 sm:hidden">
+                    <div className="grid grid-cols-2 gap-2 sm:hidden items-start">
                       <div className="flex flex-col gap-2">
                         {leftColumn.map((product, idx) => (
                           <ProductCard 
@@ -1085,6 +1130,101 @@ ${itemsText}
 
       {/* Modals */}
       <AnimatePresence>
+        {/* Announcement Guide Modal */}
+        {isAnnouncementPopupOpen && (
+          <Modal onClose={closeAnnouncementPopup}>
+            <div className="flex flex-col flex-1 min-h-0 bg-white">
+              {/* Header inside popup */}
+              <div className="p-6 pb-4 border-b border-gray-100 flex flex-col items-center text-center shrink-0 relative">
+                <span className="px-3 py-1 bg-red-50 text-red-600 rounded-full text-[10px] font-black tracking-widest uppercase mb-2">
+                  ✨ 90s Flash Club 預購專區
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                  購物流程與下單指引
+                </h2>
+                <p className="text-xs text-gray-400 font-bold mt-1 max-w-md">
+                  簡單三步驟，完成預購並享有 $50 元自助獎勵與特賣會合併出貨！
+                </p>
+              </div>
+
+              {/* Steps (Visual flow chart with icons) */}
+              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 scrollbar-hide">
+                <div className="relative flex flex-col gap-6">
+                  {/* Timeline connector line for desktop / vertical flow */}
+                  <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-gradient-to-b from-red-200 via-amber-200 to-indigo-200" />
+
+                  {/* Step 1 */}
+                  <div className="relative flex gap-4 items-start group">
+                    <div className="shrink-0 w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-500 font-black border border-red-100 shadow-sm z-10">
+                      <ShoppingCart size={16} className="stroke-[2.5]" />
+                    </div>
+                    <div className="flex-1 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 group-hover:border-red-100 transition-all">
+                      <div className="flex items-center gap-2">
+                        <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded-md">01</span>
+                        <h3 className="font-black text-sm text-gray-900">挑選商品加入購物車</h3>
+                      </div>
+                      <p className="text-xs text-gray-500 font-bold mt-1.5 leading-relaxed">
+                        選擇款式、顏色與規格並加入購物車（標示「待開放」商品代表即將開賣，仍可點擊查看詳情）。
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="relative flex gap-4 items-start group">
+                    <div className="shrink-0 w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 font-black border border-amber-100 shadow-sm z-10">
+                      <Gift size={16} className="stroke-[2.5]" />
+                    </div>
+                    <div className="flex-1 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 group-hover:border-amber-100 transition-all">
+                      <div className="flex items-center gap-2">
+                        <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded-md">02</span>
+                        <h3 className="font-black text-sm text-gray-900">填寫 IG 帳號自動折抵</h3>
+                      </div>
+                      <p className="text-xs text-gray-500 font-bold mt-1.5 leading-relaxed">
+                        進入購物車填寫您的 Instagram 帳號並點擊「生成訂單」，系統將自動帶入 $50 元現折獎勵！
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="relative flex gap-4 items-start group">
+                    <div className="shrink-0 w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black border border-indigo-100 shadow-sm z-10">
+                      <MessageCircle size={16} className="stroke-[2.5]" />
+                    </div>
+                    <div className="flex-1 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 group-hover:border-indigo-100 transition-all">
+                      <div className="flex items-center gap-2">
+                        <span className="px-1.5 py-0.5 bg-indigo-600 text-white text-[10px] font-black rounded-md">03</span>
+                        <h3 className="font-black text-sm text-gray-900">複製格式私訊 IG 結帳</h3>
+                      </div>
+                      <p className="text-xs text-gray-500 font-bold mt-1.5 leading-relaxed">
+                        複製訂單文字並私訊給九零 (@90s.flash.club)，我們將為您合併限動特賣商品、湊滿額免運！
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Additional Important Notice */}
+                <div className="bg-red-50/40 border border-red-100/50 p-4 rounded-2xl flex items-start gap-3 mt-4">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0 animate-ping" />
+                  <p className="text-[11px] text-gray-500 font-bold leading-normal">
+                    提醒：此專區僅用於預購商品的訂單生成，並不直接在網頁進行刷卡或結帳。所有預購訂購資訊，均需私訊 IG 與客服九零確認付款後才算成立喔！
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="p-5 border-t border-gray-100 bg-gray-50/30 flex flex-col sm:flex-row gap-3 shrink-0">
+                <button 
+                  onClick={closeAnnouncementPopup}
+                  className="w-full py-4 bg-gray-950 text-white rounded-2xl font-black text-sm tracking-widest hover:bg-red-500 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-gray-200"
+                >
+                  <Check size={16} strokeWidth={3} />
+                  我已了解下單流程，開始選購
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )}
+
         {/* Cart Modal */}
         {isCartOpen && (
           <Modal onClose={() => setIsCartOpen(false)}>
@@ -1249,12 +1389,30 @@ ${itemsText}
                   </div>
                 </div>
                 
+                {/* IG Account Input moved directly into the Cart Modal */}
+                {cart.length > 0 && (
+                  <div className="mt-2 mb-4 bg-gray-50/50 border border-gray-100 rounded-2xl p-4 space-y-2">
+                    <label className="block text-xs font-black text-gray-700 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                      Instagram 帳號 (必填)
+                    </label>
+                    <input 
+                      type="text" 
+                      value={igAccount}
+                      onChange={e => setIgAccount(e.target.value)}
+                      placeholder="請輸入您的 IG 帳號 (如: @90s.flash.club)"
+                      className="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:border-blue-500 focus:ring-4 ring-blue-500/5 outline-none transition-all font-black placeholder:text-gray-300 placeholder:font-normal"
+                    />
+                  </div>
+                )}
+                
                 <button 
-                  disabled={cart.length === 0}
+                  disabled={cart.length === 0 || !igAccount.trim()}
                   onClick={createOrder}
-                  className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-base shadow-xl shadow-gray-200 hover:bg-red-500 disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none transition-all duration-500 transform active:scale-[0.98]"
+                  className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-base shadow-xl shadow-gray-200 hover:bg-red-500 disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none transition-all duration-500 transform active:scale-[0.98] flex items-center justify-center gap-2"
                 >
-                  生成訂單
+                  <Zap size={16} className={igAccount.trim() ? "fill-white animate-pulse" : ""} />
+                  <span>生成預購訂單</span>
                 </button>
               </div>
             </div>
@@ -1264,18 +1422,25 @@ ${itemsText}
         {/* Order Modal */}
         {lastOrder && (
           <Modal onClose={() => setLastOrder(null)}>
-            <div className="flex flex-col flex-1 min-h-0">
-              <div className="flex-1 overflow-y-auto p-8">
+            <div className="flex flex-col flex-1 min-h-0 bg-white">
+              <div className="flex-1 overflow-y-auto p-5 sm:p-8">
                 <div 
                   ref={orderCardRef}
-                  className="bg-white p-8 border-2 border-dashed border-gray-200 rounded-3xl relative overflow-hidden"
+                  className="bg-white p-6 sm:p-8 border-2 border-dashed border-gray-100 rounded-3xl relative overflow-hidden"
                 >
                   <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <CheckCircle2 size={120} className="text-blue-500" />
+                    <CheckCircle2 size={120} className="text-green-500" />
                   </div>
-                  <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-gray-800">已生成訂單</h3>
-                    <p className="text-sm text-gray-400 mt-2">{lastOrder.date}</p>
+                  <div className="text-center mb-6">
+                    <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-600 rounded-full text-[10px] sm:text-xs font-black tracking-wider mb-3 border border-green-100/50 animate-pulse">
+                      <Check size={12} strokeWidth={3} className="shrink-0" />
+                      <span>已自動複製訂單內容</span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">預購單建立成功！</h3>
+                    <p className="text-xs text-gray-400 font-bold mt-2 leading-relaxed">
+                      我們已為您自動複製訂單格式。<br />
+                      請點擊下方按鈕前往 IG，<span className="text-red-500 font-black">直接「貼上」傳送</span> 給九零即可！
+                    </p>
                   </div>
                   <div className="space-y-4 mb-8">
                     {lastOrder.items.map((item, idx) => (
@@ -1320,36 +1485,32 @@ ${itemsText}
 
                 </div>
               </div>
-              <div className="p-6 border-t flex flex-col gap-4 shrink-0">
+              <div className="p-6 border-t flex flex-col gap-4 shrink-0 bg-gray-50/20">
                 <div className="flex flex-col gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2 text-center">Instagram 帳號 (必填)</label>
-                    <input 
-                      type="text" 
-                      value={igAccount}
-                      onChange={e => setIgAccount(e.target.value)}
-                      placeholder="請輸入您的 IG 帳號"
-                      className="w-full bg-gray-50 border-2 border-blue-500 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 ring-blue-500 outline-none transition-all"
-                    />
+                  {/* Read-only / verification badge for IG Account */}
+                  <div className="bg-blue-50/40 border border-blue-100/30 rounded-2xl p-4 text-center">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">訂購人 Instagram 帳號</p>
+                    <p className="text-base font-black text-blue-600 mt-1">@{igAccount.replace(/^@/, '')}</p>
                   </div>
                   <div className="flex gap-3">
                     <button 
                       onClick={() => { setLastOrder(null); setIgAccount(''); }}
-                      className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-all"
+                      className="flex-1 py-3.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-xs hover:bg-gray-200 transition-all active:scale-95"
                     >
                       重新加購
                     </button>
-                    <button 
-                      disabled={!igAccount.trim()}
-                      onClick={copyOrderText}
-                      className="flex-[2] py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:bg-gray-100 disabled:text-gray-300"
+                    <a 
+                      href="https://www.instagram.com/90s.flash.club/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-[2] py-3.5 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white rounded-xl font-black text-xs hover:opacity-95 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-md shadow-pink-100 text-center"
                     >
-                      <Copy size={18} />
-                      複製訂單內容 (文字)
-                    </button>
+                      <MessageCircle size={14} className="fill-white" />
+                      前往 IG 私訊 貼上結帳
+                    </a>
                   </div>
                 </div>
-                <div className="text-red-500 text-sm font-bold text-center mt-3 space-y-1">
+                <div className="text-red-500 text-sm font-bold text-center mt-2 space-y-1">
                   <div className="text-xs opacity-80" dangerouslySetInnerHTML={{ __html: siteSettings.orderFooterSubText || '- 此專區僅用於預購商品的訂單生成 -' }} />
                 </div>
               </div>
@@ -1492,7 +1653,7 @@ ${itemsText}
                   <motion.div 
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
-                    transition={{ duration: 7, ease: "linear" }}
+                    transition={{ duration: 10, ease: "linear" }}
                     className="h-full bg-blue-400 origin-left"
                   />
                 </div>
@@ -1504,19 +1665,22 @@ ${itemsText}
                 <div className="space-y-4">
                   <h3 className="text-xl font-black text-gray-900 leading-relaxed">
                     ✨ 親愛的 <span className="text-blue-500">{igAccount || '您'}</span> ✨<br/>
-                    妳已成功複製訂單！<br/>
-                    <span className="text-gray-400 text-sm">(文字版)</span>
+                    妳已生成+複製預購單！
                   </h3>
                   
-                  <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                    <p className="text-gray-600 font-bold leading-relaxed">
-                      ３秒後自動跳回 Instagram，<br/>
-                      請立即將訂單<span className="text-red-500">貼上給我</span>！
+                  <div className="bg-red-50/70 p-4 rounded-2xl border border-red-100/60 shadow-inner relative overflow-hidden">
+                    <p className="text-gray-900 font-bold leading-relaxed text-sm">
+                      <span className="inline-flex items-center gap-1 bg-red-500 text-white px-2 py-0.5 rounded-full text-[11px] font-black tracking-wider animate-bounce mr-1">
+                        <Zap size={10} className="fill-white" />
+                        最後一步！
+                      </span>
+                      請立即到IG私訊貼上給我！<br/>
+                      <span className="text-xs text-gray-400 font-bold mt-1.5 block">（等候５秒後自動跳回IG）</span>
                     </p>
                   </div>
 
                   <p className="text-red-600 font-black text-sm animate-pulse">
-                    (重要！完成才算成功預購)
+                    ※貼上才算完成預購※
                   </p>
                 </div>
               </motion.div>
