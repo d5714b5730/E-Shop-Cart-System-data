@@ -536,6 +536,7 @@ export default function App() {
     }
   });
   const [activeCategory, setActiveCategory] = useState('全部');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
@@ -949,9 +950,28 @@ ${itemsText}
 
   const filteredProducts = products.filter(p => {
     if (p.hidden) return false;
-    if (activeCategory === '全部') return true;
-    if (activeCategory === '近期熱銷') return p.isHot;
-    return p.category === activeCategory;
+    
+    // Category match
+    let categoryMatch = true;
+    if (activeCategory !== '全部') {
+      if (activeCategory === '近期熱銷') {
+        categoryMatch = p.isHot;
+      } else {
+        categoryMatch = p.category === activeCategory;
+      }
+    }
+    
+    // Search query match (checking product name, description, category, sn/code)
+    let searchMatch = true;
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase().trim();
+      searchMatch = (p.name && p.name.toLowerCase().includes(q)) || 
+                    (p.description && p.description.toLowerCase().includes(q)) ||
+                    (p.category && p.category.toLowerCase().includes(q)) ||
+                    (p.sn && p.sn.toLowerCase().includes(q));
+    }
+    
+    return categoryMatch && searchMatch;
   });
 
   const leftColumn = filteredProducts.filter((_, idx) => idx % 2 === 0);
@@ -1014,13 +1034,6 @@ ${itemsText}
                     <span>下單流程</span>
                   </button>
                   <button 
-                    onClick={() => setIsAdminLoginOpen(true)}
-                    className="p-2 text-gray-300 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
-                    title="Admin Management"
-                  >
-                    <Settings size={18} />
-                  </button>
-                  <button 
                     onClick={() => setIsCartOpen(true)}
                     className="relative flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-red-500 transition-all shadow-md shadow-gray-200 hover:shadow-red-100 group"
                   >
@@ -1045,7 +1058,7 @@ ${itemsText}
             <div className="flex-1 relative flex flex-col overflow-hidden">
               {/* Categories - Sub-header on mobile */}
               <div className="relative sm:static z-40 flex gap-3 pb-3 sm:pb-2 items-center px-4 sm:px-0 pt-3 sm:pt-0 shrink-0 bg-white border-b border-gray-100 sm:border-none pointer-events-none [&>*]:pointer-events-auto container mx-auto">
-                <div className="relative pointer-events-auto">
+                <div className="relative pointer-events-auto shrink-0">
                   <select
                     value={activeCategory}
                     onChange={(e) => setActiveCategory(e.target.value)}
@@ -1068,6 +1081,28 @@ ${itemsText}
                     "absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none",
                     activeCategory === '全部' ? "text-gray-500" : "text-white"
                   )} />
+                </div>
+
+                {/* Brand-matching search input box */}
+                <div className="relative pointer-events-auto flex-1 max-w-[200px] sm:max-w-xs">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="搜尋商品名稱/代碼..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-8 pr-7 py-1.5 rounded-full border-2 border-gray-100 focus:border-red-500/30 hover:border-gray-200 focus:outline-none text-xs font-bold transition-all placeholder:text-gray-400 placeholder:font-medium bg-gray-50/50 focus:bg-white"
+                    />
+                    <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all"
+                      >
+                        <X size={10} />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1120,6 +1155,18 @@ ${itemsText}
                         />
                       ))}
                     </div>
+
+                    {/* Subtle footer with Admin Login button */}
+                    <footer className="mt-12 py-6 border-t border-gray-100 flex justify-end items-center px-2">
+                      <button 
+                        onClick={() => setIsAdminLoginOpen(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] text-gray-300 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-all font-bold"
+                        title="Admin Management"
+                      >
+                        <Settings size={12} />
+                        <span>管理員登入</span>
+                      </button>
+                    </footer>
                   </>
                 )}
               </main>
@@ -1136,11 +1183,8 @@ ${itemsText}
             <div className="flex flex-col flex-1 min-h-0 bg-white">
               {/* Header inside popup */}
               <div className="p-6 pb-4 border-b border-gray-100 flex flex-col items-center text-center shrink-0 relative">
-                <span className="px-3 py-1 bg-red-50 text-red-600 rounded-full text-[10px] font-black tracking-widest uppercase mb-2">
-                  ✨ 90s Flash Club 預購專區
-                </span>
                 <h2 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
-                  購物流程與下單指引
+                  預購專區下單流程
                 </h2>
                 <p className="text-xs text-gray-400 font-bold mt-1 max-w-md">
                   簡單三步驟，完成預購並享有 $50 元自助獎勵與特賣會合併出貨！
@@ -1164,7 +1208,7 @@ ${itemsText}
                         <h3 className="font-black text-sm text-gray-900">挑選商品加入購物車</h3>
                       </div>
                       <p className="text-xs text-gray-500 font-bold mt-1.5 leading-relaxed">
-                        選擇款式、顏色與規格並加入購物車（標示「待開放」商品代表即將開賣，仍可點擊查看詳情）。
+                        選擇款式、顏色與規格並加入購物車（標示「待開放」代表近期預購已結束，請留意下次開放）。
                       </p>
                     </div>
                   </div>
@@ -1180,7 +1224,7 @@ ${itemsText}
                         <h3 className="font-black text-sm text-gray-900">填寫 IG 帳號自動折抵</h3>
                       </div>
                       <p className="text-xs text-gray-500 font-bold mt-1.5 leading-relaxed">
-                        進入購物車填寫您的 Instagram 帳號並點擊「生成訂單」，系統將自動帶入 $50 元現折獎勵！
+                        進入購物車填寫妳的 IG帳號並點選「生成訂單」，系統將自動折抵 $50元自助下單獎勵！
                       </p>
                     </div>
                   </div>
@@ -1193,10 +1237,14 @@ ${itemsText}
                     <div className="flex-1 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 group-hover:border-indigo-100 transition-all">
                       <div className="flex items-center gap-2">
                         <span className="px-1.5 py-0.5 bg-indigo-600 text-white text-[10px] font-black rounded-md">03</span>
-                        <h3 className="font-black text-sm text-gray-900">複製格式私訊 IG 結帳</h3>
+                        <h3 className="font-black text-sm text-gray-900">最後一步私訊IG！預購完成</h3>
                       </div>
                       <p className="text-xs text-gray-500 font-bold mt-1.5 leading-relaxed">
-                        複製訂單文字並私訊給九零 (@90s.flash.club)，我們將為您合併限動特賣商品、湊滿額免運！
+                        生成訂單後會自動複製內容並跳轉IG，<br />
+                        <span className="text-red-500 font-black text-sm block mt-1.5 mb-1.5 leading-relaxed">
+                          立即私訊貼上給九零！<br />
+                          來幫你進行訂單確認+結帳！
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -1206,7 +1254,7 @@ ${itemsText}
                 <div className="bg-red-50/40 border border-red-100/50 p-4 rounded-2xl flex items-start gap-3 mt-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0 animate-ping" />
                   <p className="text-[11px] text-gray-500 font-bold leading-normal">
-                    提醒：此專區僅用於預購商品的訂單生成，並不直接在網頁進行刷卡或結帳。所有預購訂購資訊，均需私訊 IG 與客服九零確認付款後才算成立喔！
+                    💡 貼心提醒：本專區僅用於預購單生成，不直接在網頁付款。這是為了方便幫你人工合併「限動特賣商品」（醬只需付一次運費！）😊
                   </p>
                 </div>
               </div>
@@ -1647,41 +1695,57 @@ ${itemsText}
               />
               <motion.div 
                 layoutId="copy-success-modal"
-                className="relative bg-white rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl overflow-hidden text-center border-4 border-blue-500/20"
+                className="relative bg-white rounded-[2.5rem] p-8 sm:p-10 max-w-sm w-full shadow-2xl overflow-hidden text-center border border-gray-100/80"
               >
-                <div className="absolute top-0 left-0 w-full h-2 bg-blue-500 overflow-hidden">
+                {/* Top custom progress bar with brand color gradient */}
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-red-50 overflow-hidden">
                   <motion.div 
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
                     transition={{ duration: 10, ease: "linear" }}
-                    className="h-full bg-blue-400 origin-left"
+                    className="h-full bg-gradient-to-r from-red-500 to-pink-500 origin-left"
                   />
                 </div>
 
-                <div className="mb-6 inline-flex p-4 bg-blue-50 rounded-full text-blue-500 animate-bounce">
-                  <CheckCircle2 size={48} />
+                {/* Highly-polished brand themed icon container with pulse ring */}
+                <div className="mb-5 inline-flex relative z-10">
+                  <div className="absolute -inset-1.5 bg-red-500/10 rounded-2xl animate-pulse -z-10" />
+                  <div className="p-4 bg-red-50 text-red-500 rounded-2xl border border-red-100/30 shadow-inner">
+                    <CheckCircle2 size={36} className="text-red-500" />
+                  </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-xl font-black text-gray-900 leading-relaxed">
-                    ✨ 親愛的 <span className="text-blue-500">{igAccount || '您'}</span> ✨<br/>
-                    妳已生成+複製預購單！
-                  </h3>
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-red-50 border border-red-100/30 rounded-lg text-gray-900 text-xs font-black">
+                      ✨ 親愛的 {igAccount || '您'} ✨
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-black text-gray-900 leading-snug tracking-tight">
+                      妳已生成預購訂單！(已複製)
+                    </h3>
+                  </div>
                   
-                  <div className="bg-red-50/70 p-4 rounded-2xl border border-red-100/60 shadow-inner relative overflow-hidden">
-                    <p className="text-gray-900 font-bold leading-relaxed text-sm">
-                      <span className="inline-flex items-center gap-1 bg-red-500 text-white px-2 py-0.5 rounded-full text-[11px] font-black tracking-wider animate-bounce mr-1">
-                        <Zap size={10} className="fill-white" />
-                        最後一步！
-                      </span>
-                      請立即到IG私訊貼上給我！<br/>
-                      <span className="text-xs text-gray-400 font-bold mt-1.5 block">（等候５秒後自動跳回IG）</span>
+                  {/* Premium banner styling derived from home page layout style */}
+                  <div className="bg-gradient-to-br from-red-50/60 to-pink-50/30 p-5 rounded-2xl border border-red-100/40 relative overflow-hidden text-center shadow-sm">
+                    <div className="inline-flex items-center gap-1 bg-red-500 text-white px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider animate-bounce mb-2 shadow-sm shadow-red-500/10">
+                      <Zap size={10} className="fill-white" />
+                      <span>最後一步！</span>
+                    </div>
+                    <p className="text-red-500 font-black leading-relaxed text-sm sm:text-base animate-pulse">
+                      請立即到IG私訊貼上給我！
+                    </p>
+                    <p className="text-[10px] text-gray-400 font-black mt-1">
+                      （等候５秒後自動跳回IG）
                     </p>
                   </div>
 
-                  <p className="text-red-600 font-black text-sm animate-pulse">
-                    ※貼上才算完成預購※
-                  </p>
+                  {/* High-visibility warning badge */}
+                  <div className="pt-1">
+                    <div className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-xs font-black rounded-full shadow-lg shadow-gray-900/10 animate-pulse border border-gray-800">
+                      <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping shrink-0" />
+                      <span>※貼上才算完成預購※</span>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             </motion.div>
