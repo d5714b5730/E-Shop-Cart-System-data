@@ -196,11 +196,33 @@ function ProductCard({ product, addToCart, siteSettings, setActiveCategory, onSe
             </span>
           </div>
         )}
+
+        {product.promoLabel && (
+          <div className="absolute top-2.5 right-2.5 z-10">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-red-600 to-pink-500 text-white text-[9px] font-black rounded-full shadow-md shadow-red-600/20 tracking-wider">
+              <Zap size={9} className="fill-white" />
+              {product.promoLabel}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Info Section - Bottom of Card */}
       <div className="p-3 sm:p-4 flex flex-col flex-1 gap-2 bg-white">
         <div className="space-y-1">
+          {product.promoLabel && (
+            <div className="flex items-center gap-1 mb-1">
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-50 text-red-600 text-[10px] font-black rounded border border-red-100/30">
+                <Zap size={9} className="fill-red-500 text-red-500 shrink-0" />
+                {product.promoLabel}
+                {product.promoSubLabel && (
+                  <span className="ml-1 pl-1 border-l border-red-100/60 font-bold text-[9px] text-red-400">
+                    {product.promoSubLabel}
+                  </span>
+                )}
+              </span>
+            </div>
+          )}
           <h3 className="font-black text-sm sm:text-base text-gray-900 line-clamp-2 leading-snug group-hover:text-red-500 transition-colors duration-300">
             {product.name}
           </h3>
@@ -319,7 +341,22 @@ function ProductDetailView({
       {/* Main Scrollable Content */}
       <div className="flex-1 overflow-y-auto scrollbar-hide pb-28">
         {/* Long Images Column (Stacked Puzzle Style) */}
-        <div className="flex flex-col w-full max-w-2xl mx-auto bg-black">
+        <div className="flex flex-col w-full max-w-2xl mx-auto bg-black relative">
+          {product.promoLabel && (
+            <div className="absolute top-16 left-4 z-10 pointer-events-none">
+              <div className="inline-flex flex-col items-start bg-gradient-to-r from-red-600 to-pink-500 text-white rounded-2xl px-3 py-1.5 shadow-xl shadow-red-600/40 border border-white/10 animate-pulse">
+                <span className="text-[10px] sm:text-xs font-black tracking-wider uppercase flex items-center gap-1">
+                  <Zap size={10} className="fill-white text-white" />
+                  {product.promoLabel}
+                </span>
+                {product.promoSubLabel && (
+                  <span className="text-[8px] sm:text-[9px] text-red-100 font-bold mt-0.5 pl-3.5">
+                    {product.promoSubLabel}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
           {product.imgs.map((img, idx) => (
             <img 
               key={`${img}-${idx}`} 
