@@ -158,231 +158,305 @@ function PromoBadge({ label, subLabel, onClick }: { label: string; subLabel?: st
   );
 }
 
-function ProductCard({ product, addToCart, siteSettings, setActiveCategory }: any): React.JSX.Element {
-  const [currentImgIdx, setCurrentImgIdx] = useState(product.imgs.length > 1 ? 1 : 0);
+function ProductCard({ product, addToCart, siteSettings, setActiveCategory, onSelect }: any): React.JSX.Element {
   const [isHovered, setIsHovered] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const isJumping = useRef(false);
-
-  // Extend images for infinite loop: [Last, 1, 2, 3, First]
-  const extendedImgs = useMemo(() => {
-    if (product.imgs.length <= 1) return product.imgs;
-    return [product.imgs[product.imgs.length - 1], ...product.imgs, product.imgs[0]];
-  }, [product.imgs]);
-
-  const scrollToImage = (index: number, behavior: ScrollBehavior = 'smooth') => {
-    if (carouselRef.current) {
-      const width = carouselRef.current.offsetWidth;
-      carouselRef.current.scrollTo({
-        left: index * width,
-        behavior
-      });
-      setCurrentImgIdx(index);
-    }
-  };
-
-  // Handle silent jumps for infinite loop
-  useEffect(() => {
-    if (product.imgs.length <= 1 || !carouselRef.current) return;
-
-    if (currentImgIdx === 0 || currentImgIdx === extendedImgs.length - 1) {
-      const jumpTo = currentImgIdx === 0 ? product.imgs.length : 1;
-      
-      const timer = setTimeout(() => {
-        if (carouselRef.current) {
-          isJumping.current = true;
-          const width = carouselRef.current.offsetWidth;
-          carouselRef.current.scrollTo({ left: jumpTo * width, behavior: 'auto' });
-          setCurrentImgIdx(jumpTo);
-          // Small delay to allow browser to complete the jump before enabling scroll events again
-          setTimeout(() => { isJumping.current = false; }, 50);
-        }
-      }, 400); // Wait for smooth scroll/snap to finish
-
-      return () => clearTimeout(timer);
-    }
-  }, [currentImgIdx, product.imgs.length, extendedImgs.length]);
-
-  // Initial scroll position and Resize handling
-  useEffect(() => {
-    if (!carouselRef.current || product.imgs.length <= 1) return;
-
-    const updateScroll = () => {
-      if (carouselRef.current) {
-        const width = carouselRef.current.offsetWidth;
-        carouselRef.current.scrollTo({ left: currentImgIdx * width, behavior: 'auto' });
-      }
-    };
-
-    const observer = new ResizeObserver(() => {
-      updateScroll();
-    });
-
-    observer.observe(carouselRef.current);
-    updateScroll();
-
-    return () => observer.disconnect();
-  }, [product.imgs.length]); // Keep position based on currentImgIdx on resize
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group relative h-full sm:h-auto sm:aspect-[9/16] bg-black rounded-none sm:rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-700 overflow-hidden border-0 sm:border border-gray-100"
+      onClick={() => onSelect(product)}
+      className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100/80 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer h-full"
     >
-      {/* Image Gallery Section - Background */}
-      <div className="absolute inset-0 z-0">
-        <div 
-          ref={carouselRef}
-          className="flex h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide cursor-grab active:cursor-grabbing"
-          onScroll={(e) => {
-            if (isJumping.current) return;
-            const scrollLeft = e.currentTarget.scrollLeft;
-            const width = e.currentTarget.offsetWidth;
-            const index = Math.round(scrollLeft / width);
-            if (index !== currentImgIdx) setCurrentImgIdx(index);
-          }}
-        >
-          {extendedImgs.map((img, idx) => (
-            <div key={idx} className="w-full h-full flex-shrink-0 snap-center snap-always">
-              <img 
-                src={img} 
-                alt="" 
-                className="w-full h-full object-contain pointer-events-none"
-                referrerPolicy="no-referrer"
-                draggable="false"
-                loading={idx === 1 ? "eager" : "lazy"}
-                decoding="async"
-              />
-            </div>
-          ))}
-        </div>
+      {/* Image Section - Top of Card */}
+      <div className="relative aspect-[4/5] bg-gray-50/30 overflow-hidden shrink-0">
+        <img 
+          src={product.imgs[0]} 
+          alt={product.name} 
+          className="w-full h-full object-cover pointer-events-none transition-transform duration-700 group-hover:scale-105"
+          referrerPolicy="no-referrer"
+          draggable="false"
+          loading="lazy"
+          decoding="async"
+        />
+        
+        {/* Float tags/badges over the image */}
+        {product.isHot && (
+          <div className="absolute top-2.5 left-2.5 z-10">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500/95 backdrop-blur-md text-white text-[9px] font-black rounded-full shadow-md shadow-red-500/20 uppercase tracking-wider">
+              <span className="w-1 h-1 bg-white rounded-full animate-pulse" />
+              熱銷
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Top Floating Elements */}
-      <div className="absolute top-12 sm:top-6 left-4 sm:left-6 right-4 sm:right-6 z-20 flex justify-between items-start">
-        <div className="flex flex-col gap-2">
-          {/* <span className="px-3 py-1 bg-white/20 backdrop-blur-xl text-white text-[10px] font-bold rounded-full border border-white/20 uppercase tracking-wider">
-            {product.category}
-          </span> */}
-          {product.isHot && (
+      {/* Info Section - Bottom of Card */}
+      <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between gap-2.5 bg-white">
+        <div className="space-y-1">
+          <h3 className="font-bold text-xs sm:text-sm text-gray-900 line-clamp-2 leading-snug group-hover:text-red-500 transition-colors duration-300">
+            {product.name}
+          </h3>
+          {product.description && (
+            <p className="text-[10px] sm:text-xs text-gray-400 line-clamp-1 leading-normal">
+              {product.description}
+            </p>
+          )}
+        </div>
+
+        {/* Price & Action Row */}
+        <div className="flex items-center justify-between gap-2 mt-auto pt-1 border-t border-gray-50">
+          {siteSettings.isCartEnabled !== false ? (
+            <div className="flex items-baseline gap-0.5" onClick={(e) => e.stopPropagation()}>
+              <span className="text-[10px] font-extrabold text-red-500">NT.</span>
+              <span className="text-sm sm:text-lg font-black text-red-500 leading-none">
+                {Math.floor(product.price)}
+              </span>
+              {product.colorPrices && Object.values(product.colorPrices).some(p => p !== product.price) && (
+                <span className="text-[8px] font-bold text-gray-400 ml-0.5">起</span>
+              )}
+            </div>
+          ) : (
+            <span className="text-[10px] font-bold text-gray-400">未開放</span>
+          )}
+
+          <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+            {product.promoLabel && (
+              <span className="hidden xs:inline-block px-1.5 py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded border border-red-100/50">
+                {product.promoLabel}
+              </span>
+            )}
             <button 
               onClick={(e) => {
                 e.stopPropagation();
-                setActiveCategory('近期熱銷');
+                addToCart(product);
               }}
-              className="px-3 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full shadow-lg shadow-red-500/40 uppercase tracking-wider flex items-center gap-1.5 hover:bg-red-600 transition-colors pointer-events-auto"
+              disabled={siteSettings.isCartEnabled === false}
+              className={cn(
+                "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300",
+                siteSettings.isCartEnabled === false 
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                  : "bg-red-50 text-red-600 hover:bg-red-500 hover:text-white shadow-sm hover:shadow-md"
+              )}
+              title="加入購物車"
             >
-              <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-              近期熱銷
+              <ShoppingCart size={13} className="transition-transform duration-300 group-hover/btn:scale-110" />
             </button>
-          )}
+          </div>
         </div>
       </div>
+    </motion.div>
+  );
+}
 
-      {/* Bottom Info Section - Overlaid */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 flex flex-col pb-4 sm:pb-6">
-        {/* Gradient Overlay for Readability */}
-        <div className="absolute bottom-0 left-0 right-0 h-[200%] bg-gradient-to-t from-black/90 via-black/50 to-transparent -z-10 pointer-events-none" />
+interface ProductDetailViewProps {
+  key?: string;
+  product: Product;
+  onClose: () => void;
+  addToCart: (product: Product, selectedSpec?: string, selectedColor?: string) => void;
+  siteSettings: SiteSettings;
+  cartCount: number;
+  setIsCartOpen: (open: boolean) => void;
+}
 
-        <div className="px-4 sm:px-6 flex flex-col gap-3">
-          <div className="flex items-end justify-between gap-4">
-            {/* Left side: Info */}
-            <div className="flex flex-col gap-2 flex-1 min-w-0">
-              <h3 className="font-black text-xl sm:text-2xl text-white line-clamp-2 leading-tight tracking-tight drop-shadow-md">
-                {product.name}
-              </h3>
-              
-              {product.description && (
-                <p 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsExpanded(!isExpanded);
-                  }}
-                  className={cn(
-                    "text-xs sm:text-sm text-white/80 font-medium leading-snug drop-shadow-md cursor-pointer transition-all duration-300",
-                    !isExpanded && "line-clamp-2"
-                  )}
-                >
-                  {product.description}
-                </p>
-              )}
+function ProductDetailView({ 
+  product, 
+  onClose, 
+  addToCart, 
+  siteSettings, 
+  cartCount, 
+  setIsCartOpen 
+}: ProductDetailViewProps): React.JSX.Element {
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [selectedSpec, setSelectedSpec] = useState<string>('');
 
-              {/* Carousel Progress Bar */}
-              {product.imgs.length > 1 && (
-                <div className="flex gap-1 w-full h-[1px] my-1">
-                  {product.imgs.map((_, idx) => {
-                    // Map extended currentImgIdx back to real index (0 to length-1)
-                    // internal index 1 corresponds to real index 0
-                    const realActiveIdx = currentImgIdx === 0 
-                      ? product.imgs.length - 1 
-                      : currentImgIdx === extendedImgs.length - 1 
-                        ? 0 
-                        : currentImgIdx - 1;
+  // Determine current active price (updates based on selected color's price if defined)
+  const currentPrice = (product.colorPrices && selectedColor && product.colorPrices[selectedColor]) || product.price;
 
-                    return (
-                      <div 
-                        key={idx} 
-                        className={cn(
-                          "h-full flex-1 rounded-full transition-all duration-300",
-                          idx <= realActiveIdx ? "bg-white/40" : "bg-white/10"
-                        )} 
-                      />
-                    );
-                  })}
-                </div>
-              )}
+  const handleAddToCart = () => {
+    addToCart(product, selectedSpec, selectedColor);
+  };
 
-              <div className="flex items-center gap-2 flex-wrap">
-                {siteSettings.isCartEnabled !== false && (
-                  <div className="flex items-baseline gap-1 drop-shadow-md mr-1">
-                    <span className="text-sm font-black text-red-500">NT.</span>
-                    <span className="text-3xl font-black text-white tracking-tighter leading-none">
-                      {Math.floor(product.price)}
-                    </span>
-                    {product.colorPrices && Object.values(product.colorPrices).some(p => p !== product.price) && (
-                      <span className="text-[8px] font-bold text-white/60 tracking-tighter italic">起</span>
-                    )}
-                  </div>
-                )}
-                {product.promoLabel && siteSettings.isCartEnabled !== false && (
-                  <PromoBadge 
-                    label={product.promoLabel} 
-                    subLabel={product.promoSubLabel} 
-                    onClick={() => addToCart(product)}
-                  />
-                )}
-                <button 
-                  onClick={() => addToCart(product)}
-                  disabled={siteSettings.isCartEnabled === false}
-                  className={cn(
-                    "flex items-center h-7 text-white px-2.5 rounded-md gap-1.5 active:scale-95 transition-all shadow-md relative overflow-hidden",
-                    siteSettings.isCartEnabled === false ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700 shadow-red-600/40"
-                  )}
-                >
-                  {product.isHot && siteSettings.isCartEnabled !== false && (
-                    <motion.div 
-                      animate={{ x: ["-100%", "200%"] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
-                    />
-                  )}
-                  <ShoppingCart size={14} />
-                  <span className="text-[11px] font-black tracking-wider whitespace-nowrap">
-                    {siteSettings.isCartEnabled === false ? "近期已結單，等下次開放" : "加入購物車"}
-                  </span>
-                </button>
-              </div>
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 30 }}
+      transition={{ type: "spring", damping: 25, stiffness: 350 }}
+      className="fixed inset-0 z-50 bg-gray-50 flex flex-col overflow-hidden"
+    >
+      {/* Top Glassmorphic Navigation Bar */}
+      <div className="absolute top-0 left-0 right-0 z-50 flex justify-between items-center px-4 py-3 bg-gradient-to-b from-black/20 to-transparent pointer-events-none">
+        <button 
+          onClick={onClose}
+          className="pointer-events-auto flex items-center justify-center w-10 h-10 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-gray-100 hover:bg-white active:scale-95 transition-all text-gray-900"
+          title="返回首頁"
+        >
+          <ArrowLeft size={20} />
+        </button>
+
+        <button 
+          onClick={() => setIsCartOpen(true)}
+          className="pointer-events-auto flex items-center justify-center w-10 h-10 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-gray-100 hover:bg-white active:scale-95 transition-all text-gray-900 relative"
+          title="打開購物車"
+        >
+          <ShoppingCart size={18} />
+          {cartCount > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border border-white px-0.5 shadow-sm">
+              {cartCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Main Scrollable Content */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide pb-28">
+        {/* Long Images Column (Stacked Puzzle Style) */}
+        <div className="flex flex-col w-full max-w-2xl mx-auto bg-black">
+          {product.imgs.map((img, idx) => (
+            <img 
+              key={`${img}-${idx}`} 
+              src={img} 
+              alt="" 
+              className="w-full h-auto block object-contain select-none" 
+              referrerPolicy="no-referrer"
+              loading={idx === 0 ? "eager" : "lazy"}
+              decoding="async"
+            />
+          ))}
+        </div>
+
+        {/* Product Details & Spec Selector Section */}
+        <div className="w-full max-w-2xl mx-auto px-4 py-8 bg-white rounded-t-[2.5rem] -mt-6 relative z-10 shadow-2xl space-y-6">
+          <div className="space-y-2">
+            {product.isHot && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full shadow-sm">
+                <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                近期熱銷
+              </span>
+            )}
+            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 leading-tight">
+              {product.name}
+            </h1>
+            <p className="text-xs text-gray-400 font-bold tracking-wider">
+              商品編號: {product.sn}
+            </p>
+          </div>
+
+          {product.description && (
+            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100/50">
+              <p className="text-sm text-gray-600 font-medium leading-relaxed whitespace-pre-wrap">
+                {product.description}
+              </p>
             </div>
+          )}
+
+          {/* Inline Spec Options */}
+          <div className="space-y-5">
+            {/* Colors */}
+            {product.colors && product.colors.length > 0 && (
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  選擇顏色
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {product.colors.map((color, idx) => (
+                    <button
+                      key={`${color}-${idx}`}
+                      onClick={() => setSelectedColor(color)}
+                      className={`px-5 py-3 rounded-xl font-bold text-xs transition-all border flex items-center justify-center min-w-[80px] ${
+                        selectedColor === color 
+                          ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' 
+                          : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500 bg-white'
+                      }`}
+                    >
+                      <span>{color}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Specs */}
+            {product.specs && product.specs.length > 0 && (
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  選擇規格
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {product.specs.map((spec, idx) => (
+                    <button
+                      key={`${spec}-${idx}`}
+                      onClick={() => setSelectedSpec(spec)}
+                      className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all border ${
+                        selectedSpec === spec 
+                          ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-100' 
+                          : 'bg-gray-50 text-gray-900 border-gray-100 hover:border-red-500 bg-white'
+                      }`}
+                    >
+                      {spec}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Size Chart */}
+            {product.sizeChart && (
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  尺碼表 (手工測量±2cm為合理範圍 )
+                </label>
+                <div className="overflow-x-auto border border-gray-100 rounded-2xl p-4 bg-gray-50/50">
+                  <div 
+                    className="text-[11px] text-gray-600 leading-normal [&_table]:w-full [&_table]:border-collapse [&_th]:text-left [&_th]:p-2.5 [&_td]:p-2.5 [&_th]:border-b [&_th]:border-gray-200 [&_td]:border-b [&_td]:border-gray-200 [&_th]:font-bold [&_th]:text-gray-700"
+                    dangerouslySetInnerHTML={{ __html: product.sizeChart }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Size Chart Modal Removed */}
+      {/* Sticky Bottom Actions Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 px-4 py-4 z-40 shadow-lg flex items-center justify-between max-w-2xl mx-auto rounded-t-[2rem]">
+        <div className="flex flex-col">
+          <span className="text-[9px] text-gray-400 font-black uppercase tracking-wider">優惠加購價</span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-xs font-black text-red-500">NT.</span>
+            <span className="text-2xl sm:text-3xl font-black text-red-500 tracking-tighter leading-none">
+              {Math.floor(currentPrice)}
+            </span>
+            {product.colorPrices && !selectedColor && Object.values(product.colorPrices).some(p => p !== product.price) && (
+              <span className="text-[10px] font-bold text-gray-400 ml-1 italic">起</span>
+            )}
+          </div>
+        </div>
+
+        <button
+          onClick={handleAddToCart}
+          disabled={siteSettings.isCartEnabled === false}
+          className={`px-8 py-3.5 rounded-2xl font-black text-sm text-white transition-all shadow-xl flex items-center gap-2 ${
+            siteSettings.isCartEnabled === false 
+              ? 'bg-gray-400 cursor-not-allowed shadow-none' 
+              : 'bg-red-600 hover:bg-red-700 shadow-red-600/20 active:scale-95'
+          }`}
+        >
+          <ShoppingCart size={16} />
+          <span>
+            {siteSettings.isCartEnabled === false 
+              ? "近期已結單，等下次開放" 
+              : (product.colors?.length && !selectedColor) || (product.specs?.length && !selectedSpec) 
+                ? "請選擇款式" 
+                : "加入購物車"
+            }
+          </span>
+        </button>
+      </div>
     </motion.div>
   );
 }
@@ -487,6 +561,7 @@ export default function App() {
   const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [showCartSuccess, setShowCartSuccess] = useState(false);
   const [showCopySuccess, setShowCopySuccess] = useState(false);
+  const [selectedDetailProduct, setSelectedDetailProduct] = useState<Product | null>(null);
   
   const orderCardRef = useRef<HTMLDivElement>(null);
 
@@ -825,124 +900,188 @@ ${itemsText}
     return p.category === activeCategory;
   });
 
+  const leftColumn = filteredProducts.filter((_, idx) => idx % 2 === 0);
+  const rightColumn = filteredProducts.filter((_, idx) => idx % 2 === 1);
+
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.num, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.num, 0);
 
   return (
     <div className="h-[100dvh] sm:min-h-screen sm:h-auto overflow-hidden sm:overflow-visible bg-[#FDFDFD] text-gray-900 font-sans flex flex-col">
-      {/* Navbar */}
-      <header className="shrink-0 sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-gray-100/50">
-        <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            {siteSettings.logoUrl ? (
-              <img src={siteSettings.logoUrl} alt="Logo" className="w-8 h-8 object-contain rounded-lg shadow-sm shadow-gray-200" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center shrink-0 shadow-sm shadow-gray-200">
-                <Package className="text-white" size={16} />
+      <AnimatePresence mode="wait">
+        {selectedDetailProduct ? (
+          <ProductDetailView 
+            key="detail"
+            product={selectedDetailProduct} 
+            onClose={() => setSelectedDetailProduct(null)} 
+            addToCart={addToCart} 
+            siteSettings={siteSettings} 
+            cartCount={cartCount}
+            setIsCartOpen={setIsCartOpen}
+          />
+        ) : (
+          <motion.div
+            key="homepage"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex-1 flex flex-col min-h-0"
+          >
+            {/* Navbar */}
+            <header className="shrink-0 sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-gray-100/50">
+              <div className="container mx-auto px-4 py-2 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  {siteSettings.logoUrl ? (
+                    <img src={siteSettings.logoUrl} alt="Logo" className="w-8 h-8 object-contain rounded-lg shadow-sm shadow-gray-200" referrerPolicy="no-referrer" />
+                  ) : (
+                    <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center shrink-0 shadow-sm shadow-gray-200">
+                      <Package className="text-white" size={16} />
+                    </div>
+                  )}
+                  <a 
+                    href="/" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setActiveCategory('全部');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="text-lg font-black tracking-tighter text-gray-900 cursor-pointer"
+                  >
+                    {siteSettings.title}
+                  </a>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <button 
+                    onClick={() => setIsAdminLoginOpen(true)}
+                    className="p-2 text-gray-300 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
+                    title="Admin Management"
+                  >
+                    <Settings size={18} />
+                  </button>
+                  <button 
+                    onClick={() => setIsCartOpen(true)}
+                    className="relative flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-red-500 transition-all shadow-md shadow-gray-200 hover:shadow-red-100 group"
+                  >
+                    <ShoppingCart size={16} className="group-hover:scale-110 transition-transform" />
+                    <span className="font-bold text-xs">購物車</span>
+                    {cartCount > 0 && (
+                      <motion.span 
+                        key={cartCount}
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm"
+                      >
+                        {cartCount}
+                      </motion.span>
+                    )}
+                  </button>
+                </div>
               </div>
-            )}
-            <a 
-              href="/" 
-              onClick={(e) => {
-                e.preventDefault();
-                setActiveCategory('全部');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="text-lg font-black tracking-tighter text-gray-900 cursor-pointer"
-            >
-              {siteSettings.title}
-            </a>
-          </div>
-          <div className="flex gap-2 items-center">
-            <button 
-              onClick={() => setIsAdminLoginOpen(true)}
-              className="p-2 text-gray-300 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
-              title="Admin Management"
-            >
-              <Settings size={18} />
-            </button>
-            <button 
-              onClick={() => setIsCartOpen(true)}
-              className="relative flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-red-500 transition-all shadow-md shadow-gray-200 hover:shadow-red-100 group"
-            >
-              <ShoppingCart size={16} className="group-hover:scale-110 transition-transform" />
-              <span className="font-bold text-xs">購物車</span>
-              {cartCount > 0 && (
-                <motion.span 
-                  key={cartCount}
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm"
-                >
-                  {cartCount}
-                </motion.span>
-              )}
-            </button>
-          </div>
-        </div>
 
-        {/* Announcement Banner */}
-        <div className="bg-gray-100 border-t border-gray-200">
-          <div className="container mx-auto px-4 py-1.5 flex items-center gap-2">
-            <div className="shrink-0 w-4 h-4 bg-black rounded-full flex items-center justify-center">
-              <Zap size={10} className="text-white fill-white" />
-            </div>
-            <div className="flex flex-col sm:flex-row sm:gap-4 text-[11px] sm:text-xs text-gray-900 font-bold leading-tight">
-              {siteSettings.subtitle.map((line, idx) => (
-                <p key={idx} className="flex items-center gap-1">
-                  <span className="w-1 h-1 bg-black rounded-full" />
-                  {line}
-                </p>
-              ))}
-            </div>
-          </div>
-        </div>
-      </header>
+              {/* Announcement Banner */}
+              <div className="bg-gray-100 border-t border-gray-200">
+                <div className="container mx-auto px-4 py-1.5 flex items-center gap-2">
+                  <div className="shrink-0 w-4 h-4 bg-black rounded-full flex items-center justify-center">
+                    <Zap size={10} className="text-white fill-white" />
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:gap-4 text-[11px] sm:text-xs text-gray-900 font-bold leading-tight">
+                    {siteSettings.subtitle.map((line, idx) => (
+                      <p key={idx} className="flex items-center gap-1">
+                        <span className="w-1 h-1 bg-black rounded-full" />
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </header>
 
-      <div className="flex-1 relative flex flex-col overflow-hidden">
-        {/* Categories - Floating over products on mobile */}
-        <div className="absolute sm:static top-0 left-0 right-0 z-40 flex gap-3 mb-0 sm:mb-6 overflow-x-auto scrollbar-hide pb-3 sm:pb-2 items-center px-4 sm:px-0 pt-3 sm:pt-0 shrink-0 bg-transparent border-none pointer-events-none [&>*]:pointer-events-auto container mx-auto">
-          <div className="relative pointer-events-auto">
-            <select
-              value={activeCategory}
-              onChange={(e) => setActiveCategory(e.target.value)}
-              className={cn(
-                "appearance-none px-2 py-1 pr-6 rounded-full whitespace-nowrap transition-all text-[10px] sm:text-[11px] font-black tracking-wide border-2 outline-none cursor-pointer shadow-sm",
-                activeCategory === '全部'
-                  ? "bg-white/80 backdrop-blur-md text-gray-700 border-white/50 hover:border-gray-300"
-                  : "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200"
-              )}
-            >
-              <option value="全部">全部商品 / 分類</option>
-              {activeCategory === '近期熱銷' && <option value="近期熱銷">近期熱銷</option>}
-              <optgroup label="分類列表" className="text-[10px]">
-                {categories.filter(c => c !== '全部').map((cat, idx) => (
-                  <option key={`${cat}-${idx}`} value={cat} className="py-0">{cat}</option>
-                ))}
-              </optgroup>
-            </select>
-            <ChevronDown size={12} className={cn(
-              "absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none",
-              activeCategory === '全部' ? "text-gray-500" : "text-white"
-            )} />
-          </div>
-        </div>
+            <div className="flex-1 relative flex flex-col overflow-hidden">
+              {/* Categories - Sub-header on mobile */}
+              <div className="relative sm:static z-40 flex gap-3 pb-3 sm:pb-2 items-center px-4 sm:px-0 pt-3 sm:pt-0 shrink-0 bg-white border-b border-gray-100 sm:border-none pointer-events-none [&>*]:pointer-events-auto container mx-auto">
+                <div className="relative pointer-events-auto">
+                  <select
+                    value={activeCategory}
+                    onChange={(e) => setActiveCategory(e.target.value)}
+                    className={cn(
+                      "appearance-none px-3 py-1.5 pr-8 rounded-full whitespace-nowrap transition-all text-xs font-black tracking-wide border-2 outline-none cursor-pointer shadow-sm",
+                      activeCategory === '全部'
+                        ? "bg-white text-gray-700 border-gray-100 hover:border-gray-200"
+                        : "bg-gray-900 text-white border-gray-900 shadow-md shadow-gray-200"
+                    )}
+                  >
+                    <option value="全部">全部商品 / 分類</option>
+                    {activeCategory === '近期熱銷' && <option value="近期熱銷">近期熱銷</option>}
+                    <optgroup label="分類列表" className="text-xs">
+                      {categories.filter(c => c !== '全部').map((cat, idx) => (
+                        <option key={`${cat}-${idx}`} value={cat} className="py-0">{cat}</option>
+                      ))}
+                    </optgroup>
+                  </select>
+                  <ChevronDown size={12} className={cn(
+                    "absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none",
+                    activeCategory === '全部' ? "text-gray-500" : "text-white"
+                  )} />
+                </div>
+              </div>
 
-        {/* Scrollable Main Area */}
-        <main className="flex-1 overflow-y-auto snap-y snap-mandatory sm:snap-none flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-0 sm:gap-8 container mx-auto px-0 sm:px-4 py-0 sm:py-6">
-          {filteredProducts.map((product, idx) => (
-            <div key={`${product.id}-${idx}`} className="snap-start sm:snap-none snap-always h-full sm:h-auto flex-shrink-0">
-              <ProductCard 
-                product={product} 
-                addToCart={addToCart} 
-                siteSettings={siteSettings} 
-                setActiveCategory={setActiveCategory}
-              />
+              {/* Scrollable Main Area with Xiaohongshu-style Waterfall Layout */}
+              <main className="flex-1 overflow-y-auto container mx-auto px-2 sm:px-4 py-2 sm:py-6 bg-gray-50/50">
+                {filteredProducts.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-24 text-gray-400">
+                    <p className="text-sm font-bold">沒有找到相關商品</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Mobile Waterfall Flow (2 columns) */}
+                    <div className="grid grid-cols-2 gap-2 sm:hidden">
+                      <div className="flex flex-col gap-2">
+                        {leftColumn.map((product, idx) => (
+                          <ProductCard 
+                            key={`${product.id}-left-${idx}`}
+                            product={product} 
+                            addToCart={addToCart} 
+                            siteSettings={siteSettings} 
+                            setActiveCategory={setActiveCategory}
+                            onSelect={setSelectedDetailProduct}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {rightColumn.map((product, idx) => (
+                          <ProductCard 
+                            key={`${product.id}-right-${idx}`}
+                            product={product} 
+                            addToCart={addToCart} 
+                            siteSettings={siteSettings} 
+                            setActiveCategory={setActiveCategory}
+                            onSelect={setSelectedDetailProduct}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Desktop Grid Layout */}
+                    <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
+                      {filteredProducts.map((product, idx) => (
+                        <ProductCard 
+                          key={`${product.id}-desktop-${idx}`}
+                          product={product} 
+                          addToCart={addToCart} 
+                          siteSettings={siteSettings} 
+                          setActiveCategory={setActiveCategory}
+                          onSelect={setSelectedDetailProduct}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </main>
             </div>
-          ))}
-        </main>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Modals */}
       <AnimatePresence>
