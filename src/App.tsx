@@ -605,7 +605,14 @@ export default function App() {
       if (parsed.length > 0 && parsed[0].promoLabel === undefined && parsed[0].countdownLabel !== undefined) {
         return DEFAULT_PRODUCTS;
       }
-      return parsed;
+      
+      const seen = new Set();
+      const uniqueParsed = parsed.filter((p: any) => {
+        if (seen.has(p.id)) return false;
+        seen.add(p.id);
+        return true;
+      });
+      return uniqueParsed;
     } catch (e) {
       return DEFAULT_PRODUCTS;
     }
@@ -628,7 +635,7 @@ export default function App() {
   });
   const [activeCategory, setActiveCategory] = useState('全部');
   const [isCustomCategoryUnlocked, setIsCustomCategoryUnlocked] = useState<boolean>(() => {
-    return localStorage.getItem('unlocked_custom_category') === 'true';
+    return sessionStorage.getItem('unlocked_custom_category') === 'true';
   });
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -657,7 +664,7 @@ export default function App() {
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
   const [igAccount, setIgAccount] = useState('');
   const [editingCartKey, setEditingCartKey] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'dark-success' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'dark-success' | 'red-success' } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [showCartSuccess, setShowCartSuccess] = useState(false);
   const [showCopySuccess, setShowCopySuccess] = useState(false);
@@ -666,7 +673,7 @@ export default function App() {
   
   const orderCardRef = useRef<HTMLDivElement>(null);
 
-  const showToast = (message: string, type: 'success' | 'error' | 'info' | 'dark-success' = 'info') => {
+  const showToast = (message: string, type: 'success' | 'error' | 'info' | 'dark-success' | 'red-success' = 'info') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
@@ -702,7 +709,15 @@ export default function App() {
           imgs: p.imgs.map(rewriteImageUrl)
         }));
         
-        setProducts(processedProducts);
+        // Deduplicate
+        const seen = new Set();
+        const uniqueProducts = processedProducts.filter((p: any) => {
+          if (seen.has(p.id)) return false;
+          seen.add(p.id);
+          return true;
+        });
+        
+        setProducts(uniqueProducts);
         setCurrentSHA(data.sha);
         console.log('Loaded products from GitHub');
       } else {
@@ -1160,8 +1175,9 @@ ${itemsText}
                       const val = e.target.value;
                       if (val === '九零自訂款 / 訂製團' && !isCustomCategoryUnlocked) {
                         setIsPasswordModalOpen(true);
+                      } else {
+                        setActiveCategory(val);
                       }
-                      setActiveCategory(val);
                     }}
                     className={cn(
                       "appearance-none px-3 py-1.5 pr-8 rounded-full whitespace-nowrap transition-all text-xs font-black tracking-wide border-2 outline-none cursor-pointer shadow-sm",
@@ -1762,9 +1778,10 @@ ${itemsText}
             onClose={() => setIsPasswordModalOpen(false)}
             onUnlock={() => {
               setIsCustomCategoryUnlocked(true);
-              localStorage.setItem('unlocked_custom_category', 'true');
+              sessionStorage.setItem('unlocked_custom_category', 'true');
               setIsPasswordModalOpen(false);
-              showToast('🎉 解鎖成功！歡迎選購九零專屬訂製款！', 'success');
+              setActiveCategory('九零自訂款 / 訂製團');
+              showToast('🎉 解鎖成功！歡迎選購九零專屬訂製款！', 'red-success');
             }}
           />
         )}
@@ -2120,7 +2137,7 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
   );
 }
 
-function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error' | 'info' | 'dark-success'; onClose: () => void; key?: string }) {
+function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error' | 'info' | 'dark-success' | 'red-success'; onClose: () => void; key?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -2130,10 +2147,11 @@ function Toast({ message, type, onClose }: { message: string; type: 'success' | 
         "fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-sm whitespace-nowrap",
         type === 'success' ? "bg-green-500 text-white" : 
         type === 'dark-success' ? "bg-black/80 backdrop-blur-sm text-white" :
+        type === 'red-success' ? "bg-red-500 text-white border-2 border-red-600/30" :
         type === 'error' ? "bg-red-500 text-white" : "bg-gray-900 text-white"
       )}
     >
-      {(type === 'success' || type === 'dark-success') && <CheckCircle2 size={18} />}
+      {(type === 'success' || type === 'dark-success' || type === 'red-success') && <CheckCircle2 size={18} />}
       {type === 'error' && <X size={18} />}
       {message}
     </motion.div>

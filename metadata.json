@@ -1,5 +1,6 @@
 {
   "name": "90s-order-shop",
   "description": "九零選品號｜廠家特供｜獨家選品─90s預購加購專區",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
