@@ -1,44 +1,5 @@
 [
   {
-    "id": 1783598562410,
-    "name": "V領掛脖側長領設計醋酸緞面背心（附胸針）",
-    "sn": "",
-    "price": 490,
-    "category": "上衣 / 襯衫",
-    "description": "單買選👉換季特惠價$590\n購物車含2件以上選 👉賠本隨單價$490",
-    "promoLabel": "",
-    "promoSubLabel": "",
-    "colors": [
-      "換季特惠價",
-      "賠本隨單價（本期訂單需含2件以上可選）"
-    ],
-    "colorPrices": {
-      "復古棕": 590,
-      "優雅粉": 590,
-      "換季特惠價": 590,
-      "賠本隨單價（本期訂單需含2件以上可選）": 490
-    },
-    "specs": [
-      "復古咖🤎",
-      "優雅粉🩷"
-    ],
-    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">胸圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">S</td><td class=\"py-2\">88<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">59<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">M</td><td class=\"py-2\">92<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">60<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
-    "isHot": false,
-    "hidden": false,
-    "imgs": [
-      "/api/images/images/img_1783597495095_0_1000093878.webp",
-      "/api/images/images/img_1783597498724_1_1000093867.png",
-      "/api/images/images/img_1783597504030_2_1000093864.png",
-      "/api/images/images/img_1783597507654_3_1000093866.jpg",
-      "/api/images/images/img_1783597509837_4_1000093865.jpg",
-      "/api/images/images/img_1783597731853_0_1000093874.png",
-      "/api/images/images/img_1783597850964_0_1000093873.png",
-      "/api/images/images/img_1783597807594_0_1000093870.png",
-      "/api/images/images/img_1783597827691_0_1000093872.png",
-      "/api/images/images/img_1783597738009_1_1000093868.jpg"
-    ]
-  },
-  {
     "id": 1783513418770,
     "name": "女神款設計感醋酸盪領上衣🧚‍♀️",
     "sn": "",
@@ -111,6 +72,45 @@
       "/api/images/images/img_1783510716505_4_1000093756.png",
       "/api/images/images/img_1783512219782_1_1000093757.png",
       "/api/images/images/img_1783512212000_0_1000093759.png"
+    ]
+  },
+  {
+    "id": 1783598562410,
+    "name": "V領掛脖側長領設計醋酸緞面背心（附胸針）",
+    "sn": "",
+    "price": 490,
+    "category": "上衣 / 襯衫",
+    "description": "單買選👉換季特惠價$590\n購物車含2件以上選 👉賠本隨單價$490",
+    "promoLabel": "",
+    "promoSubLabel": "",
+    "colors": [
+      "換季特惠價",
+      "賠本隨單價（本期訂單需含2件以上可選）"
+    ],
+    "colorPrices": {
+      "復古棕": 590,
+      "優雅粉": 590,
+      "換季特惠價": 590,
+      "賠本隨單價（本期訂單需含2件以上可選）": 490
+    },
+    "specs": [
+      "復古咖🤎",
+      "優雅粉🩷"
+    ],
+    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">胸圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">S</td><td class=\"py-2\">88<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">59<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">M</td><td class=\"py-2\">92<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">60<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
+    "isHot": false,
+    "hidden": false,
+    "imgs": [
+      "/api/images/images/img_1783597495095_0_1000093878.webp",
+      "/api/images/images/img_1783597498724_1_1000093867.png",
+      "/api/images/images/img_1783597504030_2_1000093864.png",
+      "/api/images/images/img_1783597507654_3_1000093866.jpg",
+      "/api/images/images/img_1783597509837_4_1000093865.jpg",
+      "/api/images/images/img_1783597731853_0_1000093874.png",
+      "/api/images/images/img_1783597850964_0_1000093873.png",
+      "/api/images/images/img_1783597807594_0_1000093870.png",
+      "/api/images/images/img_1783597827691_0_1000093872.png",
+      "/api/images/images/img_1783597738009_1_1000093868.jpg"
     ]
   },
   {
