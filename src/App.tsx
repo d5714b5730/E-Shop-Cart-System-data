@@ -26,7 +26,9 @@ import {
   Gift,
   ArrowRight,
   MessageCircle,
-  Check
+  Check,
+  Lock,
+  Unlock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -138,6 +140,23 @@ const DEFAULT_PRODUCTS: Product[] = [
     imgs: [
       'https://picsum.photos/seed/b1/600/1067'
     ]
+  },
+  {
+    id: 5,
+    name: '九零訂製 | 獨家重磅純棉刺繡衛衣',
+    sn: 'NINE-001',
+    price: 499,
+    category: '九零自訂款 / 訂製團',
+    description: '九零原創自訂！限定版重磅刺繡衛衣，特製厚磅面料，經典微寬鬆慵懶感。',
+    isHot: true,
+    promoLabel: '獨家限定款',
+    promoSubLabel: '限時預購',
+    imgs: [
+      'https://picsum.photos/seed/co1/600/1067',
+      'https://picsum.photos/seed/co2/600/1067'
+    ],
+    specs: ['慵懶白', '復古黑', '經典灰'],
+    colors: ['S', 'M', 'L']
   }
 ];
 
@@ -162,115 +181,150 @@ function PromoBadge({ label, subLabel, onClick }: { label: string; subLabel?: st
   );
 }
 
-function ProductCard({ product, addToCart, siteSettings, setActiveCategory, onSelect }: any): React.JSX.Element {
+function ProductCard({ product, addToCart, siteSettings, setActiveCategory, onSelect, isCustomCategoryUnlocked, onLockClick }: any): React.JSX.Element {
   const [isHovered, setIsHovered] = useState(false);
+  const isLocked = product.category === '九零自訂款 / 訂製團' && !isCustomCategoryUnlocked;
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isLocked) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (onLockClick) onLockClick();
+    } else {
+      onSelect(product);
+    }
+  };
 
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={() => onSelect(product)}
-      className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100/80 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer h-auto sm:h-full"
+      onMouseEnter={() => !isLocked && setIsHovered(true)}
+      onMouseLeave={() => !isLocked && setIsHovered(false)}
+      onClick={handleClick}
+      className={cn(
+        "group flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100/80 shadow-sm transition-all duration-500 cursor-pointer h-auto sm:h-full relative",
+        isLocked ? "hover:border-red-200 hover:shadow-md" : "hover:shadow-xl"
+      )}
     >
-      {/* Image Section - Top of Card */}
-      <div className="relative aspect-[4/5] bg-gray-50/30 overflow-hidden shrink-0">
-        <img 
-          src={product.imgs[0]} 
-          alt={product.name} 
-          className="w-full h-full object-cover pointer-events-none transition-transform duration-700 group-hover:scale-105"
-          referrerPolicy="no-referrer"
-          draggable="false"
-          loading="lazy"
-          decoding="async"
-        />
-        
-        {/* Float tags/badges over the image */}
-        {product.isHot && (
-          <div className="absolute top-2.5 left-2.5 z-10">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500/95 backdrop-blur-md text-white text-[9px] font-black rounded-full shadow-md shadow-red-500/20 uppercase tracking-wider">
-              <span className="w-1 h-1 bg-white rounded-full animate-pulse" />
-              熱銷
-            </span>
+      {/* Locked overlay screen */}
+      {isLocked && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 bg-black/5 backdrop-blur-[3px] transition-all duration-300 group-hover:bg-black/10">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-red-500 to-pink-500 text-white flex items-center justify-center shadow-lg shadow-red-500/30 mb-2 sm:mb-3 animate-bounce">
+            <Lock size={16} className="stroke-[2.5]" />
           </div>
-        )}
+          <span className="px-2 py-0.5 bg-gray-900 text-white text-[8px] sm:text-[9px] font-black rounded-full shadow-sm mb-1">
+            九零專屬 🌟
+          </span>
+          <p className="text-[10px] sm:text-xs font-black text-gray-900 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm border border-gray-100/50 text-center tracking-wider mb-1">
+            九零自訂款 / 訂製團
+          </p>
+          <p className="text-[8px] sm:text-[10px] font-extrabold text-red-600 bg-red-50/90 border border-red-100 px-1.5 py-0.5 rounded-md text-center shadow-sm">
+            🔑 點擊輸入密碼解鎖
+          </p>
+        </div>
+      )}
 
-        {product.promoLabel && (
-          <div className="absolute top-2.5 right-2.5 z-10">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-red-600 to-pink-500 text-white text-[9px] font-black rounded-full shadow-md shadow-red-600/20 tracking-wider">
-              <Zap size={9} className="fill-white" />
-              {product.promoLabel}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Info Section - Bottom of Card */}
-      <div className="p-3 sm:p-4 flex flex-col flex-1 gap-2 bg-white">
-        <div className="space-y-1">
-          {product.promoLabel && (
-            <div className="flex items-center gap-1 mb-1">
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-50 text-red-600 text-[10px] font-black rounded border border-red-100/30">
-                <Zap size={9} className="fill-red-500 text-red-500 shrink-0" />
-                {product.promoLabel}
-                {product.promoSubLabel && (
-                  <span className="ml-1 pl-1 border-l border-red-100/60 font-bold text-[9px] text-red-400">
-                    {product.promoSubLabel}
-                  </span>
-                )}
+      {/* Main content, blurred if locked */}
+      <div className={cn("flex flex-col flex-1 h-full", isLocked && "filter blur-[6px] select-none pointer-events-none opacity-60")}>
+        {/* Image Section - Top of Card */}
+        <div className="relative aspect-[4/5] bg-gray-50/30 overflow-hidden shrink-0">
+          <img 
+            src={product.imgs[0]} 
+            alt={product.name} 
+            className="w-full h-full object-cover pointer-events-none transition-transform duration-700 group-hover:scale-105"
+            referrerPolicy="no-referrer"
+            draggable="false"
+            loading="lazy"
+            decoding="async"
+          />
+          
+          {/* Float tags/badges over the image */}
+          {product.isHot && (
+            <div className="absolute top-2.5 left-2.5 z-10">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500/95 backdrop-blur-md text-white text-[9px] font-black rounded-full shadow-md shadow-red-500/20 uppercase tracking-wider">
+                <span className="w-1 h-1 bg-white rounded-full animate-pulse" />
+                熱銷
               </span>
             </div>
           )}
-          <h3 className="font-black text-sm sm:text-base text-gray-900 line-clamp-2 leading-snug group-hover:text-red-500 transition-colors duration-300">
-            {product.name}
-          </h3>
-          {product.description && (
-            <p className="text-[10px] sm:text-xs text-gray-400 line-clamp-1 leading-normal">
-              {product.description}
-            </p>
+
+          {product.promoLabel && (
+            <div className="absolute top-2.5 right-2.5 z-10">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-red-600 to-pink-500 text-white text-[9px] font-black rounded-full shadow-md shadow-red-600/20 tracking-wider">
+                <Zap size={9} className="fill-white" />
+                {product.promoLabel}
+              </span>
+            </div>
           )}
         </div>
 
-        {/* Price & Action Row */}
-        <div className="flex items-center justify-between gap-2 mt-auto pt-1 border-t border-gray-50">
-          {siteSettings.isCartEnabled !== false ? (
-            <div className="flex items-baseline gap-0.5" onClick={(e) => e.stopPropagation()}>
-              <span className="text-[10px] font-extrabold text-red-500">NT.</span>
-              <span className="text-sm sm:text-lg font-black text-red-500 leading-none">
-                {Math.floor(product.price)}
-              </span>
-              {product.colorPrices && Object.values(product.colorPrices).some(p => p !== product.price) && (
-                <span className="text-[8px] font-bold text-gray-400 ml-0.5">起</span>
-              )}
-            </div>
-          ) : (
-            <span className="text-[10px] font-bold text-gray-400">待開放</span>
-          )}
-
-          <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+        {/* Info Section - Bottom of Card */}
+        <div className="p-3 sm:p-4 flex flex-col flex-1 gap-2 bg-white">
+          <div className="space-y-1">
             {product.promoLabel && (
-              <span className="hidden xs:inline-block px-1.5 py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded border border-red-100/50">
-                {product.promoLabel}
-              </span>
+              <div className="flex items-center gap-1 mb-1">
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-50 text-red-600 text-[10px] font-black rounded border border-red-100/30">
+                  <Zap size={9} className="fill-red-500 text-red-500 shrink-0" />
+                  {product.promoLabel}
+                  {product.promoSubLabel && (
+                    <span className="ml-1 pl-1 border-l border-red-100/60 font-bold text-[9px] text-red-400">
+                      {product.promoSubLabel}
+                    </span>
+                  )}
+                </span>
+              </div>
             )}
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                addToCart(product);
-              }}
-              disabled={siteSettings.isCartEnabled === false}
-              className={cn(
-                "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300",
-                siteSettings.isCartEnabled === false 
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-                  : "bg-red-50 text-red-600 hover:bg-red-500 hover:text-white shadow-sm hover:shadow-md"
+            <h3 className="font-black text-sm sm:text-base text-gray-900 line-clamp-2 leading-snug group-hover:text-red-500 transition-colors duration-300">
+              {product.name}
+            </h3>
+            {product.description && (
+              <p className="text-[10px] sm:text-xs text-gray-400 line-clamp-1 leading-normal">
+                {product.description}
+              </p>
+            )}
+          </div>
+
+          {/* Price & Action Row */}
+          <div className="flex items-center justify-between gap-2 mt-auto pt-1 border-t border-gray-50">
+            {siteSettings.isCartEnabled !== false ? (
+              <div className="flex items-baseline gap-0.5" onClick={(e) => e.stopPropagation()}>
+                <span className="text-[10px] font-extrabold text-red-500">NT.</span>
+                <span className="text-sm sm:text-lg font-black text-red-500 leading-none">
+                  {Math.floor(product.price)}
+                </span>
+                {product.colorPrices && Object.values(product.colorPrices).some(p => p !== product.price) && (
+                  <span className="text-[8px] font-bold text-gray-400 ml-0.5">起</span>
+                )}
+              </div>
+            ) : (
+              <span className="text-[10px] font-bold text-gray-400">待開放</span>
+            )}
+
+            <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+              {product.promoLabel && (
+                <span className="hidden xs:inline-block px-1.5 py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded border border-red-100/50">
+                  {product.promoLabel}
+                </span>
               )}
-              title="加入購物車"
-            >
-              <ShoppingCart size={13} className="transition-transform duration-300 group-hover/btn:scale-110" />
-            </button>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(product);
+                }}
+                disabled={siteSettings.isCartEnabled === false}
+                className={cn(
+                  "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300",
+                  siteSettings.isCartEnabled === false 
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                    : "bg-red-50 text-red-600 hover:bg-red-500 hover:text-white shadow-sm hover:shadow-md"
+                )}
+                title="加入購物車"
+              >
+                <ShoppingCart size={13} className="transition-transform duration-300 group-hover/btn:scale-110" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -567,12 +621,16 @@ export default function App() {
   const [categories, setCategories] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('categories');
-      return saved ? JSON.parse(saved) : ['全部', '服裝', '數碼', '家居', '美妝'];
+      return saved ? JSON.parse(saved) : ['全部', '服裝', '數碼', '家居', '美妝', '九零自訂款 / 訂製團'];
     } catch (e) {
-      return ['全部', '服裝', '數碼', '家居', '美妝'];
+      return ['全部', '服裝', '數碼', '家居', '美妝', '九零自訂款 / 訂製團'];
     }
   });
   const [activeCategory, setActiveCategory] = useState('全部');
+  const [isCustomCategoryUnlocked, setIsCustomCategoryUnlocked] = useState<boolean>(() => {
+    return localStorage.getItem('unlocked_custom_category') === 'true';
+  });
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
@@ -1098,7 +1156,13 @@ ${itemsText}
                 <div className="relative pointer-events-auto shrink-0">
                   <select
                     value={activeCategory}
-                    onChange={(e) => setActiveCategory(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '九零自訂款 / 訂製團' && !isCustomCategoryUnlocked) {
+                        setIsPasswordModalOpen(true);
+                      }
+                      setActiveCategory(val);
+                    }}
                     className={cn(
                       "appearance-none px-3 py-1.5 pr-8 rounded-full whitespace-nowrap transition-all text-xs font-black tracking-wide border-2 outline-none cursor-pointer shadow-sm",
                       activeCategory === '全部'
@@ -1162,6 +1226,8 @@ ${itemsText}
                             siteSettings={siteSettings} 
                             setActiveCategory={setActiveCategory}
                             onSelect={setSelectedDetailProduct}
+                            isCustomCategoryUnlocked={isCustomCategoryUnlocked}
+                            onLockClick={() => setIsPasswordModalOpen(true)}
                           />
                         ))}
                       </div>
@@ -1174,6 +1240,8 @@ ${itemsText}
                             siteSettings={siteSettings} 
                             setActiveCategory={setActiveCategory}
                             onSelect={setSelectedDetailProduct}
+                            isCustomCategoryUnlocked={isCustomCategoryUnlocked}
+                            onLockClick={() => setIsPasswordModalOpen(true)}
                           />
                         ))}
                       </div>
@@ -1189,6 +1257,8 @@ ${itemsText}
                           siteSettings={siteSettings} 
                           setActiveCategory={setActiveCategory}
                           onSelect={setSelectedDetailProduct}
+                          isCustomCategoryUnlocked={isCustomCategoryUnlocked}
+                          onLockClick={() => setIsPasswordModalOpen(true)}
                         />
                       ))}
                     </div>
@@ -1685,6 +1755,20 @@ ${itemsText}
           </Modal>
         )}
 
+        {/* Category Unlock Modal */}
+        {isPasswordModalOpen && (
+          <CategoryUnlockModal
+            siteSettings={siteSettings}
+            onClose={() => setIsPasswordModalOpen(false)}
+            onUnlock={() => {
+              setIsCustomCategoryUnlocked(true);
+              localStorage.setItem('unlocked_custom_category', 'true');
+              setIsPasswordModalOpen(false);
+              showToast('🎉 解鎖成功！歡迎選購九零專屬訂製款！', 'success');
+            }}
+          />
+        )}
+
         {/* Admin Login Modal */}
         {isAdminLoginOpen && (
           <AdminLogin 
@@ -1898,6 +1982,112 @@ function AdminLogin({ onLogin, onClose }: { onLogin: () => void; onClose: () => 
         </div>
       </div>
     </Modal>
+  );
+}
+
+function CategoryUnlockModal({ siteSettings, onClose, onUnlock }: { siteSettings: SiteSettings; onClose: () => void; onUnlock: () => void }) {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const correctPassword = siteSettings.customCategoryPassword || 's9090s';
+    const lowerInput = password.trim().toLowerCase();
+    const lowerCorrect = correctPassword.trim().toLowerCase();
+    
+    const isDefaultMatch = !siteSettings.customCategoryPassword && (lowerInput === 's9090s' || lowerInput === '90' || lowerInput === '90s' || lowerInput === '9090' || lowerInput === 'ninezero');
+    const isCustomMatch = siteSettings.customCategoryPassword && lowerInput === lowerCorrect;
+
+    if (isDefaultMatch || isCustomMatch) {
+      onUnlock();
+    } else {
+      setError(true);
+      setPassword('');
+      setTimeout(() => setError(false), 2000);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+      />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden p-8 text-center border border-gray-100"
+      >
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 p-1.5 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-600 rounded-full transition-all"
+        >
+          <X size={16} />
+        </button>
+
+        <div className="flex flex-col items-center space-y-6 mt-4">
+          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/10">
+            <Lock size={28} className="animate-pulse text-red-500" />
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-xl font-black text-gray-900 tracking-tight">
+              解鎖【九零自訂款 / 訂製團】
+            </h3>
+            <p className="text-xs text-gray-500 font-bold leading-relaxed px-4">
+              此分類為九零原創設計自訂款與專屬訂製團，需輸入專屬密碼解鎖。
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="w-full space-y-4">
+            <div className="relative pb-2">
+              <motion.div
+                animate={error ? { x: [-10, 10, -10, 10, 0] } : {}}
+                transition={{ duration: 0.4 }}
+              >
+                <input 
+                  type="text" 
+                  placeholder="請輸入解鎖密碼..."
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={cn(
+                    "w-full px-5 py-3 rounded-2xl border-2 text-center text-sm font-black tracking-widest focus:outline-none transition-all",
+                    error 
+                      ? "border-red-500 bg-red-50 text-red-900 placeholder-red-300" 
+                      : "border-gray-100 focus:border-red-500/30 bg-gray-50/50 focus:bg-white text-gray-800 placeholder-gray-400"
+                  )}
+                  autoFocus
+                />
+              </motion.div>
+              {error && (
+                <p className="text-red-500 text-[10px] font-black mt-1.5 animate-bounce text-center">
+                  ❌ 密碼不正確，請再確認或向九零索取喔！
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-gray-900 hover:bg-red-500 text-white font-black text-sm rounded-2xl transition-all duration-300 shadow-md shadow-gray-200 hover:shadow-red-100 flex items-center justify-center gap-2"
+            >
+              <Unlock size={14} />
+              <span>解鎖專屬商品</span>
+            </button>
+          </form>
+
+          <a 
+            href="https://www.instagram.com/90s.flash.club/" 
+            target="_blank" 
+            rel="noreferrer"
+            className="text-[11px] text-gray-400 hover:text-red-500 font-bold flex items-center gap-1 transition-colors"
+          >
+            <span>點我私訊九零索取密碼 ➜</span>
+          </a>
+        </div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -2722,7 +2912,7 @@ function AdminModal({
             onClick={() => {
               handleConfirm('確定要重置所有商品為預設值嗎？這將清除您目前的所有修改。', () => {
                 setProducts(DEFAULT_PRODUCTS);
-                setCategories(['全部', '服裝', '數碼', '家居', '美妝']);
+                setCategories(['全部', '服裝', '數碼', '家居', '美妝', '九零自訂款 / 訂製團']);
                 localStorage.removeItem('products');
                 localStorage.removeItem('categories');
                 showToast('已重置為預設商品與分類', 'success');
@@ -3645,6 +3835,22 @@ function AdminModal({
                       placeholder="例：- 此專區僅用於預購商品的訂單生成 -"
                       rows={2}
                       className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* 3.5. Password Locked Category Section */}
+                <div className="p-8 bg-gray-50 rounded-[2.5rem] space-y-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
+                      【九零自訂款 / 訂製團】分類解鎖密碼 (不填預設為 s9090s)
+                    </label>
+                    <input 
+                      type="text"
+                      value={settingsFormData.customCategoryPassword || ''}
+                      onChange={e => setSettingsFormData(prev => ({ ...prev, customCategoryPassword: e.target.value }))}
+                      placeholder="例：s9090s (不填則預設支援 s9090s, 90, 90s, 9090, ninezero)"
+                      className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 ring-blue-500 outline-none transition-all shadow-sm"
                     />
                   </div>
                 </div>

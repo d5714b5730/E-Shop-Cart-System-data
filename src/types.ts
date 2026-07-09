@@ -56,4 +56,5 @@ export interface SiteSettings {
   enablePromotion?: boolean;
   promotionName?: string;
   promotionAmount?: number;
+  customCategoryPassword?: string;
 }
