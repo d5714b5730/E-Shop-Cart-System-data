@@ -1,11 +1,11 @@
 [
   {
     "id": 1783598562410,
-    "name": "V領掛脖側長領設計醋酸緞面背心",
-    "sn": "SP1783598562410",
+    "name": "V領掛脖側長領設計醋酸緞面背心（附胸針）",
+    "sn": "",
     "price": 490,
     "category": "上衣 / 襯衫",
-    "description": "",
+    "description": "單買選👉換季特惠價$590\n購物車含2件以上選 👉賠本隨單價$490",
     "promoLabel": "",
     "promoSubLabel": "",
     "colors": [
@@ -15,14 +15,14 @@
     "colorPrices": {
       "復古棕": 590,
       "優雅粉": 590,
-      "換季特惠價": 690,
+      "換季特惠價": 590,
       "賠本隨單價（本期訂單需含2件以上可選）": 490
     },
     "specs": [
       "復古咖🤎",
       "優雅粉🩷"
     ],
-    "sizeChart": "",
+    "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">胸圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">S</td><td class=\"py-2\">88<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">59<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">M</td><td class=\"py-2\">92<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">60<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
     "isHot": false,
     "hidden": false,
     "imgs": [
