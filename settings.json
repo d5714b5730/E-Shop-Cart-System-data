@@ -13,5 +13,6 @@
   "isCartEnabled": true,
   "enablePromotion": true,
   "promotionAmount": 50,
-  "promotionName": "自助下單獎勵"
+  "promotionName": "自助下單獎勵",
+  "customCategoryPassword": "s9090s"
 }
