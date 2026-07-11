@@ -14,7 +14,7 @@
     ],
     "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">胸圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">肩寬<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">均碼</td><td class=\"py-2\">98<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">60<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">挖肩無限制<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
     "isHot": false,
-    "hidden": false,
+    "hidden": true,
     "imgs": [
       "/api/images/images/img_1783512758758_0_1000093795.webp",
       "/api/images/images/img_1783512763179_1_1000093739.jpg",
@@ -58,7 +58,7 @@
     ],
     "sizeChart": "\n      <table class=\"w-full border-collapse\">\n        <thead>\n          <tr class=\"border-b border-white/10 text-left\">\n            <th class=\"py-2\">尺碼</th><th class=\"py-2\">背心胸圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">背心衣長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">西褲腰圍<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th><th class=\"py-2\">西褲長<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></th>\n          </tr>\n        </thead>\n        <tbody>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">S</td><td class=\"py-2\">90<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">82<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">68<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">101<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n            <tr class=\"border-b border-white/5\">\n              <td class=\"py-2\">M</td><td class=\"py-2\">94<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">83<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">72<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td><td class=\"py-2\">102<small class=\"ml-0.5 text-[9px] opacity-60\">cm</small></td>\n            </tr>\n          \n        </tbody>\n      </table>\n    ",
     "isHot": false,
-    "hidden": false,
+    "hidden": true,
     "imgs": [
       "/api/images/images/img_1783510690927_0_1000093763.png",
       "/api/images/images/img_1783510696478_1_1000093761.png",
